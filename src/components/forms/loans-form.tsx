@@ -1,37 +1,37 @@
 import { Controller, useFormContext } from "react-hook-form";
+import type { LoansForm } from "~/components/schemas/codecs/loans-codecs";
 import { YesNoPicker } from "~/components/YesNoPicker";
-import type { LoansFormIn } from "~/components/schemas/generated-schemas/loans/loans-form";
 
 export function LoansFormFields() {
 	const {
 		control,
 		formState: { errors },
-	} = useFormContext<LoansFormIn>();
+	} = useFormContext<LoansForm>();
 
 	return (
 		<>
 			<Controller
-				name="questionsLoans.q3"
 				control={control}
+				name="questionsLoans.q3"
 				render={({ field }) => (
 					<YesNoPicker
-						label="Question 3"
-						value={field.value}
-						onChange={field.onChange}
 						error={errors.questionsLoans?.q3?.message}
+						label="Question 3"
+						onChange={field.onChange}
+						value={field.value}
 					/>
 				)}
 			/>
 
 			<Controller
-				name="questionsLoans.q4"
 				control={control}
+				name="questionsLoans.q4"
 				render={({ field }) => (
 					<YesNoPicker
-						label="Question 4"
-						value={field.value}
-						onChange={field.onChange}
 						error={errors.questionsLoans?.q4?.message}
+						label="Question 4"
+						onChange={field.onChange}
+						value={field.value}
 					/>
 				)}
 			/>

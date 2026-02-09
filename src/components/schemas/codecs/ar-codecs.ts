@@ -1,23 +1,23 @@
-import { z } from "zod";
-import { boolToYesNo, yesNoOrUndefined } from "../generated-schemas/types";
-import { yesNoToBool } from "./atomic/yesNoToBool";
-import { ArServerInSchema, type ArServerIn } from "../generated-schemas/ar/ar-server";
+import type z from "zod/v3";
+import {
+	type ArServer,
+	ArServerSchema,
+} from "../server/ar-server";
+import { boolToYesNo, yesNoToBool } from "./atomic/yesNoAndBool";
 
-export const ArServerToForm = ArServerInSchema.transform((data) => ({
+export const arServerToForm = (data: ArServer) => ({
 	questions: {
 		q1: boolToYesNo(data.questions.q1),
 		q2: boolToYesNo(data.questions.q2),
 	},
-}));
+});
 
-export const ArFormToServer = z.object({
-	questions: z.object({
-		q1: yesNoOrUndefined,
-		q2: yesNoOrUndefined,
-	}),
-}).transform((data): ArServerIn => ({
+export const ArFormSchema = ArServerSchema.transform(arServerToForm);
+export type ArForm = z.infer<typeof ArFormSchema>;
+
+export const arFormToServer = (data: ArForm): ArServer => ({
 	questions: {
 		q1: yesNoToBool(data.questions.q1),
 		q2: yesNoToBool(data.questions.q2),
 	},
-}));
+});

@@ -1,40 +1,40 @@
-import { z } from "zod";
+import type { z } from "zod";
 import {
-	type ArFormIn,
-	type ArSalesFormOut,
-	ArSalesFormOutSchema,
-	type ArScorerFormOut,
-	ArScorerFormOutSchema,
-} from "~/components/schemas/generated-schemas/ar/ar-form";
-import {
-	ArServerToForm,
-	ArFormToServer,
+	type ArForm,
+	arFormToServer,
+	arServerToForm,
 } from "~/components/schemas/codecs/ar-codecs";
 import {
-	type LoansFormIn,
+	type LoansForm,
+	loansFormToServer,
+	loansServerToForm,
+} from "~/components/schemas/codecs/loans-codecs";
+import {
+	type ArSalesFormValidated,
+	ArSalesFormValidationSchema,
+	type ArScorerFormValidated,
+	ArScorerFormValidationSchema,
+} from "~/components/schemas/generated-validation-schemas/ar/ar-form";
+import {
 	type LoansSalesFormOut,
 	LoansSalesFormOutSchema,
 	type LoansScorerFormOut,
 	LoansScorerFormOutSchema,
-} from "~/components/schemas/generated-schemas/loans/loans-form";
-import {
-	LoansServerToForm,
-	LoansFormToServer,
-} from "~/components/schemas/codecs/loans-codecs";
+} from "~/components/schemas/generated-validation-schemas/loans/loans-form";
 
 export type Role = "Sales" | "Scorer";
 export type ScoringKind = "AR" | "Loans";
 
 export type FormInFor<SK extends ScoringKind> = SK extends "AR"
-	? ArFormIn
+	? ArForm
 	: SK extends "Loans"
-		? LoansFormIn
+		? LoansForm
 		: never;
 
 export type FormOutFor<SK extends ScoringKind, R extends Role> = SK extends "AR"
 	? R extends "Sales"
-		? ArSalesFormOut
-		: ArScorerFormOut
+		? ArSalesFormValidated
+		: ArScorerFormValidated
 	: SK extends "Loans"
 		? R extends "Sales"
 			? LoansSalesFormOut
@@ -43,8 +43,8 @@ export type FormOutFor<SK extends ScoringKind, R extends Role> = SK extends "AR"
 
 export const schemaFor: Record<ScoringKind, Record<Role, z.ZodTypeAny>> = {
 	AR: {
-		Sales: ArSalesFormOutSchema,
-		Scorer: ArScorerFormOutSchema,
+		Sales: ArSalesFormValidationSchema,
+		Scorer: ArScorerFormValidationSchema,
 	},
 	Loans: {
 		Sales: LoansSalesFormOutSchema,
@@ -58,23 +58,25 @@ export const defaultValuesFor: Record<ScoringKind, Record<string, unknown>> = {
 			q1: undefined,
 			q2: undefined,
 		},
-	} satisfies ArFormIn,
+	} satisfies ArForm,
 	Loans: {
 		questionsLoans: {
 			q3: undefined,
 			q4: undefined,
 		},
-	} satisfies LoansFormIn,
+	} satisfies LoansForm,
 };
 
 // decode: server → form (for loading server data into forms)
-export const serverToFormCodec: Record<ScoringKind, z.ZodTypeAny> = {
-	AR: ArServerToForm,
-	Loans: LoansServerToForm,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const serverToFormCodec: Record<ScoringKind, (data: any) => any> = {
+	AR: arServerToForm,
+	Loans: loansServerToForm,
 };
 
 // encode: form → server (for submitting form data to the server)
-export const formToServerCodec: Record<ScoringKind, z.ZodTypeAny> = {
-	AR: ArFormToServer,
-	Loans: LoansFormToServer,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const formToServerCodec: Record<ScoringKind, (data: any) => any> = {
+	AR: arFormToServer,
+	Loans: loansFormToServer,
 };
