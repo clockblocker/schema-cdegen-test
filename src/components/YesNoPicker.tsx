@@ -20,10 +20,10 @@ export function YesNoPicker({
 		<div className="flex flex-col gap-2">
 			<Label>{label}</Label>
 			<ToggleGroup
-				type="single"
-				variant="outline"
-				value={value ?? ""}
 				onValueChange={(v) => onChange((v || undefined) as YesNo | undefined)}
+				type="single"
+				value={value ?? ""}
+				variant="outline"
 			>
 				<ToggleGroupItem value="Yes">Yes</ToggleGroupItem>
 				<ToggleGroupItem value="No">No</ToggleGroupItem>
