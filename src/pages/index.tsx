@@ -3,39 +3,25 @@ import Head from "next/head";
 import { type Resolver, Controller, useForm } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import { Button } from "~/components/ui/button";
-import {
-	type FormIn,
-	SalesFormOutSchema,
-	ScorerFormOutSchema,
-} from "~/schemas";
+import type { FormIn } from "~/schemas";
+import { type FormOutFor, type Role, defaultValues, schemaFor } from "~/generics";
 
-type FormOutSchema = typeof SalesFormOutSchema | typeof ScorerFormOutSchema;
-
-const defaultValues: FormIn = {
-	questions: {
-		q1: undefined,
-		q2: undefined,
-	},
-};
-
-function QuestionForm({
-	title,
-	schema,
+function QuestionForm<R extends Role>({
+	role,
 }: {
-	title: string;
-	schema: FormOutSchema;
+	role: R;
 }) {
 	const {
 		control,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<FormIn>({
-		resolver: zodResolver(schema) as Resolver<FormIn>,
+	} = useForm<FormIn, unknown, FormOutFor<R>>({
+		resolver: zodResolver(schemaFor[role]) as Resolver<FormIn, unknown, FormOutFor<R>>,
 		defaultValues,
 	});
 
-	const onSubmit = (data: FormIn) => {
-		console.log(`${title} submitted:`, data);
+	const onSubmit = (data: FormOutFor<R>) => {
+		console.log(`${role} submitted:`, data);
 	};
 
 	return (
@@ -43,7 +29,7 @@ function QuestionForm({
 			onSubmit={handleSubmit(onSubmit)}
 			className="flex w-full max-w-sm flex-col gap-6 rounded-lg border p-6"
 		>
-			<h2 className="font-semibold text-lg">{title}</h2>
+			<h2 className="font-semibold text-lg">{role}</h2>
 
 			<Controller
 				name="questions.q1"
@@ -85,8 +71,8 @@ export default function Home() {
 				<link href="/favicon.ico" rel="icon" />
 			</Head>
 			<main className="flex min-h-screen items-center justify-center gap-8 p-8">
-				<QuestionForm title="Sales" schema={SalesFormOutSchema} />
-				<QuestionForm title="Scorer" schema={ScorerFormOutSchema} />
+				<QuestionForm role="Sales" />
+				<QuestionForm role="Scorer" />
 			</main>
 		</>
 	);
