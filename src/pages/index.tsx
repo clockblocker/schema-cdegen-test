@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
-import type { DefaultValues, Resolver } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 import { ArFormFields } from "~/components/forms/ar-form";
 import { LoansFormFields } from "~/components/forms/loans-form";
@@ -9,9 +8,9 @@ import {
 	defaultValuesFor,
 	type FormInFor,
 	type FormOutFor,
+	getSchema,
 	type Role,
 	type ScoringKind,
-	schemaFor,
 } from "~/generics";
 
 function QuestionForm<SK extends ScoringKind, R extends Role>({
@@ -22,7 +21,7 @@ function QuestionForm<SK extends ScoringKind, R extends Role>({
 	role: R;
 }) {
 	const methods = useForm<FormInFor<SK>, unknown, FormOutFor<SK, R>>({
-		resolver: zodResolver(schemaFor[sk][role]),
+		resolver: zodResolver(getSchema(sk, role)),
 		defaultValues: defaultValuesFor[sk],
 	});
 

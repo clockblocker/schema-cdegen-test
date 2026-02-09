@@ -1,3 +1,4 @@
+import type { DefaultValues } from "react-hook-form";
 import type { z } from "zod";
 import {
 	type ArForm,
@@ -41,7 +42,17 @@ export type FormOutFor<SK extends ScoringKind, R extends Role> = SK extends "AR"
 			: LoansScorerFormOut
 		: never;
 
-export const schemaFor: Record<ScoringKind, Record<Role, z.ZodTypeAny>> = {
+type SchemaFor = {
+	[SK in ScoringKind]: {
+		[R in Role]: z.ZodType<
+			FormOutFor<SK, R>,
+			z.ZodTypeDef & { typeName: string },
+			FormInFor<SK>
+		>;
+	};
+};
+
+const schemaFor = {
 	AR: {
 		Sales: ArSalesFormValidationSchema,
 		Scorer: ArScorerFormValidationSchema,
@@ -50,33 +61,40 @@ export const schemaFor: Record<ScoringKind, Record<Role, z.ZodTypeAny>> = {
 		Sales: LoansSalesFormOutSchema,
 		Scorer: LoansScorerFormOutSchema,
 	},
-};
+} satisfies SchemaFor;
 
-export const defaultValuesFor: Record<ScoringKind, Record<string, unknown>> = {
+export function getSchema<SK extends ScoringKind, R extends Role>(
+	sk: SK,
+	role: R,
+) {
+	return schemaFor[sk][role];
+}
+
+export const defaultValuesFor: {
+	[SK in ScoringKind]: DefaultValues<FormInFor<SK>>;
+} = {
 	AR: {
 		questions: {
 			q1: undefined,
 			q2: undefined,
 		},
-	} satisfies ArForm,
+	},
 	Loans: {
 		questionsLoans: {
 			q3: undefined,
 			q4: undefined,
 		},
-	} satisfies LoansForm,
+	},
 };
 
 // decode: server → form (for loading server data into forms)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const serverToFormCodec: Record<ScoringKind, (data: any) => any> = {
+export const serverToFormCodec = {
 	AR: arServerToForm,
 	Loans: loansServerToForm,
 };
 
 // encode: form → server (for submitting form data to the server)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const formToServerCodec: Record<ScoringKind, (data: any) => any> = {
+export const formToServerCodec = {
 	AR: arFormToServer,
 	Loans: loansFormToServer,
 };
