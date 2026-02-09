@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { yesNo, yesNoOrUndefined } from "../types";
+import { yesNoOrUndefined } from "../types";
 
 export const ArFormInSchema = z.object({
 	questions: z.object({
@@ -9,18 +9,12 @@ export const ArFormInSchema = z.object({
 });
 
 
-export const ArSalesFormOutSchema = z.object({
-	questions: z.object({
-		q1: yesNo,
-		q2: yesNoOrUndefined,
-	}),
+export const ArSalesFormOutSchema = ArFormInSchema.extend({
+	questions: ArFormInSchema.shape.questions.required({ q1: true }),
 });
 
-export const ArScorerFormOutSchema = z.object({
-	questions: z.object({
-		q1: yesNo,
-		q2: yesNo,
-	}),
+export const ArScorerFormOutSchema = ArSalesFormOutSchema.extend({
+	questions: ArSalesFormOutSchema.shape.questions.required({ q2: true }),
 });
 
 export type ArFormIn = z.infer<typeof ArFormInSchema>;

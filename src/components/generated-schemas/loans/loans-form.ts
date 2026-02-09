@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { yesNo, yesNoOrUndefined } from "../types";
+import { yesNoOrUndefined } from "../types";
 
 export const LoansFormInSchema = z.object({
 	questionsLoans: z.object({
@@ -8,18 +8,12 @@ export const LoansFormInSchema = z.object({
 	}),
 });
 
-export const LoansSalesFormOutSchema = z.object({
-	questionsLoans: z.object({
-		q3: yesNo,
-		q4: yesNoOrUndefined,
-	}),
+export const LoansSalesFormOutSchema = LoansFormInSchema.extend({
+	questionsLoans: LoansFormInSchema.shape.questionsLoans.required({ q3: true }),
 });
 
-export const LoansScorerFormOutSchema = z.object({
-	questionsLoans: z.object({
-		q3: yesNo,
-		q4: yesNo,
-	}),
+export const LoansScorerFormOutSchema = LoansSalesFormOutSchema.extend({
+	questionsLoans: LoansSalesFormOutSchema.shape.questionsLoans.required({ q4: true }),
 });
 
 export type LoansFormIn = z.infer<typeof LoansFormInSchema>;
