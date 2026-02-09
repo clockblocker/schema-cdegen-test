@@ -3,6 +3,7 @@ import Head from "next/head";
 import type { DefaultValues, Resolver } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 import { ArFormFields } from "~/components/forms/ar-form";
+import { LoansFormFields } from "~/components/forms/loans-form";
 import { Button } from "~/components/ui/button";
 import {
 	type FormInFor,
@@ -21,10 +22,8 @@ function QuestionForm<SK extends ScoringKind, R extends Role>({
 	role: R;
 }) {
 	const methods = useForm<FormInFor<SK>, unknown, FormOutFor<SK, R>>({
-		// biome-ignore lint/style/noNonNullAssertion: schemaFor always has entries for valid SK+R combos
-		resolver: zodResolver(schemaFor[sk]![role]) as unknown as Resolver<FormInFor<SK>, unknown, FormOutFor<SK, R>>,
-		// biome-ignore lint/style/noNonNullAssertion: defaultValuesFor always has entries for valid SK
-		defaultValues: defaultValuesFor[sk]! as unknown as DefaultValues<FormInFor<SK>>,
+		resolver: zodResolver(schemaFor[sk][role]) as unknown as Resolver<FormInFor<SK>, unknown, FormOutFor<SK, R>>,
+		defaultValues: defaultValuesFor[sk] as unknown as DefaultValues<FormInFor<SK>>,
 	});
 
 	const onSubmit = (data: FormOutFor<SK, R>) => {
@@ -39,6 +38,7 @@ function QuestionForm<SK extends ScoringKind, R extends Role>({
 			>
 				<h2 className="font-semibold text-lg">{role}</h2>
 				{sk === "AR" && <ArFormFields />}
+				{sk === "Loans" && <LoansFormFields />}
 				<Button type="submit" variant="outline">Submit</Button>
 			</form>
 		</FormProvider>
@@ -56,6 +56,8 @@ export default function Home() {
 			<main className="flex min-h-screen items-center justify-center gap-8 p-8">
 				<QuestionForm sk="AR" role="Sales" />
 				<QuestionForm sk="AR" role="Scorer" />
+				<QuestionForm sk="Loans" role="Sales" />
+				<QuestionForm sk="Loans" role="Scorer" />
 			</main>
 		</>
 	);
