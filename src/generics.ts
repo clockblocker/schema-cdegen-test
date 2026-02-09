@@ -5,6 +5,8 @@ import {
 	ArSalesFormOutSchema,
 	type ArScorerFormOut,
 	ArScorerFormOutSchema,
+	ArServerToForm,
+	ArFormToServer,
 } from "~/components/generated-schemas/ar/ar-form";
 import {
 	type LoansFormIn,
@@ -12,6 +14,8 @@ import {
 	LoansSalesFormOutSchema,
 	type LoansScorerFormOut,
 	LoansScorerFormOutSchema,
+	LoansServerToForm,
+	LoansFormToServer,
 } from "~/components/generated-schemas/loans/loans-form";
 
 export type Role = "Sales" | "Scorer";
@@ -57,4 +61,16 @@ export const defaultValuesFor: Record<ScoringKind, Record<string, unknown>> = {
 			q4: undefined,
 		},
 	} satisfies LoansFormIn,
+};
+
+// decode: server → form (for loading server data into forms)
+export const serverToFormCodec: Record<ScoringKind, z.ZodTypeAny> = {
+	AR: ArServerToForm,
+	Loans: LoansServerToForm,
+};
+
+// encode: form → server (for submitting form data to the server)
+export const formToServerCodec: Record<ScoringKind, z.ZodTypeAny> = {
+	AR: ArFormToServer,
+	Loans: LoansFormToServer,
 };
