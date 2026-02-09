@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
-import type { LoansFormIn } from "~/components/generated-schemas/loans/loans-form";
+import type { LoansFormIn } from "~/components/schemas/generated-schemas/loans/loans-form";
 
 export function LoansFormFields() {
 	const {

@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
-import type { ArFormIn } from "~/components/generated-schemas/ar/ar-form";
+import type { ArFormIn } from "~/components/schemas/generated-schemas/ar/ar-form";
 
 export function ArFormFields() {
 	const {

@@ -5,18 +5,22 @@ import {
 	ArSalesFormOutSchema,
 	type ArScorerFormOut,
 	ArScorerFormOutSchema,
+} from "~/components/schemas/generated-schemas/ar/ar-form";
+import {
 	ArServerToForm,
 	ArFormToServer,
-} from "~/components/generated-schemas/ar/ar-form";
+} from "~/components/schemas/codecs/ar-codecs";
 import {
 	type LoansFormIn,
 	type LoansSalesFormOut,
 	LoansSalesFormOutSchema,
 	type LoansScorerFormOut,
 	LoansScorerFormOutSchema,
+} from "~/components/schemas/generated-schemas/loans/loans-form";
+import {
 	LoansServerToForm,
 	LoansFormToServer,
-} from "~/components/generated-schemas/loans/loans-form";
+} from "~/components/schemas/codecs/loans-codecs";
 
 export type Role = "Sales" | "Scorer";
 export type ScoringKind = "AR" | "Loans";
