@@ -3,7 +3,7 @@ import Head from "next/head";
 import { type Resolver, Controller, useForm } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import { Button } from "~/components/ui/button";
-import type { FormIn } from "~/schemas";
+import type { ArFormIn } from "~/components/generated-schemas/ar/ar-form";
 import { type FormOutFor, type Role, defaultValues, schemaFor } from "~/generics";
 
 function QuestionForm<R extends Role>({
@@ -15,8 +15,8 @@ function QuestionForm<R extends Role>({
 		control,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<FormIn, unknown, FormOutFor<R>>({
-		resolver: zodResolver(schemaFor[role]) as Resolver<FormIn, unknown, FormOutFor<R>>,
+	} = useForm<ArFormIn, unknown, FormOutFor<R>>({
+		resolver: zodResolver(schemaFor[role]),
 		defaultValues,
 	});
 
