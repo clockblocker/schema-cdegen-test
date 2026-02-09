@@ -9,18 +9,28 @@ import {
 export type Role = "Sales" | "Scorer";
 export type ScoringKind = "AR" | "Loans";
 
-export type FormOutFor<R extends Role> = R extends "Sales"
-	? ArSalesFormOut
-	: ArScorerFormOut;
+export type FormInFor<SK extends ScoringKind> = SK extends "AR"
+	? ArFormIn
+	: never;
+
+export type FormOutFor<SK extends ScoringKind, R extends Role> = SK extends "AR"
+	? R extends "Sales"
+		? ArSalesFormOut
+		: ArScorerFormOut
+	: never;
 
 export const schemaFor = {
-	Sales: ArSalesFormOutSchema,
-	Scorer: ArScorerFormOutSchema,
+	AR: {
+		Sales: ArSalesFormOutSchema,
+		Scorer: ArScorerFormOutSchema,
+	},
 } as const;
 
-export const defaultValues: ArFormIn = {
-	questions: {
-		q1: undefined,
-		q2: undefined,
-	},
-};
+export const defaultValuesFor = {
+	AR: {
+		questions: {
+			q1: undefined,
+			q2: undefined,
+		},
+	} satisfies ArFormIn,
+} as const;
