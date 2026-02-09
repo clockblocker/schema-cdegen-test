@@ -1,73 +1,47 @@
 import type { DefaultValues } from "react-hook-form";
 import type { z } from "zod";
 import {
-	type ArForm,
+	ArFormSchema,
 	arFormToServer,
 	arServerToForm,
 } from "~/components/schemas/codecs/ar-codecs";
 import {
-	type LoansForm,
+	LoansFormSchema,
 	loansFormToServer,
 	loansServerToForm,
 } from "~/components/schemas/codecs/loans-codecs";
 import {
-	type ArSalesFormValidated,
 	ArSalesFormValidationSchema,
-	type ArScorerFormValidated,
 	ArScorerFormValidationSchema,
 } from "~/components/schemas/generated-validation-schemas/ar-validations";
 import {
-	type LoansSalesFormOut,
 	LoansSalesFormOutSchema,
-	type LoansScorerFormOut,
 	LoansScorerFormOutSchema,
 } from "~/components/schemas/generated-validation-schemas/loans-validations";
 
-export type Role = "Sales" | "Scorer";
-export type ScoringKind = "AR" | "Loans";
-
-export type FormInFor<SK extends ScoringKind> = SK extends "AR"
-	? ArForm
-	: SK extends "Loans"
-		? LoansForm
-		: never;
-
-export type FormOutFor<SK extends ScoringKind, R extends Role> = SK extends "AR"
-	? R extends "Sales"
-		? ArSalesFormValidated
-		: ArScorerFormValidated
-	: SK extends "Loans"
-		? R extends "Sales"
-			? LoansSalesFormOut
-			: LoansScorerFormOut
-		: never;
-
-type SchemaFor = {
-	[SK in ScoringKind]: {
-		[R in Role]: z.ZodType<
-			FormOutFor<SK, R>,
-			z.ZodTypeDef & { typeName: string },
-			FormInFor<SK>
-		>;
-	};
-};
-
 const schemaFor = {
-	AR: {
-		Sales: ArSalesFormValidationSchema,
-		Scorer: ArScorerFormValidationSchema,
-	},
-	Loans: {
-		Sales: LoansSalesFormOutSchema,
-		Scorer: LoansScorerFormOutSchema,
-	},
-} satisfies SchemaFor;
+	AR: { Sales: ArSalesFormValidationSchema, Scorer: ArScorerFormValidationSchema },
+	Loans: { Sales: LoansSalesFormOutSchema, Scorer: LoansScorerFormOutSchema },
+} as const satisfies Record<string, Record<string, z.ZodTypeAny>>;
+
+type SchemaMap = typeof schemaFor;
+
+export type ScoringKind = keyof SchemaMap;
+export type Role = keyof SchemaMap[ScoringKind];
+
+const baseFormSchemas = {
+	AR: ArFormSchema,
+	Loans: LoansFormSchema,
+} as const satisfies Record<ScoringKind, z.ZodTypeAny>;
+
+export type FormInFor<SK extends ScoringKind> = z.infer<(typeof baseFormSchemas)[SK]>;
+export type FormOutFor<SK extends ScoringKind, R extends Role> = z.output<SchemaMap[SK][R]>;
 
 export function getSchema<SK extends ScoringKind, R extends Role>(
 	sk: SK,
 	role: R,
-) {
-	return schemaFor[sk][role];
+): z.ZodType<FormOutFor<SK, R>, z.ZodTypeDef & { typeName: string }, FormInFor<SK>> {
+	return schemaFor[sk][role] as z.ZodType<FormOutFor<SK, R>, z.ZodTypeDef & { typeName: string }, FormInFor<SK>>;
 }
 
 export const defaultValuesFor: {
