@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { type LoansServer, LoansServerSchema } from "../server/loans-server";
-import { boolToYesNo, yesNoToBool } from "./atomic/yesNoAndBool";
+import { boolToYesNo, yesNoToBool } from "./atomic/yesNo-and-bool";
 import { yesNoOrUndefined } from "./types";
 
 export const loansServerToForm = (data: LoansServer) => ({
@@ -10,14 +10,15 @@ export const loansServerToForm = (data: LoansServer) => ({
 	},
 });
 
-export const LoansFormShape = z.object({
+export const LoansFormSchema = z.object({
 	questionsLoans: z.object({
 		q3: yesNoOrUndefined,
 		q4: yesNoOrUndefined,
 	}),
 });
 
-export const LoansFormSchema = LoansServerSchema.transform(loansServerToForm).pipe(LoansFormShape);
+export const LoansFormCodec =
+	LoansServerSchema.transform(loansServerToForm).pipe(LoansFormSchema);
 export type LoansForm = z.infer<typeof LoansFormSchema>;
 
 export const loansFormToServer = (data: LoansForm): LoansServer => ({

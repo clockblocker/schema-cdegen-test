@@ -1,8 +1,8 @@
 import type z from "zod/v3";
-import { LoansFormShape } from "../codecs/loans-codecs";
+import { LoansFormSchema } from "../codecs/loans-codecs";
 
-export const LoansSalesFormOutSchema = LoansFormShape.extend({
-	questionsLoans: LoansFormShape.shape.questionsLoans.required({ q3: true }),
+export const LoansSalesFormOutSchema = LoansFormSchema.extend({
+	questionsLoans: LoansFormSchema.shape.questionsLoans.required({ q3: true }),
 });
 
 export const LoansScorerFormOutSchema = LoansSalesFormOutSchema.extend({

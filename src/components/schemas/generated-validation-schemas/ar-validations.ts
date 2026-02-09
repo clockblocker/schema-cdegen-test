@@ -1,8 +1,8 @@
 import type z from "zod/v3";
-import { ArFormShape } from "../codecs/ar-codecs";
+import { ArFormSchema } from "../codecs/ar-codecs";
 
-export const ArSalesFormValidationSchema = ArFormShape.extend({
-	questions: ArFormShape.shape.questions.required({ q1: true }),
+export const ArSalesFormValidationSchema = ArFormSchema.extend({
+	questions: ArFormSchema.shape.questions.required({ q1: true }),
 });
 
 export const ArScorerFormValidationSchema = ArSalesFormValidationSchema.extend({
