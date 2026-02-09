@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { yesNo, yesNoOrUndefined } from "../types";
+import { yesNo, yesNoOrUndefined } from "../codecs/types";
 
 export const LoansSalesFormOutSchema = z.object({
 	questionsLoans: z.object({

@@ -14,13 +14,13 @@ import {
 	ArSalesFormValidationSchema,
 	type ArScorerFormValidated,
 	ArScorerFormValidationSchema,
-} from "~/components/schemas/generated-validation-schemas/ar/ar-form";
+} from "~/components/schemas/generated-validation-schemas/ar-validations";
 import {
 	type LoansSalesFormOut,
 	LoansSalesFormOutSchema,
 	type LoansScorerFormOut,
 	LoansScorerFormOutSchema,
-} from "~/components/schemas/generated-validation-schemas/loans/loans-form";
+} from "~/components/schemas/generated-validation-schemas/loans-validations";
 
 export type Role = "Sales" | "Scorer";
 export type ScoringKind = "AR" | "Loans";

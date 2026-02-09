@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { yesNo, yesNoOrUndefined } from "../types";
+import { yesNo, yesNoOrUndefined } from "../codecs/types";
 
 export const ArSalesFormValidationSchema = z.object({
 	questions: z.object({
