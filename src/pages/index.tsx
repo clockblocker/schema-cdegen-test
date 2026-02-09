@@ -22,8 +22,8 @@ function QuestionForm<SK extends ScoringKind, R extends Role>({
 	role: R;
 }) {
 	const methods = useForm<FormInFor<SK>, unknown, FormOutFor<SK, R>>({
-		resolver: zodResolver(schemaFor[sk][role]) as unknown as Resolver<FormInFor<SK>, unknown, FormOutFor<SK, R>>,
-		defaultValues: defaultValuesFor[sk] as unknown as DefaultValues<FormInFor<SK>>,
+		resolver: zodResolver(schemaFor[sk][role]),
+		defaultValues: defaultValuesFor[sk],
 	});
 
 	const onSubmit = (data: FormOutFor<SK, R>) => {
