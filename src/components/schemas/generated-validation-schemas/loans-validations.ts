@@ -1,18 +1,12 @@
-import { z } from "zod";
-import { yesNo, yesNoOrUndefined } from "../codecs/types";
+import type z from "zod/v3";
+import { LoansFormShape } from "../codecs/loans-codecs";
 
-export const LoansSalesFormOutSchema = z.object({
-	questionsLoans: z.object({
-		q3: yesNo,
-		q4: yesNoOrUndefined,
-	}),
+export const LoansSalesFormOutSchema = LoansFormShape.extend({
+	questionsLoans: LoansFormShape.shape.questionsLoans.required({ q3: true }),
 });
 
-export const LoansScorerFormOutSchema = z.object({
-	questionsLoans: z.object({
-		q3: yesNo,
-		q4: yesNo,
-	}),
+export const LoansScorerFormOutSchema = LoansSalesFormOutSchema.extend({
+	questionsLoans: LoansSalesFormOutSchema.shape.questionsLoans.required({ q4: true }),
 });
 
 export type LoansSalesFormOut = z.infer<typeof LoansSalesFormOutSchema>;

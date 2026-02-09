@@ -1,18 +1,12 @@
-import { z } from "zod";
-import { yesNo, yesNoOrUndefined } from "../codecs/types";
+import type z from "zod/v3";
+import { ArFormShape } from "../codecs/ar-codecs";
 
-export const ArSalesFormValidationSchema = z.object({
-	questions: z.object({
-		q1: yesNo,
-		q2: yesNoOrUndefined,
-	}),
+export const ArSalesFormValidationSchema = ArFormShape.extend({
+	questions: ArFormShape.shape.questions.required({ q1: true }),
 });
 
-export const ArScorerFormValidationSchema = z.object({
-	questions: z.object({
-		q1: yesNo,
-		q2: yesNo,
-	}),
+export const ArScorerFormValidationSchema = ArSalesFormValidationSchema.extend({
+	questions: ArSalesFormValidationSchema.shape.questions.required({ q2: true }),
 });
 
 export type ArSalesFormValidated = z.infer<typeof ArSalesFormValidationSchema>;

@@ -1,9 +1,7 @@
-import type z from "zod/v3";
-import {
-	type LoansServer,
-	LoansServerSchema,
-} from "../server/loans-server";
+import { z } from "zod";
+import { type LoansServer, LoansServerSchema } from "../server/loans-server";
 import { boolToYesNo, yesNoToBool } from "./atomic/yesNoAndBool";
+import { yesNoOrUndefined } from "./types";
 
 export const loansServerToForm = (data: LoansServer) => ({
 	questionsLoans: {
@@ -12,7 +10,14 @@ export const loansServerToForm = (data: LoansServer) => ({
 	},
 });
 
-export const LoansFormSchema = LoansServerSchema.transform(loansServerToForm);
+export const LoansFormShape = z.object({
+	questionsLoans: z.object({
+		q3: yesNoOrUndefined,
+		q4: yesNoOrUndefined,
+	}),
+});
+
+export const LoansFormSchema = LoansServerSchema.transform(loansServerToForm).pipe(LoansFormShape);
 export type LoansForm = z.infer<typeof LoansFormSchema>;
 
 export const loansFormToServer = (data: LoansForm): LoansServer => ({

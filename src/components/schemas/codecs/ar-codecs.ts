@@ -1,9 +1,7 @@
-import type z from "zod/v3";
-import {
-	type ArServer,
-	ArServerSchema,
-} from "../server/ar-server";
+import { z } from "zod";
+import { type ArServer, ArServerSchema } from "../server/ar-server";
 import { boolToYesNo, yesNoToBool } from "./atomic/yesNoAndBool";
+import { yesNoOrUndefined } from "./types";
 
 export const arServerToForm = (data: ArServer) => ({
 	questions: {
@@ -12,7 +10,8 @@ export const arServerToForm = (data: ArServer) => ({
 	},
 });
 
-export const ArFormSchema = ArServerSchema.transform(arServerToForm);
+
+export const ArFormSchema = ArServerSchema.transform(arServerToForm).pipe(ArFormShape);
 export type ArForm = z.infer<typeof ArFormSchema>;
 
 export const arFormToServer = (data: ArForm): ArServer => ({
