@@ -15,18 +15,18 @@ import {
 
 function QuestionForm<SK extends ScoringKind, R extends Role>({
 	sk,
-	role,
+	scoringRole,
 }: {
 	sk: SK;
-	role: R;
+	scoringRole: R;
 }) {
 	const methods = useForm<FormInFor<SK>, unknown, FormOutFor<SK, R>>({
-		resolver: zodResolver(getSchema(sk, role)),
+		resolver: zodResolver(getSchema(sk, scoringRole)),
 		defaultValues: defaultValuesFor[sk],
 	});
 
 	const onSubmit = (data: FormOutFor<SK, R>) => {
-		console.log(`${sk}/${role} submitted:`, data);
+		console.log(`${sk}/${scoringRole} submitted:`, data);
 	};
 
 	return (
@@ -35,7 +35,7 @@ function QuestionForm<SK extends ScoringKind, R extends Role>({
 				className="flex w-full max-w-sm flex-col gap-6 rounded-lg border p-6"
 				onSubmit={methods.handleSubmit(onSubmit)}
 			>
-				<h2 className="font-semibold text-lg">{role}</h2>
+				<h2 className="font-semibold text-lg">{scoringRole}</h2>
 				{sk === "AR" && <ArFormFields />}
 				{sk === "Loans" && <LoansFormFields />}
 				<Button type="submit" variant="outline">
@@ -58,10 +58,10 @@ export default function Home() {
 				<link href="/favicon.ico" rel="icon" />
 			</Head>
 			<main className="flex min-h-screen items-center justify-center gap-8 p-8">
-				<QuestionForm role="Sales" sk="AR" />
-				<QuestionForm role="Scorer" sk="AR" />
-				<QuestionForm role="Sales" sk="Loans" />
-				<QuestionForm role="Scorer" sk="Loans" />
+				<QuestionForm scoringRole="Sales" sk="AR" />
+				<QuestionForm scoringRole="Scorer" sk="AR" />
+				<QuestionForm scoringRole="Sales" sk="Loans" />
+				<QuestionForm scoringRole="Scorer" sk="Loans" />
 			</main>
 		</>
 	);
