@@ -1,3 +1,4 @@
+import { z } from "zod";
 import {
 	type ArFormIn,
 	type ArSalesFormOut,
@@ -19,18 +20,18 @@ export type FormOutFor<SK extends ScoringKind, R extends Role> = SK extends "AR"
 		: ArScorerFormOut
 	: never;
 
-export const schemaFor = {
+export const schemaFor: Partial<Record<ScoringKind, Record<Role, z.ZodTypeAny>>> = {
 	AR: {
 		Sales: ArSalesFormOutSchema,
 		Scorer: ArScorerFormOutSchema,
 	},
-} as const;
+};
 
-export const defaultValuesFor = {
+export const defaultValuesFor: Partial<Record<ScoringKind, Record<string, unknown>>> = {
 	AR: {
 		questions: {
 			q1: undefined,
 			q2: undefined,
 		},
 	} satisfies ArFormIn,
-} as const;
+};
