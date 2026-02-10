@@ -83,15 +83,15 @@ function convertToServer(
 	return result;
 }
 
-export function buildCodec<S extends CodecShape>(
-	serverSchema: z.AnyZodObject,
+export function buildCodecAndFormSchema<S extends CodecShape>(
+	_serverSchema: z.AnyZodObject,
 	shape: S,
 ) {
 	const formSchema = z.object(buildFormZodShape(shape)) as z.ZodObject<
 		FormZodShape<S>
 	>;
 
-	type ServerType = z.infer<typeof serverSchema>;
+	type ServerType = z.infer<typeof _serverSchema>;
 	type FormType = z.infer<typeof formSchema>;
 
 	const toForm = (data: ServerType): FormType => {
@@ -105,7 +105,5 @@ export function buildCodec<S extends CodecShape>(
 		) as ServerType;
 	};
 
-	const codec = serverSchema.transform(toForm).pipe(formSchema);
-
-	return { formSchema, toForm, toServer, codec };
+	return { formSchema, toForm, toServer };
 }

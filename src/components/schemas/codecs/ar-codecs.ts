@@ -1,11 +1,11 @@
 import type { z } from "zod";
 import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
-import { buildCodec } from "../../wadk-typings/common-codecs/build-codec";
+import { buildCodecAndFormSchema } from "../../wadk-typings/common-codecs/build-codec";
 import { ArServerSchema } from "../server/ar-server";
 
 const { yesNoBool, stringNumber, dateIso, nullishEmpty } = atomicCodecs;
 
-const ar = buildCodec(ArServerSchema, {
+const ar = buildCodecAndFormSchema(ArServerSchema, {
 	q1l0: yesNoBool,
 	q2l0: yesNoBool,
 	q3l0: stringNumber,
@@ -30,5 +30,4 @@ const ar = buildCodec(ArServerSchema, {
 export const ArFormSchema = ar.formSchema;
 export const arServerToForm = ar.toForm;
 export const arFormToServer = ar.toServer;
-export const ArFormCodec = ar.codec;
 export type ArForm = z.infer<typeof ArFormSchema>;
