@@ -14,3 +14,9 @@ export const dateValueOrUndefined = dateValue.optional();
 
 // Form schemas — non-nullish string (empty string represents absence)
 export const nonNullishString = z.string();
+
+// Validation helpers
+export const maxNumericValue = (max: number) =>
+	z.string().refine((v) => Number(v) <= max, {
+		message: `Must be at most ${max}`,
+	});
