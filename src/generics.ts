@@ -19,29 +19,44 @@ import {
 	LoansScorerFormOutSchema,
 } from "~/components/schemas/generated-validation-schemas/loans-validations";
 
+export type ScoringKind = "AR" | "Loans";
+export type Role = "Sales" | "Scorer";
+
 const schemaFor = {
-	AR: { Sales: ArSalesFormValidationSchema, Scorer: ArScorerFormValidationSchema },
+	AR: {
+		Sales: ArSalesFormValidationSchema,
+		Scorer: ArScorerFormValidationSchema,
+	},
 	Loans: { Sales: LoansSalesFormOutSchema, Scorer: LoansScorerFormOutSchema },
-} as const satisfies Record<string, Record<string, z.ZodTypeAny>>;
+} satisfies Record<ScoringKind, Record<Role, z.ZodTypeAny>>;
 
 type SchemaMap = typeof schemaFor;
-
-export type ScoringKind = keyof SchemaMap;
-export type Role = keyof SchemaMap[ScoringKind];
 
 const baseFormSchemas = {
 	AR: ArFormSchema,
 	Loans: LoansFormSchema,
 } as const satisfies Record<ScoringKind, z.ZodTypeAny>;
 
-export type FormInFor<SK extends ScoringKind> = z.infer<(typeof baseFormSchemas)[SK]>;
-export type FormOutFor<SK extends ScoringKind, R extends Role> = z.output<SchemaMap[SK][R]>;
+export type FormInFor<SK extends ScoringKind> = z.infer<
+	(typeof baseFormSchemas)[SK]
+>;
+export type FormOutFor<SK extends ScoringKind, R extends Role> = z.output<
+	SchemaMap[SK][R]
+>;
 
 export function getSchema<SK extends ScoringKind, R extends Role>(
 	sk: SK,
 	role: R,
-): z.ZodType<FormOutFor<SK, R>, z.ZodTypeDef & { typeName: string }, FormInFor<SK>> {
-	return schemaFor[sk][role] as z.ZodType<FormOutFor<SK, R>, z.ZodTypeDef & { typeName: string }, FormInFor<SK>>;
+): z.ZodType<
+	FormOutFor<SK, R>,
+	z.ZodTypeDef & { typeName: string },
+	FormInFor<SK>
+> {
+	return schemaFor[sk][role] as z.ZodType<
+		FormOutFor<SK, R>,
+		z.ZodTypeDef & { typeName: string },
+		FormInFor<SK>
+	>;
 }
 
 export const defaultValuesFor: {
