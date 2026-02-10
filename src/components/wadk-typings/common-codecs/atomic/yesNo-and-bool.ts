@@ -1,5 +1,5 @@
+import { yesNoOrUndefined } from "../../wadk-input-schemas";
 import type { Codec } from "../build-codec";
-import { yesNoOrUndefined } from "../types";
 
 export function yesNoToBool(v: "Yes" | "No"): boolean;
 export function yesNoToBool(v: "Yes" | "No" | undefined): boolean | undefined;
@@ -17,4 +17,8 @@ export const yesNoBool = {
 	toForm: boolToYesNo,
 	toServer: yesNoToBool,
 	schema: yesNoOrUndefined,
-} satisfies Codec<boolean | undefined, "Yes" | "No" | undefined, typeof yesNoOrUndefined>;
+} satisfies Codec<
+	boolean | undefined,
+	"Yes" | "No" | undefined,
+	typeof yesNoOrUndefined
+>;

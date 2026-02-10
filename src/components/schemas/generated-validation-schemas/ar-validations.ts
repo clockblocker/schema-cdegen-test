@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { maxNumericValue } from "../../wadk-typings/wadk-input-schemas";
 import { ArFormSchema } from "../codecs/ar-codecs";
-import { maxNumericValue } from "../codecs/types";
 
 export const ArSalesFormValidationSchema = ArFormSchema.required({
 	q1l0: true,

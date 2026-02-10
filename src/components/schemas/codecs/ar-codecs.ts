@@ -1,7 +1,7 @@
 import type { z } from "zod";
+import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
+import { buildCodec } from "../../wadk-typings/common-codecs/build-codec";
 import { ArServerSchema } from "../server/ar-server";
-import { atomicCodecs } from "./atomic";
-import { buildCodec } from "./build-codec";
 
 const { yesNoBool, stringNumber, dateIso, nullishEmpty } = atomicCodecs;
 

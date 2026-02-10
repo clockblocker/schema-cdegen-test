@@ -1,5 +1,5 @@
+import { numericStringOrUndefined } from "../../wadk-input-schemas";
 import type { Codec } from "../build-codec";
-import { numericStringOrUndefined } from "../types";
 
 export function numberToString(v: number): string;
 export function numberToString(v: number | undefined): string | undefined;
@@ -17,4 +17,8 @@ export const stringNumber = {
 	toForm: numberToString,
 	toServer: stringToNumber,
 	schema: numericStringOrUndefined,
-} satisfies Codec<number | undefined, string | undefined, typeof numericStringOrUndefined>;
+} satisfies Codec<
+	number | undefined,
+	string | undefined,
+	typeof numericStringOrUndefined
+>;

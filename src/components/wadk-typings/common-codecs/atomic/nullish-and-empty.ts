@@ -1,5 +1,5 @@
+import { nonNullishString } from "../../wadk-input-schemas";
 import type { Codec } from "../build-codec";
-import { nonNullishString } from "../types";
 
 export function nullishToEmpty(v: string | null | undefined): string {
 	return v ?? "";

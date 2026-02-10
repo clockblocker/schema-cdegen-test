@@ -34,7 +34,7 @@ function isCodec(v: unknown): v is Codec<any, any, any> {
 function buildFormZodShape(shape: CodecShape): Record<string, z.ZodTypeAny> {
 	const result: Record<string, z.ZodTypeAny> = {};
 	for (const key in shape) {
-		const node = shape[key]!;
+		const node = shape[key];
 		if (isCodec(node)) {
 			result[key] = node.schema;
 		} else {
@@ -44,10 +44,13 @@ function buildFormZodShape(shape: CodecShape): Record<string, z.ZodTypeAny> {
 	return result;
 }
 
-function convertToForm(shape: CodecShape, data: Record<string, unknown>): Record<string, unknown> {
+function convertToForm(
+	shape: CodecShape,
+	data: Record<string, unknown>,
+): Record<string, unknown> {
 	const result: Record<string, unknown> = {};
 	for (const key in shape) {
-		const node = shape[key]!;
+		const node = shape[key];
 		if (isCodec(node)) {
 			result[key] = node.toForm(data[key]);
 		} else {
@@ -60,10 +63,13 @@ function convertToForm(shape: CodecShape, data: Record<string, unknown>): Record
 	return result;
 }
 
-function convertToServer(shape: CodecShape, data: Record<string, unknown>): Record<string, unknown> {
+function convertToServer(
+	shape: CodecShape,
+	data: Record<string, unknown>,
+): Record<string, unknown> {
 	const result: Record<string, unknown> = {};
 	for (const key in shape) {
-		const node = shape[key]!;
+		const node = shape[key];
 		if (isCodec(node)) {
 			result[key] = node.toServer(data[key]);
 		} else {
@@ -73,6 +79,7 @@ function convertToServer(shape: CodecShape, data: Record<string, unknown>): Reco
 			);
 		}
 	}
+
 	return result;
 }
 
@@ -92,7 +99,10 @@ export function buildCodec<S extends CodecShape>(
 	};
 
 	const toServer = (data: FormType): ServerType => {
-		return convertToServer(shape, data as Record<string, unknown>) as ServerType;
+		return convertToServer(
+			shape,
+			data as Record<string, unknown>,
+		) as ServerType;
 	};
 
 	const codec = serverSchema.transform(toForm).pipe(formSchema);

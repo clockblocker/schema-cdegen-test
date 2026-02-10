@@ -1,7 +1,7 @@
 import type { z } from "zod";
+import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
+import { buildCodec } from "../../wadk-typings/common-codecs/build-codec";
 import { LoansServerSchema } from "../server/loans-server";
-import { atomicCodecs } from "./atomic";
-import { buildCodec } from "./build-codec";
 
 const loans = buildCodec(LoansServerSchema, {
 	questionsLoans: {
