@@ -1,12 +1,12 @@
 import type { z } from "zod";
 import { LoansServerSchema } from "../server/loans-server";
-import { yesNoBool } from "./atomic/yesNo-and-bool";
+import { atomicCodecs } from "./atomic";
 import { buildCodec } from "./build-codec";
 
 const loans = buildCodec(LoansServerSchema, {
 	questionsLoans: {
-		q3: yesNoBool,
-		q4: yesNoBool,
+		q3: atomicCodecs.yesNoBool,
+		q4: atomicCodecs.yesNoBool,
 	},
 });
 

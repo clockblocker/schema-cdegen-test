@@ -1,10 +1,9 @@
 import type { z } from "zod";
 import { ArServerSchema } from "../server/ar-server";
-import { dateIso } from "./atomic/date-and-isoString";
-import { nullishEmpty } from "./atomic/nullish-and-empty";
-import { stringNumber } from "./atomic/string-and-number";
-import { yesNoBool } from "./atomic/yesNo-and-bool";
+import { atomicCodecs } from "./atomic";
 import { buildCodec } from "./build-codec";
+
+const { yesNoBool, stringNumber, dateIso, nullishEmpty } = atomicCodecs;
 
 const ar = buildCodec(ArServerSchema, {
 	q1l0: yesNoBool,
