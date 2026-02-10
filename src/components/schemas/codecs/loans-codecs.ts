@@ -1,29 +1,17 @@
-import { z } from "zod";
-import { type LoansServer, LoansServerSchema } from "../server/loans-server";
-import { boolToYesNo, yesNoToBool } from "./atomic/yesNo-and-bool";
-import { yesNoOrUndefined } from "./types";
+import type { z } from "zod";
+import { LoansServerSchema } from "../server/loans-server";
+import { yesNoBool } from "./atomic/yesNo-and-bool";
+import { buildCodec } from "./build-codec";
 
-export const loansServerToForm = (data: LoansServer) => ({
+const loans = buildCodec(LoansServerSchema, {
 	questionsLoans: {
-		q3: boolToYesNo(data.questionsLoans.q3),
-		q4: boolToYesNo(data.questionsLoans.q4),
+		q3: yesNoBool,
+		q4: yesNoBool,
 	},
 });
 
-export const LoansFormSchema = z.object({
-	questionsLoans: z.object({
-		q3: yesNoOrUndefined,
-		q4: yesNoOrUndefined,
-	}),
-});
-
-export const LoansFormCodec =
-	LoansServerSchema.transform(loansServerToForm).pipe(LoansFormSchema);
+export const LoansFormSchema = loans.formSchema;
+export const loansServerToForm = loans.toForm;
+export const loansFormToServer = loans.toServer;
+export const LoansFormCodec = loans.codec;
 export type LoansForm = z.infer<typeof LoansFormSchema>;
-
-export const loansFormToServer = (data: LoansForm): LoansServer => ({
-	questionsLoans: {
-		q3: yesNoToBool(data.questionsLoans.q3),
-		q4: yesNoToBool(data.questionsLoans.q4),
-	},
-});
