@@ -10,65 +10,89 @@ export interface Codec<
 	schema: TSchema;
 }
 
-type CodecShape = Record<string, Record<string, Codec<any, any, any>>>;
-
-type SchemaOf<R extends Record<string, Codec<any, any, any>>> = {
-	[K in keyof R]: R[K]["schema"];
-};
+type CodecNode = Codec<any, any, any> | Record<string, any>;
+type CodecShape = Record<string, CodecNode>;
 
 type FormZodShape<S extends CodecShape> = {
-	[G in keyof S]: z.ZodObject<SchemaOf<S[G]>>;
+	[K in keyof S]: S[K] extends Codec<any, any, infer TSchema>
+		? TSchema
+		: S[K] extends CodecShape
+			? z.ZodObject<FormZodShape<S[K]>>
+			: never;
 };
+
+function isCodec(v: unknown): v is Codec<any, any, any> {
+	return (
+		typeof v === "object" &&
+		v !== null &&
+		"toForm" in v &&
+		"toServer" in v &&
+		"schema" in v
+	);
+}
+
+function buildFormZodShape(shape: CodecShape): Record<string, z.ZodTypeAny> {
+	const result: Record<string, z.ZodTypeAny> = {};
+	for (const key in shape) {
+		const node = shape[key]!;
+		if (isCodec(node)) {
+			result[key] = node.schema;
+		} else {
+			result[key] = z.object(buildFormZodShape(node as CodecShape));
+		}
+	}
+	return result;
+}
+
+function convertToForm(shape: CodecShape, data: Record<string, unknown>): Record<string, unknown> {
+	const result: Record<string, unknown> = {};
+	for (const key in shape) {
+		const node = shape[key]!;
+		if (isCodec(node)) {
+			result[key] = node.toForm(data[key]);
+		} else {
+			result[key] = convertToForm(
+				node as CodecShape,
+				data[key] as Record<string, unknown>,
+			);
+		}
+	}
+	return result;
+}
+
+function convertToServer(shape: CodecShape, data: Record<string, unknown>): Record<string, unknown> {
+	const result: Record<string, unknown> = {};
+	for (const key in shape) {
+		const node = shape[key]!;
+		if (isCodec(node)) {
+			result[key] = node.toServer(data[key]);
+		} else {
+			result[key] = convertToServer(
+				node as CodecShape,
+				data[key] as Record<string, unknown>,
+			);
+		}
+	}
+	return result;
+}
 
 export function buildCodec<S extends CodecShape>(
 	serverSchema: z.AnyZodObject,
 	shape: S,
 ) {
-	const formZodShape = {} as Record<string, z.ZodObject<any>>;
-	for (const group in shape) {
-		const fields = shape[group]!;
-		const fieldSchemas = {} as Record<string, z.ZodTypeAny>;
-		for (const field in fields) {
-			fieldSchemas[field] = fields[field]!.schema;
-		}
-		formZodShape[group] = z.object(fieldSchemas);
-	}
-
-	const formSchema = z.object(formZodShape) as z.ZodObject<FormZodShape<S>>;
+	const formSchema = z.object(buildFormZodShape(shape)) as z.ZodObject<
+		FormZodShape<S>
+	>;
 
 	type ServerType = z.infer<typeof serverSchema>;
 	type FormType = z.infer<typeof formSchema>;
 
 	const toForm = (data: ServerType): FormType => {
-		const result = {} as Record<string, Record<string, unknown>>;
-		for (const group in shape) {
-			const fields = shape[group]!;
-			const serverGroup = (data as Record<string, Record<string, unknown>>)[
-				group
-			]!;
-			const formGroup = {} as Record<string, unknown>;
-			for (const field in fields) {
-				formGroup[field] = fields[field]!.toForm(serverGroup[field]);
-			}
-			result[group] = formGroup;
-		}
-		return result as FormType;
+		return convertToForm(shape, data as Record<string, unknown>) as FormType;
 	};
 
 	const toServer = (data: FormType): ServerType => {
-		const result = {} as Record<string, Record<string, unknown>>;
-		for (const group in shape) {
-			const fields = shape[group]!;
-			const formGroup = (data as Record<string, Record<string, unknown>>)[
-				group
-			]!;
-			const serverGroup = {} as Record<string, unknown>;
-			for (const field in fields) {
-				serverGroup[field] = fields[field]!.toServer(formGroup[field]);
-			}
-			result[group] = serverGroup;
-		}
-		return result as ServerType;
+		return convertToServer(shape, data as Record<string, unknown>) as ServerType;
 	};
 
 	const codec = serverSchema.transform(toForm).pipe(formSchema);

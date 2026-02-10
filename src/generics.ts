@@ -63,10 +63,8 @@ export const defaultValuesFor: {
 	[SK in ScoringKind]: DefaultValues<FormInFor<SK>>;
 } = {
 	AR: {
-		questions: {
-			q1: undefined,
-			q2: undefined,
-		},
+		q1l0: undefined,
+		q2l0: undefined,
 	},
 	Loans: {
 		questionsLoans: {

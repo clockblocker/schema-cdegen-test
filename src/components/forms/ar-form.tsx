@@ -12,10 +12,10 @@ export function ArFormFields() {
 		<>
 			<Controller
 				control={control}
-				name="questions.q1"
+				name="q1l0"
 				render={({ field }) => (
 					<YesNoPicker
-						error={errors.questions?.q1?.message}
+						error={errors.q1l0?.message}
 						label="Question 1"
 						onChange={field.onChange}
 						value={field.value}
@@ -25,10 +25,10 @@ export function ArFormFields() {
 
 			<Controller
 				control={control}
-				name="questions.q2"
+				name="q2l0"
 				render={({ field }) => (
 					<YesNoPicker
-						error={errors.questions?.q2?.message}
+						error={errors.q2l0?.message}
 						label="Question 2"
 						onChange={field.onChange}
 						value={field.value}
