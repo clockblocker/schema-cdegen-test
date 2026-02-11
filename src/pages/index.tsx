@@ -3,6 +3,8 @@ import Head from "next/head";
 import { FormProvider, useForm } from "react-hook-form";
 import { ArFormFields } from "~/components/forms/ar-form";
 import { LoansFormFields } from "~/components/forms/loans-form";
+import { mockScoringGroups } from "~/components/forms/scoring/mock-data";
+import { ScoringForm } from "~/components/forms/scoring/scoring-form";
 import { Button } from "~/components/ui/button";
 import {
 	defaultValuesFor,
@@ -57,11 +59,14 @@ export default function Home() {
 				/>
 				<link href="/favicon.ico" rel="icon" />
 			</Head>
-			<main className="flex min-h-screen items-center justify-center gap-8 p-8">
-				<QuestionForm scoringRole="Sales" sk="AR" />
-				<QuestionForm scoringRole="Scorer" sk="AR" />
-				<QuestionForm scoringRole="Sales" sk="Loans" />
-				<QuestionForm scoringRole="Scorer" sk="Loans" />
+			<main className="flex min-h-screen flex-col items-center gap-12 p-8">
+				<div className="flex items-start justify-center gap-8">
+					<QuestionForm scoringRole="Sales" sk="AR" />
+					<QuestionForm scoringRole="Scorer" sk="AR" />
+					<QuestionForm scoringRole="Sales" sk="Loans" />
+					<QuestionForm scoringRole="Scorer" sk="Loans" />
+				</div>
+				<ScoringForm groups={mockScoringGroups} />
 			</main>
 		</>
 	);
