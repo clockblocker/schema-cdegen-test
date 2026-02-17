@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { arrayOf, buildCodecAndFormSchema, noOpCodec } from "./build-codec";
+import { yesNoBool } from "./atomic/yesNo-and-bool";
+import {
+	arrayOf,
+	buildCodecAndFormSchema,
+	type Codec,
+	noOpCodec,
+} from "./build-codec";
 
 type Properties<T> = {
 	[K in keyof T]-?: z.ZodType<T[K], z.ZodTypeDef, T[K]>;
@@ -52,8 +58,23 @@ const strict = z.object({
 });
 
 buildCodecAndFormSchema(strict, {
+	// @ts-expect-error number field cannot use yes/no codec
+	id: yesNoBool,
+});
+
+buildCodecAndFormSchema(strict, {
 	// @ts-expect-error scalar field cannot use array shape
 	id: arrayOf(counterpartyCodec),
+});
+
+const numberOrStringInputCodec = {
+	fromInput: (v: number | string) => String(v),
+	fromOutput: (v: string) => Number(v),
+	outputSchema: z.string(),
+} satisfies Codec<string, number | string, z.ZodString>;
+
+buildCodecAndFormSchema(strict, {
+	id: numberOrStringInputCodec,
 });
 
 void _widenedArrayCheck;

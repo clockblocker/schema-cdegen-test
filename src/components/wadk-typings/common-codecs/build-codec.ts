@@ -107,19 +107,28 @@ type ObjectOutput<TSchema extends z.ZodTypeAny> =
 			: never;
 
 type ZodTypeForValue<TValue> = z.ZodType<TValue, z.ZodTypeDef, TValue>;
+type FieldInput<TField extends z.ZodTypeAny> = z.input<TField>;
+type InputCompatibleCodecForField<TField extends z.ZodTypeAny> =
+	Codec<any, any, any> & {
+		fromInput: (v: FieldInput<TField>) => unknown;
+	};
 
 type CodecShapeNodeForField<TField extends z.ZodTypeAny> =
 	ArrayItemSchemaShape<TField> extends never
 		? NestedSchemaShape<TField> extends never
 			? IsWideZodType<TField> extends true
-				? Codec<any, any, any> | NoOpCodec | RuntimeCodecShape | ArrayCodecShape
-				: Codec<any, any, any> | NoOpCodec
+				?
+						| InputCompatibleCodecForField<TField>
+						| NoOpCodec
+						| RuntimeCodecShape
+						| ArrayCodecShape
+				: InputCompatibleCodecForField<TField> | NoOpCodec
 			: CodecShapeForSchemaShape<NestedSchemaShape<TField>>
 		:
 				| ArrayCodecShape<
 						CodecShapeForSchemaShape<ArrayItemSchemaShape<TField>>
 				  >
-				| Codec<any, any, any>
+				| InputCompatibleCodecForField<TField>
 				| NoOpCodec;
 
 type CodecShapeForSchemaShape<TShape extends z.ZodRawShape> = {
