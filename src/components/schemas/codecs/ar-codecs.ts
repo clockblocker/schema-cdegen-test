@@ -40,7 +40,7 @@ const ar = buildCodecAndFormSchema(ArServerSchema, {
 	},
 });
 
-export const ArFormSchema = ar.formSchema;
-export const arServerToForm = ar.toForm;
-export const arFormToServer = ar.toServer;
+export const ArFormSchema = ar.outputSchema;
+export const arServerToForm = ar.fromInput;
+export const arFormToServer = ar.fromOutput;
 export type ArForm = z.infer<typeof ArFormSchema>;

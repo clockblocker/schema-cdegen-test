@@ -108,10 +108,25 @@ type ObjectOutput<TSchema extends z.ZodTypeAny> =
 
 type ZodTypeForValue<TValue> = z.ZodType<TValue, z.ZodTypeDef, TValue>;
 type FieldInput<TField extends z.ZodTypeAny> = z.input<TField>;
-type InputCompatibleCodecForField<TField extends z.ZodTypeAny> =
-	Codec<any, any, any> & {
-		fromInput: (v: FieldInput<TField>) => unknown;
-	};
+type InputCompatibleCodecForField<TField extends z.ZodTypeAny> = Codec<
+	any,
+	any,
+	any
+> & {
+	fromInput: (v: FieldInput<TField>) => unknown;
+};
+
+type WideObjectShapeNodeForField<TField extends z.ZodTypeAny> = [
+	ObjectOutput<TField>,
+] extends [never]
+	? never
+	: RuntimeCodecShape;
+
+type WideArrayShapeNodeForField<TField extends z.ZodTypeAny> = [
+	ArrayItemObjectOutput<TField>,
+] extends [never]
+	? never
+	: ArrayCodecShape;
 
 type CodecShapeNodeForField<TField extends z.ZodTypeAny> =
 	ArrayItemSchemaShape<TField> extends never
@@ -120,8 +135,8 @@ type CodecShapeNodeForField<TField extends z.ZodTypeAny> =
 				?
 						| InputCompatibleCodecForField<TField>
 						| NoOpCodec
-						| RuntimeCodecShape
-						| ArrayCodecShape
+						| WideObjectShapeNodeForField<TField>
+						| WideArrayShapeNodeForField<TField>
 				: InputCompatibleCodecForField<TField> | NoOpCodec
 			: CodecShapeForSchemaShape<NestedSchemaShape<TField>>
 		:
@@ -439,9 +454,5 @@ export function buildCodecAndFormSchema<
 		outputSchema,
 		fromInput,
 		fromOutput,
-		// Backward-compatible aliases
-		formSchema: outputSchema,
-		toForm: fromInput,
-		toServer: fromOutput,
 	};
 }

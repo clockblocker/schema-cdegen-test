@@ -40,6 +40,18 @@ const widened = buildCodecAndFormSchema(ClientSchemaWidened(), {
 	counterparties: arrayOf(counterpartyCodec),
 });
 
+buildCodecAndFormSchema(ClientSchemaWidened(), {
+	// @ts-expect-error widened scalar number field cannot use yes/no codec
+	id: yesNoBool,
+	counterparties: arrayOf(counterpartyCodec),
+});
+
+buildCodecAndFormSchema(ClientSchemaWidened(), {
+	// @ts-expect-error widened scalar number field cannot use array shape
+	id: arrayOf(counterpartyCodec),
+	counterparties: arrayOf(counterpartyCodec),
+});
+
 type WidenedOutput = z.infer<typeof widened.outputSchema>;
 const _widenedArrayCheck: WidenedOutput["counterparties"] = [{ id: 1 }];
 type CounterpartyId = WidenedOutput["counterparties"][number]["id"];
