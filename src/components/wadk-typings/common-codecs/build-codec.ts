@@ -1,13 +1,13 @@
 import { z } from "zod";
 
 export interface Codec<
-	TServer,
-	TForm,
+	Output,
+	Input,
 	TSchema extends z.ZodTypeAny = z.ZodTypeAny,
 > {
-	toForm: (v: TServer) => TForm;
-	toServer: (v: TForm) => TServer;
-	schema: TSchema;
+	fromInput: (v: Input) => Output;
+	fromOutput: (v: Output) => Input;
+	outputSchema: TSchema;
 }
 
 interface NoOpCodec {
@@ -80,9 +80,9 @@ function isCodec(v: unknown): v is Codec<any, any, any> {
 	return (
 		typeof v === "object" &&
 		v !== null &&
-		"toForm" in v &&
-		"toServer" in v &&
-		"schema" in v
+		"fromInput" in v &&
+		"fromOutput" in v &&
+		"outputSchema" in v
 	);
 }
 
@@ -121,7 +121,7 @@ function buildFormZodShape(
 		}
 
 		if (isCodec(node)) {
-			result[key] = node.schema;
+			result[key] = node.outputSchema;
 		} else if (isNoOpCodec(node)) {
 			result[key] = serverNode;
 		} else {
@@ -142,7 +142,7 @@ function convertToForm(
 	for (const key in shape) {
 		const node = shape[key];
 		if (isCodec(node)) {
-			result[key] = node.toForm(data[key]);
+			result[key] = node.fromInput(data[key]);
 		} else if (isNoOpCodec(node)) {
 			result[key] = data[key];
 		} else {
@@ -163,7 +163,7 @@ function convertToServer(
 	for (const key in shape) {
 		const node = shape[key];
 		if (isCodec(node)) {
-			result[key] = node.toServer(data[key]);
+			result[key] = node.fromOutput(data[key]);
 		} else if (isNoOpCodec(node)) {
 			result[key] = data[key];
 		} else {

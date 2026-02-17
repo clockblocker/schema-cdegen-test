@@ -14,11 +14,11 @@ export function dateToIsoString(v: Date | undefined): string | undefined {
 }
 
 export const dateIso = {
-	toForm: isoStringToDate,
-	toServer: dateToIsoString,
-	schema: dateValueOrUndefined,
+	fromInput: isoStringToDate,
+	fromOutput: dateToIsoString,
+	outputSchema: dateValueOrUndefined,
 } satisfies Codec<
-	string | undefined,
 	Date | undefined,
+	string | undefined,
 	typeof dateValueOrUndefined
 >;

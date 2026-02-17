@@ -10,7 +10,7 @@ export function emptyToNullish(v: string): string | undefined {
 }
 
 export const nullishEmpty = {
-	toForm: nullishToEmpty,
-	toServer: emptyToNullish,
-	schema: nonNullishString,
-} satisfies Codec<string | null | undefined, string, typeof nonNullishString>;
+	fromInput: nullishToEmpty,
+	fromOutput: emptyToNullish,
+	outputSchema: nonNullishString,
+} satisfies Codec<string, string | null | undefined, typeof nonNullishString>;

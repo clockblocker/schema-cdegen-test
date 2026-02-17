@@ -14,11 +14,11 @@ export function boolToYesNo(v: boolean | undefined): "Yes" | "No" | undefined {
 }
 
 export const yesNoBool = {
-	toForm: boolToYesNo,
-	toServer: yesNoToBool,
-	schema: yesNoOrUndefined,
+	fromInput: boolToYesNo,
+	fromOutput: yesNoToBool,
+	outputSchema: yesNoOrUndefined,
 } satisfies Codec<
-	boolean | undefined,
 	"Yes" | "No" | undefined,
+	boolean | undefined,
 	typeof yesNoOrUndefined
 >;

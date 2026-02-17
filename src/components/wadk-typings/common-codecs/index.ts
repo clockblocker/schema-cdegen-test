@@ -9,9 +9,10 @@ import {
 } from "./build-codec";
 
 export type { Codec };
-export { buildCodecAndFormSchema as buildCodec, noOpCodec };
+export { buildCodecAndFormSchema as buildCodec };
 
 export const atomicCodecs = {
+	noOpCodec,
 	dateIso,
 	nullishEmpty,
 	stringNumber,

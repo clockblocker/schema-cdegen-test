@@ -1,9 +1,9 @@
 import type { z } from "zod";
 import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
-import { buildCodecAndFormSchema, noOpCodec } from "../../wadk-typings/common-codecs/build-codec";
+import { buildCodecAndFormSchema } from "../../wadk-typings/common-codecs/build-codec";
 import { ArServerSchema } from "../server/ar-server";
 
-const { yesNoBool, stringNumber, dateIso, nullishEmpty } = atomicCodecs;
+const { yesNoBool, stringNumber, dateIso, nullishEmpty, noOpCodec } = atomicCodecs;
 
 const ar = buildCodecAndFormSchema(ArServerSchema, {
 	q1l0: noOpCodec,

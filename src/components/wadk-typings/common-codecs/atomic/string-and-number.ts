@@ -14,11 +14,11 @@ export function stringToNumber(v: string | undefined): number | undefined {
 }
 
 export const stringNumber = {
-	toForm: numberToString,
-	toServer: stringToNumber,
-	schema: numericStringOrUndefined,
+	fromInput: numberToString,
+	fromOutput: stringToNumber,
+	outputSchema: numericStringOrUndefined,
 } satisfies Codec<
-	number | undefined,
 	string | undefined,
+	number | undefined,
 	typeof numericStringOrUndefined
 >;
