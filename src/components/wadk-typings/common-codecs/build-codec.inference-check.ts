@@ -1,0 +1,59 @@
+import { z } from "zod";
+import { arrayOf, buildCodecAndFormSchema, noOpCodec } from "./build-codec";
+
+type Properties<T> = {
+	[K in keyof T]-?: z.ZodType<T[K], z.ZodTypeDef, T[K]>;
+};
+
+interface Counterparty {
+	id: number | null;
+}
+
+interface Client {
+	id: number;
+	counterparties: Counterparty[];
+}
+
+function ClientSchemaWidened(): z.ZodObject<Properties<Client>> {
+	return z.object({
+		id: z.number(),
+		counterparties: z.array(
+			z.object({
+				id: z.number().nullable(),
+			}),
+		),
+	}) as z.ZodObject<Properties<Client>>;
+}
+
+const counterpartyCodec = {
+	id: noOpCodec,
+};
+
+const widened = buildCodecAndFormSchema(ClientSchemaWidened(), {
+	id: noOpCodec,
+	counterparties: arrayOf(counterpartyCodec),
+});
+
+type WidenedOutput = z.infer<typeof widened.outputSchema>;
+const _widenedArrayCheck: WidenedOutput["counterparties"] = [{ id: 1 }];
+type CounterpartyId = WidenedOutput["counterparties"][number]["id"];
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+type Assert<T extends true> = T;
+type AssertFalse<T extends false> = T;
+
+type _counterpartyIdIsNotAny = AssertFalse<IsAny<CounterpartyId>>;
+type _counterpartyIdMatches = Assert<
+	CounterpartyId extends number | null ? true : false
+>;
+
+const strict = z.object({
+	id: z.number(),
+});
+
+buildCodecAndFormSchema(strict, {
+	// @ts-expect-error scalar field cannot use array shape
+	id: arrayOf(counterpartyCodec),
+});
+
+void _widenedArrayCheck;
