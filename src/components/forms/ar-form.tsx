@@ -17,8 +17,18 @@ export function ArFormFields() {
 					<YesNoPicker
 						error={errors.q1l0?.message}
 						label="Question 1"
-						onChange={field.onChange}
-						value={field.value}
+						onChange={(v) => {
+							field.onChange(
+								v === undefined ? undefined : v === "Yes",
+							);
+						}}
+						value={
+							field.value === undefined
+								? undefined
+								: field.value
+									? "Yes"
+									: "No"
+						}
 					/>
 				)}
 			/>

@@ -18,8 +18,8 @@ export const noOpCodec = { __noOpCodec: true } as const satisfies NoOpCodec;
 
 type RuntimeCodecShape = Record<string, unknown>;
 
-type ServerShapeOf<TServerSchema extends z.AnyZodObject> =
-	TServerSchema extends z.ZodObject<infer TShape, any, any, any, any>
+type SchemaShapeOf<TSchema extends z.AnyZodObject> =
+	TSchema extends z.ZodObject<infer TShape, any, any, any, any>
 		? TShape
 		: never;
 
@@ -37,41 +37,41 @@ type ShapeOfObjectSchema<TSchema extends z.AnyZodObject> =
 		? TShape
 		: never;
 
-type NestedServerShape<TSchema extends z.ZodTypeAny> =
+type NestedSchemaShape<TSchema extends z.ZodTypeAny> =
 	UnwrapObjectSchema<TSchema> extends z.AnyZodObject
 		? ShapeOfObjectSchema<UnwrapObjectSchema<TSchema>>
 		: never;
 
-type CodecShapeForServerShape<TServerShape extends z.ZodRawShape> = {
-	[K in keyof TServerShape]: NestedServerShape<TServerShape[K]> extends never
+type CodecShapeForSchemaShape<TShape extends z.ZodRawShape> = {
+	[K in keyof TShape]: NestedSchemaShape<TShape[K]> extends never
 		? Codec<any, any, any> | NoOpCodec
-		: CodecShapeForServerShape<NestedServerShape<TServerShape[K]>>;
+		: CodecShapeForSchemaShape<NestedSchemaShape<TShape[K]>>;
 };
 
-type FormZodNode<
-	TServerField extends z.ZodTypeAny,
+type OutputZodNode<
+	TInputField extends z.ZodTypeAny,
 	TShapeNode,
 > = TShapeNode extends Codec<any, any, infer TSchema>
 	? TSchema
 	: TShapeNode extends NoOpCodec
-		? TServerField
+		? TInputField
 		: TShapeNode extends Record<string, any>
 			? z.ZodObject<
-					FormZodShapeForServerShape<
-						NestedServerShape<TServerField>,
+					OutputZodShapeForSchemaShape<
+						NestedSchemaShape<TInputField>,
 						TShapeNode &
-							CodecShapeForServerShape<NestedServerShape<TServerField>>
+							CodecShapeForSchemaShape<NestedSchemaShape<TInputField>>
 					>
 				>
 			: never;
 
-type FormZodShapeForServerShape<
-	TServerShape extends z.ZodRawShape,
-	S extends CodecShapeForServerShape<TServerShape>,
+type OutputZodShapeForSchemaShape<
+	TShape extends z.ZodRawShape,
+	S extends CodecShapeForSchemaShape<TShape>,
 > = {
-	[K in keyof S]: K extends keyof TServerShape
-		? TServerShape[K] extends z.ZodTypeAny
-			? FormZodNode<TServerShape[K], S[K]>
+	[K in keyof S]: K extends keyof TShape
+		? TShape[K] extends z.ZodTypeAny
+			? OutputZodNode<TShape[K], S[K]>
 			: never
 		: never;
 };
@@ -102,39 +102,39 @@ function getNestedObjectSchema(schema: z.ZodTypeAny): z.AnyZodObject {
 	}
 
 	if (!(current instanceof z.ZodObject)) {
-		throw new Error("Codec shape does not match server schema at a nested key.");
+		throw new Error("Codec shape does not match nested object schema.");
 	}
 
 	return current;
 }
 
-function buildFormZodShape(
+function buildOutputZodShape(
 	shape: RuntimeCodecShape,
-	serverShape: z.ZodRawShape,
+	schemaShape: z.ZodRawShape,
 ): Record<string, z.ZodTypeAny> {
 	const result: Record<string, z.ZodTypeAny> = {};
 	for (const key in shape) {
 		const node = shape[key];
-		const serverNode = serverShape[key];
-		if (!serverNode) {
-			throw new Error(`Codec shape key "${key}" is not in server schema.`);
+		const schemaNode = schemaShape[key];
+		if (!schemaNode) {
+			throw new Error(`Codec shape key "${key}" is not in schema.`);
 		}
 
 		if (isCodec(node)) {
 			result[key] = node.outputSchema;
 		} else if (isNoOpCodec(node)) {
-			result[key] = serverNode;
+			result[key] = schemaNode;
 		} else {
-			const nestedServer = getNestedObjectSchema(serverNode);
+			const nestedObjectSchema = getNestedObjectSchema(schemaNode);
 			result[key] = z.object(
-				buildFormZodShape(node as RuntimeCodecShape, nestedServer.shape),
+				buildOutputZodShape(node as RuntimeCodecShape, nestedObjectSchema.shape),
 			);
 		}
 	}
 	return result;
 }
 
-function convertToForm(
+function convertFromInput(
 	shape: RuntimeCodecShape,
 	data: Record<string, unknown>,
 ): Record<string, unknown> {
@@ -146,7 +146,7 @@ function convertToForm(
 		} else if (isNoOpCodec(node)) {
 			result[key] = data[key];
 		} else {
-			result[key] = convertToForm(
+			result[key] = convertFromInput(
 				node as RuntimeCodecShape,
 				data[key] as Record<string, unknown>,
 			);
@@ -155,7 +155,7 @@ function convertToForm(
 	return result;
 }
 
-function convertToServer(
+function convertFromOutput(
 	shape: RuntimeCodecShape,
 	data: Record<string, unknown>,
 ): Record<string, unknown> {
@@ -167,7 +167,7 @@ function convertToServer(
 		} else if (isNoOpCodec(node)) {
 			result[key] = data[key];
 		} else {
-			result[key] = convertToServer(
+			result[key] = convertFromOutput(
 				node as RuntimeCodecShape,
 				data[key] as Record<string, unknown>,
 			);
@@ -178,34 +178,42 @@ function convertToServer(
 }
 
 export function buildCodecAndFormSchema<
-	TServerSchema extends z.AnyZodObject,
-	const S extends CodecShapeForServerShape<ServerShapeOf<TServerSchema>>,
+	TInputSchema extends z.AnyZodObject,
+	const S extends CodecShapeForSchemaShape<SchemaShapeOf<TInputSchema>>,
 >(
-	serverSchema: TServerSchema,
+	inputSchema: TInputSchema,
 	shape: S,
 ) {
-	const formSchema = z.object(
-		buildFormZodShape(shape as RuntimeCodecShape, serverSchema.shape as z.ZodRawShape),
+	const outputSchema = z.object(
+		buildOutputZodShape(shape as RuntimeCodecShape, inputSchema.shape as z.ZodRawShape),
 	) as z.ZodObject<
-		FormZodShapeForServerShape<ServerShapeOf<TServerSchema>, S>
+		OutputZodShapeForSchemaShape<SchemaShapeOf<TInputSchema>, S>
 	>;
 
-	type ServerType = z.infer<TServerSchema>;
-	type FormType = z.infer<typeof formSchema>;
+	type InputType = z.infer<TInputSchema>;
+	type OutputType = z.infer<typeof outputSchema>;
 
-	const toForm = (data: ServerType): FormType => {
-		return convertToForm(
+	const fromInput = (data: InputType): OutputType => {
+		return convertFromInput(
 			shape as RuntimeCodecShape,
 			data as Record<string, unknown>,
-		) as FormType;
+		) as OutputType;
 	};
 
-	const toServer = (data: FormType): ServerType => {
-		return convertToServer(
+	const fromOutput = (data: OutputType): InputType => {
+		return convertFromOutput(
 			shape as RuntimeCodecShape,
 			data as Record<string, unknown>,
-		) as ServerType;
+		) as InputType;
 	};
 
-	return { formSchema, toForm, toServer };
+	return {
+		outputSchema,
+		fromInput,
+		fromOutput,
+		// Backward-compatible aliases
+		formSchema: outputSchema,
+		toForm: fromInput,
+		toServer: fromOutput,
+	};
 }
