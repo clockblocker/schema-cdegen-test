@@ -7,6 +7,14 @@ export function LoansFormFields() {
 		control,
 		formState: { errors },
 	} = useFormContext<LoansForm>();
+	const q3Message =
+		typeof errors.questionsLoans?.q3?.message === "string"
+			? errors.questionsLoans.q3.message
+			: undefined;
+	const q4Message =
+		typeof errors.questionsLoans?.q4?.message === "string"
+			? errors.questionsLoans.q4.message
+			: undefined;
 
 	return (
 		<>
@@ -15,7 +23,7 @@ export function LoansFormFields() {
 				name="questionsLoans.q3"
 				render={({ field }) => (
 					<YesNoPicker
-						error={errors.questionsLoans?.q3?.message}
+						error={q3Message}
 						label="Question 3"
 						onChange={field.onChange}
 						value={field.value}
@@ -28,7 +36,7 @@ export function LoansFormFields() {
 				name="questionsLoans.q4"
 				render={({ field }) => (
 					<YesNoPicker
-						error={errors.questionsLoans?.q4?.message}
+						error={q4Message}
 						label="Question 4"
 						onChange={field.onChange}
 						value={field.value}
