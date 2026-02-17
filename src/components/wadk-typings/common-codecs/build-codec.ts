@@ -18,19 +18,33 @@ export const noOpCodec = { __noOpCodec: true } as const satisfies NoOpCodec;
 
 type RuntimeCodecShape = Record<string, unknown>;
 
+interface ArrayCodecShape<TItemShape extends RuntimeCodecShape = RuntimeCodecShape> {
+	readonly __arrayCodecShape: true;
+	readonly itemShape: TItemShape;
+}
+
+export function arrayOf<const TItemShape extends RuntimeCodecShape>(
+	itemShape: TItemShape,
+): ArrayCodecShape<TItemShape> {
+	return { __arrayCodecShape: true, itemShape };
+}
+
 type SchemaShapeOf<TSchema extends z.AnyZodObject> =
 	TSchema extends z.ZodObject<infer TShape, any, any, any, any>
 		? TShape
 		: never;
 
-type UnwrapObjectSchema<TSchema extends z.ZodTypeAny> =
+type UnwrapOptionalNullableSchema<TSchema extends z.ZodTypeAny> =
 	TSchema extends z.ZodOptional<infer TInner>
-		? UnwrapObjectSchema<TInner>
+		? UnwrapOptionalNullableSchema<TInner>
 		: TSchema extends z.ZodNullable<infer TInner>
-			? UnwrapObjectSchema<TInner>
-			: TSchema extends z.AnyZodObject
-				? TSchema
-				: never;
+			? UnwrapOptionalNullableSchema<TInner>
+			: TSchema;
+
+type ObjectSchemaOf<TSchema extends z.ZodTypeAny> =
+	UnwrapOptionalNullableSchema<TSchema> extends z.AnyZodObject
+		? UnwrapOptionalNullableSchema<TSchema>
+		: never;
 
 type ShapeOfObjectSchema<TSchema extends z.AnyZodObject> =
 	TSchema extends z.ZodObject<infer TShape, any, any, any, any>
@@ -38,14 +52,28 @@ type ShapeOfObjectSchema<TSchema extends z.AnyZodObject> =
 		: never;
 
 type NestedSchemaShape<TSchema extends z.ZodTypeAny> =
-	UnwrapObjectSchema<TSchema> extends z.AnyZodObject
-		? ShapeOfObjectSchema<UnwrapObjectSchema<TSchema>>
+	ObjectSchemaOf<TSchema> extends z.AnyZodObject
+		? ShapeOfObjectSchema<ObjectSchemaOf<TSchema>>
+		: never;
+
+type ArrayItemSchemaOf<TSchema extends z.ZodTypeAny> =
+	UnwrapOptionalNullableSchema<TSchema> extends z.ZodArray<infer TItem, any>
+		? TItem
+		: never;
+
+type ArrayItemSchemaShape<TSchema extends z.ZodTypeAny> =
+	ArrayItemSchemaOf<TSchema> extends z.ZodTypeAny
+		? NestedSchemaShape<ArrayItemSchemaOf<TSchema>>
 		: never;
 
 type CodecShapeForSchemaShape<TShape extends z.ZodRawShape> = {
-	[K in keyof TShape]: NestedSchemaShape<TShape[K]> extends never
-		? Codec<any, any, any> | NoOpCodec
-		: CodecShapeForSchemaShape<NestedSchemaShape<TShape[K]>>;
+	[K in keyof TShape]: ArrayItemSchemaShape<TShape[K]> extends never
+		? NestedSchemaShape<TShape[K]> extends never
+			? Codec<any, any, any> | NoOpCodec
+			: CodecShapeForSchemaShape<NestedSchemaShape<TShape[K]>>
+		: ArrayCodecShape<
+				CodecShapeForSchemaShape<ArrayItemSchemaShape<TShape[K]>>
+			> | Codec<any, any, any> | NoOpCodec;
 };
 
 type OutputZodNode<
@@ -55,19 +83,27 @@ type OutputZodNode<
 	? TSchema
 	: TShapeNode extends NoOpCodec
 		? TInputField
+	: TShapeNode extends ArrayCodecShape<infer TItemShape>
+			? z.ZodArray<
+					z.ZodObject<
+						OutputZodShapeForSchemaShape<
+							ArrayItemSchemaShape<TInputField>,
+							TItemShape
+						>
+					>
+				>
 		: TShapeNode extends Record<string, any>
 			? z.ZodObject<
 					OutputZodShapeForSchemaShape<
 						NestedSchemaShape<TInputField>,
-						TShapeNode &
-							CodecShapeForSchemaShape<NestedSchemaShape<TInputField>>
+						TShapeNode
 					>
 				>
 			: never;
 
 type OutputZodShapeForSchemaShape<
 	TShape extends z.ZodRawShape,
-	S extends CodecShapeForSchemaShape<TShape>,
+	S extends RuntimeCodecShape,
 > = {
 	[K in keyof S]: K extends keyof TShape
 		? TShape[K] extends z.ZodTypeAny
@@ -95,17 +131,42 @@ function isNoOpCodec(v: unknown): v is NoOpCodec {
 	);
 }
 
-function getNestedObjectSchema(schema: z.ZodTypeAny): z.AnyZodObject {
+function isArrayCodecShape(v: unknown): v is ArrayCodecShape {
+	return (
+		typeof v === "object" &&
+		v !== null &&
+		"__arrayCodecShape" in v &&
+		(v as ArrayCodecShape).__arrayCodecShape === true &&
+		"itemShape" in v
+	);
+}
+
+function unwrapOptionalNullableSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
 	let current: z.ZodTypeAny = schema;
 	while (current instanceof z.ZodOptional || current instanceof z.ZodNullable) {
 		current = current.unwrap();
 	}
+	return current;
+}
+
+function getNestedObjectSchema(schema: z.ZodTypeAny): z.AnyZodObject {
+	const current = unwrapOptionalNullableSchema(schema);
 
 	if (!(current instanceof z.ZodObject)) {
 		throw new Error("Codec shape does not match nested object schema.");
 	}
 
 	return current;
+}
+
+function getArrayItemObjectSchema(schema: z.ZodTypeAny): z.AnyZodObject {
+	const current = unwrapOptionalNullableSchema(schema);
+
+	if (!(current instanceof z.ZodArray)) {
+		throw new Error("Codec shape expects an array schema.");
+	}
+
+	return getNestedObjectSchema(current.element);
 }
 
 function buildOutputZodShape(
@@ -124,6 +185,16 @@ function buildOutputZodShape(
 			result[key] = node.outputSchema;
 		} else if (isNoOpCodec(node)) {
 			result[key] = schemaNode;
+		} else if (isArrayCodecShape(node)) {
+			const itemObjectSchema = getArrayItemObjectSchema(schemaNode);
+			result[key] = z.array(
+				z.object(
+					buildOutputZodShape(
+						node.itemShape as RuntimeCodecShape,
+						itemObjectSchema.shape,
+					),
+				),
+			);
 		} else {
 			const nestedObjectSchema = getNestedObjectSchema(schemaNode);
 			result[key] = z.object(
@@ -145,6 +216,16 @@ function convertFromInput(
 			result[key] = node.fromInput(data[key]);
 		} else if (isNoOpCodec(node)) {
 			result[key] = data[key];
+		} else if (isArrayCodecShape(node)) {
+			const value = data[key];
+			result[key] = Array.isArray(value)
+				? value.map((item) =>
+						convertFromInput(
+							node.itemShape as RuntimeCodecShape,
+							item as Record<string, unknown>,
+						),
+					)
+				: value;
 		} else {
 			result[key] = convertFromInput(
 				node as RuntimeCodecShape,
@@ -166,6 +247,16 @@ function convertFromOutput(
 			result[key] = node.fromOutput(data[key]);
 		} else if (isNoOpCodec(node)) {
 			result[key] = data[key];
+		} else if (isArrayCodecShape(node)) {
+			const value = data[key];
+			result[key] = Array.isArray(value)
+				? value.map((item) =>
+						convertFromOutput(
+							node.itemShape as RuntimeCodecShape,
+							item as Record<string, unknown>,
+						),
+					)
+				: value;
 		} else {
 			result[key] = convertFromOutput(
 				node as RuntimeCodecShape,
@@ -179,10 +270,10 @@ function convertFromOutput(
 
 export function buildCodecAndFormSchema<
 	TInputSchema extends z.AnyZodObject,
-	const S extends CodecShapeForSchemaShape<SchemaShapeOf<TInputSchema>>,
+	const S extends RuntimeCodecShape,
 >(
 	inputSchema: TInputSchema,
-	shape: S,
+	shape: S & CodecShapeForSchemaShape<SchemaShapeOf<TInputSchema>>,
 ) {
 	const outputSchema = z.object(
 		buildOutputZodShape(shape as RuntimeCodecShape, inputSchema.shape as z.ZodRawShape),

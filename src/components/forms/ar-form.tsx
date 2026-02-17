@@ -7,6 +7,10 @@ export function ArFormFields() {
 		control,
 		formState: { errors },
 	} = useFormContext<ArForm>();
+	const q1Message =
+		typeof errors.q1l0?.message === "string" ? errors.q1l0.message : undefined;
+	const q2Message =
+		typeof errors.q2l0?.message === "string" ? errors.q2l0.message : undefined;
 
 	return (
 		<>
@@ -15,7 +19,7 @@ export function ArFormFields() {
 				name="q1l0"
 				render={({ field }) => (
 					<YesNoPicker
-						error={errors.q1l0?.message}
+						error={q1Message}
 						label="Question 1"
 						onChange={(v) => {
 							field.onChange(
@@ -38,7 +42,7 @@ export function ArFormFields() {
 				name="q2l0"
 				render={({ field }) => (
 					<YesNoPicker
-						error={errors.q2l0?.message}
+						error={q2Message}
 						label="Question 2"
 						onChange={field.onChange}
 						value={field.value}

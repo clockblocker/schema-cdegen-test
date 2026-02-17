@@ -22,6 +22,20 @@ export const ArServerSchema = z.object({
 			q4l2: z.string().optional(),
 			q5l2: z.string().nullish(),
 		}),
+		l2_arr: z.object({
+			q1l2: boolOrUndefined,
+			q2l2: boolOrUndefined,
+			q3l2: z.number().optional(),
+			q4l2: z.string().optional(),
+			q5l2: z.string().nullish(),
+			l3_arr: z.object({
+				q1l2: boolOrUndefined,
+				q2l2: boolOrUndefined,
+				q3l2: z.number().optional(),
+				q4l2: z.string().optional(),
+				q5l2: z.string().nullish(),
+			}).array(),
+		}).array(),
 	}),
 });
 

@@ -3,7 +3,25 @@ import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
 import { buildCodecAndFormSchema } from "../../wadk-typings/common-codecs/build-codec";
 import { ArServerSchema } from "../server/ar-server";
 
-const { yesNoBool, stringNumber, dateIso, nullishEmpty, noOpCodec } = atomicCodecs;
+const { yesNoBool, stringNumber, dateIso, nullishEmpty, noOpCodec, arrayOf } =
+	atomicCodecs;
+
+const l2 = {
+	q1l2: yesNoBool,
+	q2l2: yesNoBool,
+	q3l2: stringNumber,
+	q4l2: dateIso,
+	q5l2: nullishEmpty,
+};
+
+const l2ArrItem = {
+	q1l2: yesNoBool,
+	q2l2: yesNoBool,
+	q3l2: stringNumber,
+	q4l2: dateIso,
+	q5l2: nullishEmpty,
+	l3_arr: arrayOf(l2),
+};
 
 const ar = buildCodecAndFormSchema(ArServerSchema, {
 	q1l0: noOpCodec,
@@ -17,13 +35,8 @@ const ar = buildCodecAndFormSchema(ArServerSchema, {
 		q3l1: stringNumber,
 		q4l1: dateIso,
 		q5l1: nullishEmpty,
-		l2: {
-			q1l2: yesNoBool,
-			q2l2: yesNoBool,
-			q3l2: stringNumber,
-			q4l2: dateIso,
-			q5l2: nullishEmpty,
-		},
+		l2,
+		l2_arr: arrayOf(l2ArrItem),
 	},
 });
 
