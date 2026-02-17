@@ -19,8 +19,9 @@ export const ArSalesFormValidationSchema = ArFormWithLimitsSchema.required({
 	q1l0: true,
 });
 
-export const ArScorerFormValidationSchema =
-	ArSalesFormValidationSchema.required({ q2l0: true });
+export const ArScorerFormValidationSchema = ArFormWithLimitsSchema.required({
+	q2l0: true,
+});
 
 export type ArSalesFormValidated = z.infer<typeof ArSalesFormValidationSchema>;
 export type ArScorerFormValidated = z.infer<

@@ -61,6 +61,7 @@ export function ScoringForm({ groups }: { groups: ScoringQuestionGroup[] }) {
 			const qSchemas: Record<string, z.ZodTypeAny> = {};
 			for (const qId of g.questionIds) {
 				qSchemas[qId] = z.string().optional();
+				qSchemas[`${qId}_comment`] = z.string().optional();
 			}
 			groupSchemas[String(g.groupId)] = z.object(qSchemas);
 		}
@@ -73,6 +74,7 @@ export function ScoringForm({ groups }: { groups: ScoringQuestionGroup[] }) {
 			const qDefaults: Record<string, undefined> = {};
 			for (const qId of g.questionIds) {
 				qDefaults[qId] = undefined;
+				qDefaults[`${qId}_comment`] = undefined;
 			}
 			groupDefaults[String(g.groupId)] = qDefaults;
 		}
