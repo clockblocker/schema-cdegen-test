@@ -3,7 +3,11 @@ import { z } from "zod";
 export interface Codec<
 	Output,
 	Input,
-	TSchema extends z.ZodTypeAny = z.ZodTypeAny,
+	TSchema extends z.ZodType<Output, z.ZodTypeDef, any> = z.ZodType<
+		Output,
+		z.ZodTypeDef,
+		any
+	>,
 > {
 	fromInput: (v: Input) => Output;
 	fromOutput: (v: Output) => Input;

@@ -5,8 +5,8 @@ import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
 	buildCodecAndFormSchema,
-	noOpCodec,
 	type Codec,
+	noOpCodec,
 } from "./build-codec";
 
 export type { Codec };
