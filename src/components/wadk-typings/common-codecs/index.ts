@@ -1,4 +1,9 @@
 import { dateIso } from "./atomic/date-and-isoString";
+import {
+	countryAndNullishSting,
+	currencyAndNullishSting,
+	nullableUnionAndNullishStringBuilder,
+} from "./atomic/nullableUnion-and-nullishString";
 import { nullishEmpty } from "./atomic/nullish-and-empty";
 import { stringNumber } from "./atomic/string-and-number";
 import { yesNoBool } from "./atomic/yesNo-and-bool";
@@ -17,6 +22,9 @@ export const atomicCodecs = {
 	noOpCodec,
 	dateIso,
 	nullishEmpty,
+	nullableUnionAndNullishStringBuilder,
+	countryAndNullishSting,
+	currencyAndNullishSting,
 	stringNumber,
 	yesNoBool,
 };
