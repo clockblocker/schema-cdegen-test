@@ -1,5 +1,5 @@
 import { dateValueOrUndefined } from "../../wadk-input-schemas";
-import type { Codec } from "../build-codec";
+import { defineCodec } from "../build-codec";
 
 export function isoStringToDate(v: string): Date;
 export function isoStringToDate(v: string | undefined): Date | undefined;
@@ -13,12 +13,8 @@ export function dateToIsoString(v: Date | undefined): string | undefined {
 	return v === undefined ? undefined : v.toISOString();
 }
 
-export const dateIso = {
+export const dateIso = defineCodec({
 	fromInput: isoStringToDate,
 	fromOutput: dateToIsoString,
 	outputSchema: dateValueOrUndefined,
-} satisfies Codec<
-	Date | undefined,
-	string | undefined,
-	typeof dateValueOrUndefined
->;
+});

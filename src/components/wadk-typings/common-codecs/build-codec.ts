@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export interface Codec<
+export interface Codec<Output, Input> {
+	fromInput: (v: Input) => Output;
+	fromOutput: (v: Output) => Input;
+}
+
+interface CodecWithSchema<
 	Output,
 	Input,
 	TSchema extends z.ZodType<Output, z.ZodTypeDef, any> = z.ZodType<
@@ -8,10 +13,21 @@ export interface Codec<
 		z.ZodTypeDef,
 		any
 	>,
-> {
-	fromInput: (v: Input) => Output;
-	fromOutput: (v: Output) => Input;
+> extends Codec<Output, Input> {
 	outputSchema: TSchema;
+}
+
+export function defineCodec<
+	Output,
+	Input,
+	InputFromOutput extends Input,
+	TSchema extends z.ZodType<Output, z.ZodTypeDef, any>,
+>(codec: {
+	fromInput: (v: Input) => Output;
+	fromOutput: (v: Output) => InputFromOutput;
+	outputSchema: TSchema;
+}): CodecWithSchema<Output, Input, TSchema> {
+	return codec;
 }
 
 interface NoOpCodec {
@@ -108,13 +124,10 @@ type ObjectOutput<TSchema extends z.ZodTypeAny> =
 
 type ZodTypeForValue<TValue> = z.ZodType<TValue, z.ZodTypeDef, TValue>;
 type FieldInput<TField extends z.ZodTypeAny> = z.input<TField>;
-type InputCompatibleCodecForField<TField extends z.ZodTypeAny> = Codec<
-	any,
-	any,
-	any
-> & {
-	fromInput: (v: FieldInput<TField>) => unknown;
-};
+type InputCompatibleCodecForField<TField extends z.ZodTypeAny> =
+	CodecWithSchema<any, any, z.ZodTypeAny> & {
+		fromInput: (v: FieldInput<TField>) => unknown;
+	};
 
 type WideObjectShapeNodeForField<TField extends z.ZodTypeAny> = [
 	ObjectOutput<TField>,
@@ -153,7 +166,7 @@ type CodecShapeForSchemaShape<TShape extends z.ZodRawShape> = {
 };
 
 type OutputZodShapeFromCodecShape<S extends RuntimeCodecShape> = {
-	[K in KnownKeys<S>]: S[K] extends Codec<any, any, infer TSchema>
+	[K in KnownKeys<S>]: S[K] extends CodecWithSchema<any, any, infer TSchema>
 		? TSchema
 		: S[K] extends NoOpCodec
 			? z.ZodUnknown
@@ -168,7 +181,7 @@ type OutputZodShapeFromOutputObject<
 	TObj extends object,
 	S extends RuntimeCodecShape,
 > = {
-	[K in KnownKeys<S>]: S[K] extends Codec<any, any, infer TSchema>
+	[K in KnownKeys<S>]: S[K] extends CodecWithSchema<any, any, infer TSchema>
 		? TSchema
 		: S[K] extends NoOpCodec
 			? K extends keyof TObj
@@ -199,7 +212,7 @@ type OutputZodShapeFromOutputObject<
 };
 
 type OutputZodNode<TInputField extends z.ZodTypeAny, TShapeNode> =
-	TShapeNode extends Codec<any, any, infer TSchema>
+	TShapeNode extends CodecWithSchema<any, any, infer TSchema>
 		? TSchema
 		: TShapeNode extends NoOpCodec
 			? TInputField
@@ -258,7 +271,7 @@ type OutputZodShapeForSchemaShape<
 		: never;
 };
 
-function isCodec(v: unknown): v is Codec<any, any, any> {
+function isCodec(v: unknown): v is CodecWithSchema<any, any, z.ZodTypeAny> {
 	return (
 		typeof v === "object" &&
 		v !== null &&

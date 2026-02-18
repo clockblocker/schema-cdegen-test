@@ -11,11 +11,12 @@ import {
 	arrayOf,
 	buildCodecAndFormSchema,
 	type Codec,
+	defineCodec,
 	noOpCodec,
 } from "./build-codec";
 
 export type { Codec };
-export { arrayOf, buildCodecAndFormSchema as buildCodec };
+export { arrayOf, buildCodecAndFormSchema as buildCodec, defineCodec };
 
 export const atomicCodecs = {
 	arrayOf,
