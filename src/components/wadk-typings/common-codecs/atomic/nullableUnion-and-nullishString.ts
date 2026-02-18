@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { defineCodec } from "../build-codec";
 
 type NonEmptyStringTuple = readonly [string, ...string[]];
 type MutableTuple<T extends readonly string[]> = [...T];
@@ -33,13 +32,13 @@ export function nullableUnionAndNullishStringBuilder<
 	const outputSchema = enumSchema.nullable();
 	const allowedValues = enumSchema.options as readonly TValues[number][];
 
-	return defineCodec({
+	return {
 		fromInput: (v: string | null | undefined): TValues[number] | null =>
 			nullishStringToNullableUnion(v, allowedValues),
 		fromOutput: (v: TValues[number] | null): TValues[number] | undefined =>
 			nullableUnionToNullishString(v),
 		outputSchema,
-	});
+	};
 }
 
 export const countryAndNullishSting = nullableUnionAndNullishStringBuilder([

@@ -17,19 +17,6 @@ interface CodecWithSchema<
 	outputSchema: TSchema;
 }
 
-export function defineCodec<
-	Output,
-	Input,
-	InputFromOutput extends Input,
-	TSchema extends z.ZodType<Output, z.ZodTypeDef, any>,
->(codec: {
-	fromInput: (v: Input) => Output;
-	fromOutput: (v: Output) => InputFromOutput;
-	outputSchema: TSchema;
-}): CodecWithSchema<Output, Input, TSchema> {
-	return codec;
-}
-
 interface NoOpCodec {
 	readonly __noOpCodec: true;
 }

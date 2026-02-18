@@ -4,7 +4,6 @@ import {
 	arrayOf,
 	buildCodecAndFormSchema,
 	type Codec,
-	defineCodec,
 	noOpCodec,
 } from "./build-codec";
 
@@ -80,11 +79,11 @@ buildCodecAndFormSchema(strict, {
 	id: arrayOf(counterpartyCodec),
 });
 
-const numberOrStringInputCodec = defineCodec({
+const numberOrStringInputCodec = {
 	fromInput: (v: number | string) => String(v),
 	fromOutput: (v: string) => Number(v),
 	outputSchema: z.string(),
-});
+};
 const _minimalCodecApi: Codec<string, number | string> =
 	numberOrStringInputCodec;
 
