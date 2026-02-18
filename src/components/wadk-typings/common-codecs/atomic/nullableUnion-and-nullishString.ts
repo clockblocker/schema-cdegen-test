@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Codec } from "../build-codec";
 
 type NonEmptyStringTuple = readonly [string, ...string[]];
 type MutableTuple<T extends readonly string[]> = [...T];
@@ -38,7 +39,11 @@ export function nullableUnionAndNullishStringBuilder<
 		fromOutput: (v: TValues[number] | null): TValues[number] | undefined =>
 			nullableUnionToNullishString(v),
 		outputSchema,
-	};
+	} satisfies Codec<
+		TValues[number] | null,
+		string | null | undefined,
+		typeof outputSchema
+	>;
 }
 
 export const countryAndNullishSting = nullableUnionAndNullishStringBuilder([

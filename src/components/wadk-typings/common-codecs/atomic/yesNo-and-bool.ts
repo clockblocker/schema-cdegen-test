@@ -1,4 +1,5 @@
 import { yesNoOrUndefined } from "../../wadk-input-schemas";
+import type { Codec } from "../build-codec";
 
 export function yesNoToBool(v: "Yes" | "No"): boolean;
 export function yesNoToBool(v: "Yes" | "No" | undefined): boolean | undefined;
@@ -16,4 +17,8 @@ export const yesNoBool = {
 	fromInput: boolToYesNo,
 	fromOutput: yesNoToBool,
 	outputSchema: yesNoOrUndefined,
-};
+} satisfies Codec<
+	"Yes" | "No" | undefined,
+	boolean | undefined,
+	typeof yesNoOrUndefined
+>;

@@ -83,13 +83,10 @@ const numberOrStringInputCodec = {
 	fromInput: (v: number | string) => String(v),
 	fromOutput: (v: string) => Number(v),
 	outputSchema: z.string(),
-};
-const _minimalCodecApi: Codec<string, number | string> =
-	numberOrStringInputCodec;
+} satisfies Codec<string, number | string, z.ZodString>;
 
 buildCodecAndFormSchema(strict, {
 	id: numberOrStringInputCodec,
 });
 
 void _widenedArrayCheck;
-void _minimalCodecApi;

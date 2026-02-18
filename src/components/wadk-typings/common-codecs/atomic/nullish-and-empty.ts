@@ -1,4 +1,5 @@
 import { nonNullishString } from "../../wadk-input-schemas";
+import type { Codec } from "../build-codec";
 
 export function nullishToEmpty(v: string | null | undefined): string {
 	return v ?? "";
@@ -12,4 +13,4 @@ export const nullishEmpty = {
 	fromInput: nullishToEmpty,
 	fromOutput: emptyToNullish,
 	outputSchema: nonNullishString,
-};
+} satisfies Codec<string, string | null | undefined, typeof nonNullishString>;
