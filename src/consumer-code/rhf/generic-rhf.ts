@@ -27,12 +27,14 @@ export function GenericRhfForm<
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: GenericFormProps<F, R>): ReactElement {
-	const { formValidatedSchema, fieldsNode } =
-		selectBuildingKindForm(buildingKind, userRole);
+	const { formValidatedSchema, fieldsNode } = selectBuildingKindForm(
+		buildingKind,
+		userRole,
+	);
 
 	const defaultValues = initialValue;
 
-	const methods = useForm<AudutFormDraft<F>, any, AudutFormValidatedFor<R, F>>({
+	const methods = useForm({
 		// biome-ignore lint/suspicious/noExplicitAny: intentional per requested RHF generic signature
 		resolver: zodResolver<AudutFormDraft<F>, any, AudutFormValidatedFor<R, F>>(
 			formValidatedSchema,
@@ -75,18 +77,16 @@ function selectBuildingKindForm<
 	switch (buildingKind) {
 		case "Hospital":
 			return {
-				formValidatedSchema:
-					batteriesFor.Hospital.formValidatedSchemaForRole[
-						userRole
-					] as AudutFormValidatedSchemaFor<F, R>,
+				formValidatedSchema: batteriesFor.Hospital.formValidatedSchemaForRole[
+					userRole
+				] as AudutFormValidatedSchemaFor<F, R>,
 				fieldsNode: createElement(HospitalFormFields),
 			};
 		case "School":
 			return {
-				formValidatedSchema:
-					batteriesFor.School.formValidatedSchemaForRole[
-						userRole
-					] as AudutFormValidatedSchemaFor<F, R>,
+				formValidatedSchema: batteriesFor.School.formValidatedSchemaForRole[
+					userRole
+				] as AudutFormValidatedSchemaFor<F, R>,
 				fieldsNode: createElement(SchoolFormFields),
 			};
 		default: {

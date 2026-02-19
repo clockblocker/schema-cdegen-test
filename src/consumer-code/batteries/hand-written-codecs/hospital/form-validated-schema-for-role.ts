@@ -2,7 +2,7 @@ import type { UserRole } from "~/consumer-code/business-types";
 import { z } from "zod";
 import { HospitalFormSchema } from "../../generated/hospital/reshape-schema";
 
-const hospitalBaseValidatedForRoleSchema = HospitalFormSchema.extend({
+const hospitalFormValidatedSchema = HospitalFormSchema.extend({
 	l0: HospitalFormSchema.shape.l0.extend({
 		q5: HospitalFormSchema.shape.l0.shape.q5.max(
 			64,
@@ -28,7 +28,7 @@ const hospitalBaseValidatedForRoleSchema = HospitalFormSchema.extend({
 });
 
 const hospitalElectricianValidatedSchema =
-	hospitalBaseValidatedForRoleSchema.superRefine((formValue, ctx) => {
+	hospitalFormValidatedSchema.superRefine((formValue, ctx) => {
 		if (formValue.l0.q4 === undefined) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
@@ -47,7 +47,7 @@ const hospitalElectricianValidatedSchema =
 	});
 
 const hospitalPlumberValidatedSchema =
-	hospitalBaseValidatedForRoleSchema.superRefine((formValue, ctx) => {
+	hospitalFormValidatedSchema.superRefine((formValue, ctx) => {
 		if (formValue.l0.q3 === undefined) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,

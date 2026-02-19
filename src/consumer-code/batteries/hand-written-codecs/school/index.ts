@@ -1,7 +1,8 @@
 import { pipeCodecs } from "~/codec-builder-library/adapter-builder";
 import { schoolFieldAdaptersCodec } from "./field-adapters";
-import { SchoolFormValidatedSchema } from "./form-validated-schema";
-import { SchoolFormValidatedSchemaForRole } from "./form-validated-schema-for-role";
+import {
+	SchoolFormValidatedSchemaForRole,
+} from "./form-validated-schema-for-role";
 import { schoolReshapeCodec } from "./reshape";
 
 export {
@@ -14,7 +15,6 @@ export const SchoolServerToFormCodec = pipeCodecs(
 	schoolReshapeCodec,
 );
 
-export { SchoolFormValidatedSchema };
 export { SchoolFormValidatedSchemaForRole };
 
 export type SchoolForm = ReturnType<

@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { UserRole } from "~/consumer-code/business-types";
 import { SchoolFormSchema } from "../../generated/school/reshape-schema";
 
-const schoolBaseValidatedForRoleSchema = SchoolFormSchema.superRefine(
+const schoolFormValidatedSchema = SchoolFormSchema.superRefine(
 	(formValue, ctx) => {
 		if (formValue.questions.q3 === undefined) {
 			ctx.addIssue({
@@ -23,7 +23,7 @@ const schoolBaseValidatedForRoleSchema = SchoolFormSchema.superRefine(
 );
 
 const schoolElectricianValidatedSchema =
-	schoolBaseValidatedForRoleSchema.refine(
+	schoolFormValidatedSchema.refine(
 		(formValue) => formValue.questions.q3 === "Yes",
 		{
 			path: ["questions", "q3"],
@@ -31,7 +31,7 @@ const schoolElectricianValidatedSchema =
 		},
 	);
 
-const schoolPlumberValidatedSchema = schoolBaseValidatedForRoleSchema.refine(
+const schoolPlumberValidatedSchema = schoolFormValidatedSchema.refine(
 	(formValue) => formValue.questions.q4 === "Yes",
 	{
 		path: ["questions", "q4"],

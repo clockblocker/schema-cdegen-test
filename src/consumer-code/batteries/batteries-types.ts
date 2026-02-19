@@ -10,9 +10,6 @@ import type {
 export type AudutFormSchema<F extends AuditableBuildingKind> =
 	(typeof batteriesFor)[F]["formSchema"];
 
-export type AudutFormValidatedSchema<F extends AuditableBuildingKind> =
-	(typeof batteriesFor)[F]["formValidatedSchema"];
-
 export type AudutFormValidatedSchemaFor<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
@@ -22,14 +19,13 @@ export type AudutFormDraft<F extends AuditableBuildingKind> = z.input<
 	AudutFormSchema<F>
 >;
 
-export type AudutFormValidated<F extends AuditableBuildingKind> = z.output<
-	AudutFormValidatedSchema<F>
->;
-
 export type AudutFormValidatedFor<
 	R extends UserRole,
 	F extends AuditableBuildingKind,
 > = z.output<AudutFormValidatedSchemaFor<F, R>>;
+
+export type AudutFormValidated<F extends AuditableBuildingKind> =
+	AudutFormValidatedFor<UserRole, F>;
 
 export type Audut<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["formSchema"]
