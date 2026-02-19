@@ -1,4 +1,4 @@
-import { codec } from "~/codec-builder-library/adapter-builder/codec-pair";
+import { codec } from "~/lib/codec-builder-library/adapter-builder/codec-pair";
 import type { hospitalFieldAdaptersCodec } from "./adapt-fields";
 
 type WithAdaptedToFormFields = ReturnType<

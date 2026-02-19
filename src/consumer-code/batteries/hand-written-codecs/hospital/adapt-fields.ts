@@ -1,5 +1,5 @@
-import { atomicCodecs } from "~/codec-builder-library/adapter-builder";
-import { buildAddaptersAndOutputSchema } from "~/codec-builder-library/adapter-builder/build-codec";
+import { atomicCodecs } from "~/lib/codec-builder-library/adapter-builder";
+import { buildAddaptersAndOutputSchema } from "~/lib/codec-builder-library/adapter-builder/build-codec";
 import { HospitalServerSchema } from "../../generated/hospital/server-schema";
 
 const { yesNoBool, stringNumber, dateIso, nullishEmpty, noOpCodec, arrayOf } =

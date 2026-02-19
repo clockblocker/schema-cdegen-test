@@ -1,7 +1,7 @@
 import {
 	type CodecOutputSchemaConfig,
 	generateCodecOutputSchemas,
-} from "./lib/generate-codec-output-schema";
+} from "../../../lib/reshaper-codegen/generate-codec-output-schema";
 import { codecOutputSchemaTasks } from "./codec-output-schema-tasks";
 
 type TaskName = keyof typeof codecOutputSchemaTasks;

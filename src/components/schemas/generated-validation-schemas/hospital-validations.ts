@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { maxNumericValue } from "~/codec-builder-library/adapter-builder/shitty-input-schemas";
+import { maxNumericValue } from "~/lib/codec-builder-library/adapter-builder/shitty-input-schemas";
 import { HospitalFormSchema } from "../codecs/hospital-codecs";
 
 const HospitalFormWithLimitsSchema = HospitalFormSchema.extend({
