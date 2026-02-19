@@ -1,5 +1,5 @@
 import { codec } from "~/codec-builder-library/adapter-builder/codec-pair";
-import type { schoolFieldAdaptersCodec } from "./field-adapters";
+import type { schoolFieldAdaptersCodec } from "./adapt-fields";
 
 type WithAdaptedToFormFields = ReturnType<
 	typeof schoolFieldAdaptersCodec.fromInput
