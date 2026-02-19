@@ -1,26 +1,25 @@
 import { codec } from "~/codec-builder-library/adapter-builder/codec-pair";
 import type { loansFieldAdaptersCodec } from "./field-adapters";
 
-type FieldAdaptersOutput = ReturnType<typeof loansFieldAdaptersCodec.fromInput>;
+type WithAdaptedToFormFields = ReturnType<
+	typeof loansFieldAdaptersCodec.fromInput
+>;
 
-function questionsFromInput(input: FieldAdaptersOutput) {
-	return input.questionsLoans;
-}
-
-function questionsToInput(output: ReturnType<typeof questionsFromInput>) {
-	return output;
-}
-
-export const loansReshapeCodec = codec<FieldAdaptersOutput>()((input) => {
+function reshapeFromInput(input: WithAdaptedToFormFields) {
 	const { questionsLoans, ...rest } = input;
 	return {
 		...rest,
-		questions: questionsFromInput(input),
+		questions: questionsLoans,
 	};
-})((output) => {
+}
+
+function reshapeToInput(output: ReturnType<typeof reshapeFromInput>) {
 	const { questions, ...rest } = output;
 	return {
 		...rest,
-		questionsLoans: questionsToInput(questions),
+		questionsLoans: questions,
 	};
-});
+}
+
+export const loansReshapeCodec =
+	codec<WithAdaptedToFormFields>()(reshapeFromInput)(reshapeToInput);
