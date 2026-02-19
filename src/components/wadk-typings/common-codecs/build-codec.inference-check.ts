@@ -89,4 +89,27 @@ buildCodecAndFormSchema(strict, {
 	id: numberOrStringInputCodec,
 });
 
+const strictArray = z.object({
+	dates: z.array(z.number()),
+});
+
+const numberToDateCodec = {
+	fromInput: (v: number) => new Date(v),
+	fromOutput: (v: Date) => v.getTime(),
+	outputSchema: z.date(),
+} satisfies Codec<Date, number, z.ZodDate>;
+
+const strictArrayMapped = buildCodecAndFormSchema(strictArray, {
+	dates: arrayOf(numberToDateCodec),
+});
+
+type StrictArrayMappedOutput = z.infer<typeof strictArrayMapped.outputSchema>;
+const _strictArrayMappedCheck: StrictArrayMappedOutput["dates"] = [new Date()];
+
+buildCodecAndFormSchema(strictArray, {
+	// @ts-expect-error number[] item cannot use yes/no codec
+	dates: arrayOf(yesNoBool),
+});
+
 void _widenedArrayCheck;
+void _strictArrayMappedCheck;
