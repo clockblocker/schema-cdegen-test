@@ -5,7 +5,7 @@ import {
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
-import { codec, pipeCodecs, type CodecPair } from "./codec-pair";
+import { codec, pipeCodecs } from "./codec-pair";
 import { dateToIsoString, isoStringToDate } from "./atomic/date-and-isoString";
 
 export const ReshapeServerSchema = z.object({
@@ -44,49 +44,22 @@ const isoDates = buildAddaptersAndOutputSchema(ReshapeServerSchema, {
 	}),
 });
 
-type IsoDatesOutput = z.infer<typeof isoDates.outputSchema>;
+type AtomicsOutput = ReturnType<typeof isoDates.fromInput>;
 
-const isoDatesCodec: CodecPair<ReshapeServer, IsoDatesOutput> = {
-	fromInput: isoDates.fromInput,
-	fromOutput: isoDates.fromOutput,
-};
+const l1Party = (id: number, l1_f0: Date) => ({ id, l1_f0 });
+const l2Party = (id: number, l2_f0: Date) => ({ id, l2_f0 });
 
-type PartyL1 = {
-	id: number;
-	l1_f0: Date;
-};
-
-type PartyL2 = {
-	id: number;
-	l2_f0: Date;
-};
-
-type ReshapedOutput = {
-	l0_f0: Date;
-	parties: Array<PartyL1 | PartyL2>;
-};
-
-function isL1Party(party: PartyL1 | PartyL2): party is PartyL1 {
-	return "l1_f0" in party;
-}
-
-const reshapeCodec = codec<IsoDatesOutput>()((input): ReshapedOutput => {
-	const parties: Array<PartyL1 | PartyL2> = [];
-
+const reshapeCodec = codec<AtomicsOutput>()((input) => {
+	const parties: Array<ReturnType<typeof l1Party> | ReturnType<typeof l2Party>> =
+		[];
 	for (const client of input.clients) {
 		if (client.counterparties.length === 0) {
-			parties.push({
-				id: client.id,
-				l1_f0: client.l1_f1,
-			});
+			parties.push(l1Party(client.id, client.l1_f1));
 			continue;
 		}
 
 		for (const counterparty of client.counterparties) {
-			parties.push({
-				id: counterparty.id,
-				l2_f0: counterparty.l2_f1,
-			});
+			parties.push(l2Party(counterparty.id, counterparty.l2_f1));
 		}
 	}
 
@@ -94,11 +67,11 @@ const reshapeCodec = codec<IsoDatesOutput>()((input): ReshapedOutput => {
 		l0_f0: input.l0_f1,
 		parties,
 	};
-})((output): IsoDatesOutput => {
+})((output): AtomicsOutput => {
 	// Canonical inverse: l1 party -> client without counterparties; l2 party ->
 	// client with one counterparty and mirrored l1 date to satisfy server shape.
-	const clients: IsoDatesOutput["clients"] = output.parties.map((party) => {
-		if (isL1Party(party)) {
+	const clients: AtomicsOutput["clients"] = output.parties.map((party) => {
+		if ("l1_f0" in party) {
 			return {
 				id: party.id,
 				l1_f1: party.l1_f0,
@@ -119,6 +92,6 @@ const reshapeCodec = codec<IsoDatesOutput>()((input): ReshapedOutput => {
 	};
 });
 
-export const ReshapeServerToPartiesCodec = pipeCodecs(isoDatesCodec, reshapeCodec);
+export const ReshapeServerToPartiesCodec = pipeCodecs(isoDates, reshapeCodec);
 
 export type ReshapeOutput = ReturnType<(typeof ReshapeServerToPartiesCodec)["fromInput"]>;
