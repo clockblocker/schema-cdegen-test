@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
-import { ArFormSchema } from "../src/consumer-code/batteries/generated/ar/reshape-schema";
+import { HospitalFormSchema } from "../src/consumer-code/batteries/generated/hospital/reshape-schema";
 import {
-	ArServerSchema,
-	ArServerToFormCodec,
-} from "../src/consumer-code/batteries/hand-written-codecs/ar";
+	HospitalServerSchema,
+	HospitalServerToFormCodec,
+} from "../src/consumer-code/batteries/hand-written-codecs/hospital";
 
-const serverSample = ArServerSchema.parse({
+const serverSample = HospitalServerSchema.parse({
 	q1l0: true,
 	q2l0: false,
 	q3l0: 101,
@@ -45,15 +45,15 @@ const serverSample = ArServerSchema.parse({
 	},
 });
 
-const formOut = ArServerToFormCodec.fromInput(serverSample);
-ArFormSchema.parse(formOut);
+const formOut = HospitalServerToFormCodec.fromInput(serverSample);
+HospitalFormSchema.parse(formOut);
 
-const serverRoundtrip = ArServerToFormCodec.fromOutput(formOut);
-ArServerSchema.parse(serverRoundtrip);
+const serverRoundtrip = HospitalServerToFormCodec.fromOutput(formOut);
+HospitalServerSchema.parse(serverRoundtrip);
 
 assert.deepStrictEqual(serverRoundtrip, serverSample);
 
-const formRoundtrip = ArServerToFormCodec.fromInput(serverRoundtrip);
+const formRoundtrip = HospitalServerToFormCodec.fromInput(serverRoundtrip);
 assert.deepStrictEqual(formRoundtrip, formOut);
 
-console.log("AR codec roundtrip check passed");
+console.log("Hospital codec roundtrip check passed");

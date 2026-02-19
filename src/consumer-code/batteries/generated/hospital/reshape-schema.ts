@@ -1,8 +1,8 @@
 // AUTO-GENERATED FILE. DO NOT EDIT.
-// Source: src/consumer-code/batteries/hand-written-codecs/ar/index.ts
-// Codec export: ArServerToFormCodec
+// Source: src/consumer-code/batteries/hand-written-codecs/hospital/index.ts
+// Codec export: HospitalServerToFormCodec
 import { z } from "zod";
-export const ArFormSchema = z.object({
+export const HospitalFormSchema = z.object({
 	l0: z.object({
 		q1: z.boolean().optional(),
 		q2: z.enum(["Yes", "No"]).optional(),
@@ -44,4 +44,4 @@ export const ArFormSchema = z.object({
 	}),
 });
 
-export type ArFormSchemaType = z.infer<typeof ArFormSchema>;
+export type HospitalFormSchemaType = z.infer<typeof HospitalFormSchema>;

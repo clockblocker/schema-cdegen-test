@@ -1,7 +1,6 @@
-import type { z } from "zod";
 import { atomicCodecs } from "~/codec-builder-library/adapter-builder";
 import { buildAddaptersAndOutputSchema } from "~/codec-builder-library/adapter-builder/build-codec";
-import { ArServerSchema } from "../server/ar-server";
+import { HospitalServerSchema } from "../../generated/hospital/server-schema";
 
 const { yesNoBool, stringNumber, dateIso, nullishEmpty, noOpCodec, arrayOf } =
 	atomicCodecs;
@@ -23,7 +22,7 @@ const l2ArrItem = {
 	l3_arr: arrayOf(l2),
 };
 
-const ar = buildAddaptersAndOutputSchema(ArServerSchema, {
+const hospitalFieldCodec = {
 	q1l0: noOpCodec,
 	q2l0: yesNoBool,
 	q3l0: stringNumber,
@@ -38,9 +37,9 @@ const ar = buildAddaptersAndOutputSchema(ArServerSchema, {
 		l2,
 		l2_arr: arrayOf(l2ArrItem),
 	},
-});
+};
 
-export const ArFormSchema = ar.outputSchema;
-export const arServerToForm = ar.fromInput;
-export const arFormToServer = ar.fromOutput;
-export type ArForm = z.infer<typeof ArFormSchema>;
+export const hospitalFieldAdaptersCodec = buildAddaptersAndOutputSchema(
+	HospitalServerSchema,
+	hospitalFieldCodec,
+);

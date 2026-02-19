@@ -1,15 +1,15 @@
 import { codec } from "~/codec-builder-library/adapter-builder/codec-pair";
-import type { loansFieldAdaptersCodec } from "./field-adapters";
+import type { schoolFieldAdaptersCodec } from "./field-adapters";
 
 type WithAdaptedToFormFields = ReturnType<
-	typeof loansFieldAdaptersCodec.fromInput
+	typeof schoolFieldAdaptersCodec.fromInput
 >;
 
 function reshapeFromInput(input: WithAdaptedToFormFields) {
-	const { questionsLoans, ...rest } = input;
+	const { questionsSchool, ...rest } = input;
 	return {
 		...rest,
-		questions: questionsLoans,
+		questions: questionsSchool,
 	};
 }
 
@@ -17,9 +17,9 @@ function reshapeToInput(output: ReturnType<typeof reshapeFromInput>) {
 	const { questions, ...rest } = output;
 	return {
 		...rest,
-		questionsLoans: questions,
+		questionsSchool: questions,
 	};
 }
 
-export const loansReshapeCodec =
+export const schoolReshapeCodec =
 	codec<WithAdaptedToFormFields>()(reshapeFromInput)(reshapeToInput);

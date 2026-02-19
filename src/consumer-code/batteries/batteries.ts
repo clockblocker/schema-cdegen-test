@@ -1,23 +1,23 @@
 import type { AuditableBuildingKind } from "../business-types";
-import { ArFormSchema } from "./generated/ar/reshape-schema";
-import { ArServerSchema } from "./generated/ar/server-schema";
-import { LoansFormSchema } from "./generated/loans/reshape-schema";
-import { LoansServerSchema } from "./generated/loans/server-schema";
-import { ArServerToFormCodec } from "./hand-written-codecs/ar";
-import { LoansServerToFormCodec } from "./hand-written-codecs/loans";
+import { HospitalFormSchema } from "./generated/hospital/reshape-schema";
+import { HospitalServerSchema } from "./generated/hospital/server-schema";
+import { SchoolFormSchema } from "./generated/school/reshape-schema";
+import { SchoolServerSchema } from "./generated/school/server-schema";
+import { HospitalServerToFormCodec } from "./hand-written-codecs/hospital";
+import { SchoolServerToFormCodec } from "./hand-written-codecs/school";
 import type { BatteriesRecord } from "./helper-shapes";
 
 export const batteriesFor = {
 	Hospital: {
 		kind: "Hospital",
-		codec: ArServerToFormCodec,
-		serverSchema: ArServerSchema,
-		formSchema: ArFormSchema,
+		codec: HospitalServerToFormCodec,
+		serverSchema: HospitalServerSchema,
+		formSchema: HospitalFormSchema,
 	},
 	School: {
 		kind: "School",
-		codec: LoansServerToFormCodec,
-		serverSchema: LoansServerSchema,
-		formSchema: LoansFormSchema,
+		codec: SchoolServerToFormCodec,
+		serverSchema: SchoolServerSchema,
+		formSchema: SchoolFormSchema,
 	},
 } as const satisfies BatteriesRecord<AuditableBuildingKind>;

@@ -1,12 +1,12 @@
 import { Controller, useFormContext } from "react-hook-form";
-import type { ArForm } from "~/components/schemas/codecs/ar-codecs";
+import type { HospitalForm } from "~/components/schemas/codecs/hospital-codecs";
 import { YesNoPicker } from "~/components/YesNoPicker";
 
-export function ArFormFields() {
+export function HospitalFormFields() {
 	const {
 		control,
 		formState: { errors },
-	} = useFormContext<ArForm>();
+	} = useFormContext<HospitalForm>();
 	const q1Message =
 		typeof errors.q1l0?.message === "string" ? errors.q1l0.message : undefined;
 	const q2Message =

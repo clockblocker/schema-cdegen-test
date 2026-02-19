@@ -1,10 +1,9 @@
-// AUTO-GENERATED FILE. DO NOT EDIT.
-// Step 0 input schema received from upstream codegen.
 import { z } from "zod";
 
+// Server schemas — booleans
 const boolOrUndefined = z.boolean().optional();
 
-export const ArServerSchema = z.object({
+export const HospitalServerSchema = z.object({
 	q1l0: boolOrUndefined,
 	q2l0: boolOrUndefined,
 	q3l0: z.number().optional(),
@@ -44,4 +43,4 @@ export const ArServerSchema = z.object({
 	}),
 });
 
-export type ArServer = z.infer<typeof ArServerSchema>;
+export type HospitalServer = z.infer<typeof HospitalServerSchema>;

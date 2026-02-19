@@ -4,11 +4,11 @@ import { z } from "zod";
 
 const boolOrUndefined = z.boolean().optional();
 
-export const LoansServerSchema = z.object({
-	questionsLoans: z.object({
+export const SchoolServerSchema = z.object({
+	questionsSchool: z.object({
 		q3: boolOrUndefined,
 		q4: boolOrUndefined,
 	}),
 });
 
-export type LoansServer = z.infer<typeof LoansServerSchema>;
+export type SchoolServer = z.infer<typeof SchoolServerSchema>;

@@ -10,7 +10,7 @@ function dateToInputValue(value: Date | undefined): string {
 	return value.toISOString().slice(0, 10);
 }
 
-export function ArFormFields() {
+export function HospitalFormFields() {
 	const {
 		control,
 		register,

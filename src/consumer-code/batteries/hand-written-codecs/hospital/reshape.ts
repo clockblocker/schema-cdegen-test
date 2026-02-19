@@ -1,8 +1,8 @@
 import { codec } from "~/codec-builder-library/adapter-builder/codec-pair";
-import type { arFieldAdaptersCodec } from "./field-adapters";
+import type { hospitalFieldAdaptersCodec } from "./field-adapters";
 
 type WithAdaptedToFormFields = ReturnType<
-	typeof arFieldAdaptersCodec.fromInput
+	typeof hospitalFieldAdaptersCodec.fromInput
 >;
 
 function reshapeFromInput(input: WithAdaptedToFormFields) {
@@ -30,5 +30,5 @@ function reshapeToInput(output: ReturnType<typeof reshapeFromInput>) {
 	};
 }
 
-export const arReshapeCodec =
+export const hospitalReshapeCodec =
 	codec<WithAdaptedToFormFields>()(reshapeFromInput)(reshapeToInput);

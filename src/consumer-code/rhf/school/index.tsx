@@ -2,7 +2,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import type { Audut } from "../../batteries/batteries-types";
 
-export function LoansFormFields() {
+export function SchoolFormFields() {
 	const {
 		control,
 		formState: { errors },

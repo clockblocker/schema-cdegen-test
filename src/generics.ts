@@ -1,43 +1,43 @@
 import type { DefaultValues } from "react-hook-form";
 import type { z } from "zod";
 import {
-	ArFormSchema,
-	arFormToServer,
-	arServerToForm,
-} from "~/components/schemas/codecs/ar-codecs";
+	HospitalFormSchema,
+	hospitalFormToServer,
+	hospitalServerToForm,
+} from "~/components/schemas/codecs/hospital-codecs";
 import {
-	LoansFormSchema,
-	loansFormToServer,
-	loansServerToForm,
-} from "~/components/schemas/codecs/loans-codecs";
+	SchoolFormSchema,
+	schoolFormToServer,
+	schoolServerToForm,
+} from "~/components/schemas/codecs/school-codecs";
 import {
-	ArSalesFormValidationSchema,
-	ArScorerFormValidationSchema,
-} from "~/components/schemas/generated-validation-schemas/ar-validations";
+	HospitalSalesFormValidationSchema,
+	HospitalScorerFormValidationSchema,
+} from "~/components/schemas/generated-validation-schemas/hospital-validations";
 import {
-	LoansSalesFormOutSchema,
-	LoansScorerFormOutSchema,
-} from "~/components/schemas/generated-validation-schemas/loans-validations";
+	SchoolSalesFormOutSchema,
+	SchoolScorerFormOutSchema,
+} from "~/components/schemas/generated-validation-schemas/school-validations";
 
 export type AudutKind = "Hospital" | "School";
 export type Role = "Sales" | "Scorer";
 
 const schemaFor = {
 	Hospital: {
-		Sales: ArSalesFormValidationSchema,
-		Scorer: ArScorerFormValidationSchema,
+		Sales: HospitalSalesFormValidationSchema,
+		Scorer: HospitalScorerFormValidationSchema,
 	},
 	School: {
-		Sales: LoansSalesFormOutSchema,
-		Scorer: LoansScorerFormOutSchema,
+		Sales: SchoolSalesFormOutSchema,
+		Scorer: SchoolScorerFormOutSchema,
 	},
 } satisfies Record<AudutKind, Record<Role, z.ZodTypeAny>>;
 
 type SchemaMap = typeof schemaFor;
 
 const baseFormSchemas = {
-	Hospital: ArFormSchema,
-	School: LoansFormSchema,
+	Hospital: HospitalFormSchema,
+	School: SchoolFormSchema,
 } as const satisfies Record<AudutKind, z.ZodTypeAny>;
 
 export type FormInFor<SK extends AudutKind> = z.infer<
@@ -70,7 +70,7 @@ export const defaultValuesFor: {
 		q2l0: undefined,
 	},
 	School: {
-		questionsLoans: {
+		questionsSchool: {
 			q3: undefined,
 			q4: undefined,
 		},
@@ -79,12 +79,12 @@ export const defaultValuesFor: {
 
 // decode: server → form (for loading server data into forms)
 export const serverToFormCodec = {
-	Hospital: arServerToForm,
-	School: loansServerToForm,
+	Hospital: hospitalServerToForm,
+	School: schoolServerToForm,
 };
 
 // encode: form → server (for submitting form data to the server)
 export const formToServerCodec = {
-	Hospital: arFormToServer,
-	School: loansFormToServer,
+	Hospital: hospitalFormToServer,
+	School: schoolFormToServer,
 };

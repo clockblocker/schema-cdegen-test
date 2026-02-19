@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import { FormProvider, useForm } from "react-hook-form";
-import { ArFormFields } from "~/components/forms/ar-form";
 import { AudutForm } from "~/components/forms/audut/audut-form";
 import { mockAudutGroups } from "~/components/forms/audut/mock-data";
-import { LoansFormFields } from "~/components/forms/loans-form";
+import { HospitalFormFields } from "~/components/forms/hospital-form";
+import { SchoolFormFields } from "~/components/forms/school-form";
 import { Button } from "~/components/ui/button";
 import {
 	type AudutKind,
@@ -38,8 +38,8 @@ function QuestionForm<SK extends AudutKind, R extends Role>({
 				onSubmit={methods.handleSubmit(onSubmit)}
 			>
 				<h2 className="font-semibold text-lg">{audutRole}</h2>
-				{sk === "Hospital" && <ArFormFields />}
-				{sk === "School" && <LoansFormFields />}
+				{sk === "Hospital" && <HospitalFormFields />}
+				{sk === "School" && <SchoolFormFields />}
 				<Button type="submit" variant="outline">
 					Submit
 				</Button>

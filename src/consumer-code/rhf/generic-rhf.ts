@@ -4,13 +4,13 @@ import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
 import { batteriesFor } from "../batteries/batteries";
 import type { Audut } from "../batteries/batteries-types";
 import type { AuditableBuildingKind } from "../business-types";
-import { ArFormFields } from "./ar";
 import {
 	DEFAULT_FORM_CLASS,
 	type GenericFormProps,
 	renderGenericRhfFormShell,
 } from "./generic-rhf.utils";
-import { LoansFormFields } from "./loans";
+import { HospitalFormFields } from "./hospital";
+import { SchoolFormFields } from "./school";
 
 function selectBuildingKindForm<F extends AuditableBuildingKind>(
 	buildingKind: F,
@@ -23,13 +23,13 @@ function selectBuildingKindForm<F extends AuditableBuildingKind>(
 			return {
 				formSchema: batteriesFor.Hospital
 					.formSchema as (typeof batteriesFor)[F]["formSchema"],
-				fieldsNode: createElement(ArFormFields),
+				fieldsNode: createElement(HospitalFormFields),
 			};
 		case "School":
 			return {
 				formSchema: batteriesFor.School
 					.formSchema as (typeof batteriesFor)[F]["formSchema"],
-				fieldsNode: createElement(LoansFormFields),
+				fieldsNode: createElement(SchoolFormFields),
 			};
 		default: {
 			const unreachable: never = buildingKind;

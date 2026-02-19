@@ -1,26 +1,26 @@
 import { Controller, useFormContext } from "react-hook-form";
-import type { LoansForm } from "~/components/schemas/codecs/loans-codecs";
+import type { SchoolForm } from "~/components/schemas/codecs/school-codecs";
 import { YesNoPicker } from "~/components/YesNoPicker";
 
-export function LoansFormFields() {
+export function SchoolFormFields() {
 	const {
 		control,
 		formState: { errors },
-	} = useFormContext<LoansForm>();
+	} = useFormContext<SchoolForm>();
 	const q3Message =
-		typeof errors.questionsLoans?.q3?.message === "string"
-			? errors.questionsLoans.q3.message
+		typeof errors.questionsSchool?.q3?.message === "string"
+			? errors.questionsSchool.q3.message
 			: undefined;
 	const q4Message =
-		typeof errors.questionsLoans?.q4?.message === "string"
-			? errors.questionsLoans.q4.message
+		typeof errors.questionsSchool?.q4?.message === "string"
+			? errors.questionsSchool.q4.message
 			: undefined;
 
 	return (
 		<>
 			<Controller
 				control={control}
-				name="questionsLoans.q3"
+				name="questionsSchool.q3"
 				render={({ field }) => (
 					<YesNoPicker
 						error={q3Message}
@@ -33,7 +33,7 @@ export function LoansFormFields() {
 
 			<Controller
 				control={control}
-				name="questionsLoans.q4"
+				name="questionsSchool.q4"
 				render={({ field }) => (
 					<YesNoPicker
 						error={q4Message}
