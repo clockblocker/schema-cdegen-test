@@ -1,10 +1,13 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createElement, type ReactElement } from "react";
 import { FormProvider, type Resolver, useForm } from "react-hook-form";
+import type { z } from "zod";
 import { batteriesFor } from "../batteries/batteries";
 import type {
 	AudutFormDraft,
 	AudutFormValidatedFor,
 } from "../batteries/batteries-types";
+import type { FormResolverContext } from "../batteries/helper-shapes";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import {
 	DEFAULT_FORM_CLASS,
@@ -19,13 +22,28 @@ const fieldsComponentFor = {
 	School: SchoolFormFields,
 } as const satisfies Record<AuditableBuildingKind, () => ReactElement>;
 
-type FormResolverContext<
+export function getResolver<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
-> = {
-	buildingKind: F;
-	userRole: R;
-};
+>(
+	buildingKind: F,
+	userRole: R,
+	batteries: typeof batteriesFor = batteriesFor,
+): Resolver<
+	z.input<(typeof batteriesFor)[F]["formSchema"]>,
+	FormResolverContext<F, R>,
+	z.output<(typeof batteriesFor)[F]["formValidatedSchemaForRole"][R]>
+> {
+	const schema = batteries[buildingKind].formValidatedSchemaForRole[
+		userRole
+	] as (typeof batteriesFor)[F]["formValidatedSchemaForRole"][R];
+
+	return zodResolver(schema as never) as unknown as Resolver<
+		z.input<(typeof batteriesFor)[F]["formSchema"]>,
+		FormResolverContext<F, R>,
+		z.output<(typeof batteriesFor)[F]["formValidatedSchemaForRole"][R]>
+	>;
+}
 
 export function GenericRhfForm<
 	F extends AuditableBuildingKind,
@@ -38,19 +56,12 @@ export function GenericRhfForm<
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: GenericFormProps<F, R>): ReactElement {
-	const formResolver = batteriesFor[buildingKind].formResolverForRole[
-		userRole
-	] as unknown as Resolver<
-		AudutFormDraft<F>,
-		FormResolverContext<F, R>,
-		AudutFormValidatedFor<R, F>
-	>;
 	const fieldsNode = createElement(fieldsComponentFor[buildingKind]);
 
 	const defaultValues = initialValue;
 
 	const methods = useForm({
-		resolver: formResolver,
+		resolver: getResolver(buildingKind, userRole),
 		context: { buildingKind, userRole },
 		defaultValues,
 	});

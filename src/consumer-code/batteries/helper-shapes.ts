@@ -1,4 +1,3 @@
-import type { Resolver } from "react-hook-form";
 import type { z } from "zod";
 
 type CodecLike<
@@ -14,15 +13,17 @@ type AudutBattery<
 	TRole extends string,
 	TServerSchema extends z.ZodTypeAny,
 	TFormDraftSchema extends z.ZodTypeAny,
+	TFormValidatedSchemaForRole extends Record<
+		TRole,
+		z.ZodType<z.output<TFormDraftSchema>, any, z.input<TFormDraftSchema>>
+	>,
 	TCodec extends CodecLike<TServerSchema, TFormDraftSchema>,
 > = {
 	kind: TKind;
 	codec: TCodec;
 	serverSchema: TServerSchema;
-	formResolverForRole: Record<
-		TRole,
-		Resolver<z.input<TFormDraftSchema>, unknown, z.output<TFormDraftSchema>>
-	>;
+	formSchema: TFormDraftSchema;
+	formValidatedSchemaForRole: TFormValidatedSchemaForRole;
 };
 
 export type BatteriesRecord<
@@ -35,9 +36,15 @@ export type BatteriesRecord<
 		TRole,
 		z.ZodTypeAny,
 		z.ZodTypeAny,
+		Record<TRole, z.ZodTypeAny>,
 		CodecLike<z.ZodTypeAny, z.ZodTypeAny>
 	>
 >;
+
+export type FormResolverContext<TKind extends string, TRole extends string> = {
+	buildingKind: TKind;
+	userRole: TRole;
+};
 
 type IsMutuallyAssignable<TA, TB> = [TA] extends [TB]
 	? [TB] extends [TA]
