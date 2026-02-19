@@ -1,42 +1,37 @@
+import type { Resolver } from "react-hook-form";
 import type { z } from "zod";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import type { batteriesFor } from "./batteries";
-import type {
-	Assert,
-	IsAssignableByKind,
-	IsMutualByKind,
-} from "./helper-shapes";
+import type { Assert, IsMutualByKind } from "./helper-shapes";
 
-export type AudutFormSchema<F extends AuditableBuildingKind> =
-	(typeof batteriesFor)[F]["formSchema"];
-
-export type AudutFormValidatedSchemaFor<
+export type AudutFormResolverFor<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
-> = (typeof batteriesFor)[F]["formValidatedSchemaForRole"][R];
+> = (typeof batteriesFor)[F]["formResolverForRole"][R];
 
-export type AudutFormDraft<F extends AuditableBuildingKind> = z.input<
-	AudutFormSchema<F>
+type ResolverOutput<TResolver> =
+	TResolver extends Resolver<any, any, infer TOutput> ? TOutput : never;
+
+export type AudutFormDraft<F extends AuditableBuildingKind> = ReturnType<
+	(typeof batteriesFor)[F]["codec"]["fromInput"]
 >;
 
 export type AudutFormValidatedFor<
 	R extends UserRole,
 	F extends AuditableBuildingKind,
-> = z.output<AudutFormValidatedSchemaFor<F, R>>;
+> = ResolverOutput<AudutFormResolverFor<F, R>>;
 
 export type AudutFormValidated<F extends AuditableBuildingKind> =
-	AudutFormValidatedFor<UserRole, F>;
+	AudutFormDraft<F>;
 
-export type Audut<F extends AuditableBuildingKind> = z.infer<
-	(typeof batteriesFor)[F]["formSchema"]
->;
+export type Audut<F extends AuditableBuildingKind> = AudutFormDraft<F>;
 
 export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["serverSchema"]
 >;
 
 export type AudutFromSchema = {
-	[F in AuditableBuildingKind]: z.infer<(typeof batteriesFor)[F]["formSchema"]>;
+	[F in AuditableBuildingKind]: AudutFormDraft<F>;
 };
 
 type AudutByBuildingKind = {
@@ -47,38 +42,10 @@ type AudutDraftByBuildingKind = {
 	[F in AuditableBuildingKind]: AudutFormDraft<F>;
 };
 
-type AudutValidatedByBuildingKind = {
-	[F in AuditableBuildingKind]: AudutFormValidated<F>;
-};
-
-type AudutRoleValidatedByBuildingKindAndRole = {
-	[F in AuditableBuildingKind]: {
-		[R in UserRole]: AudutFormValidatedFor<R, F>;
-	};
-};
-
-type AudutRoleDraftByBuildingKindAndRole = {
-	[F in AuditableBuildingKind]: {
-		[R in UserRole]: AudutFormDraft<F>;
-	};
-};
-
 type _audutMatchesSchema = Assert<
-	IsMutualByKind<AuditableBuildingKind, AudutFromSchema, AudutByBuildingKind>
->;
-
-type _audutValidatedAssignableToDraft = Assert<
-	IsAssignableByKind<
-		AuditableBuildingKind,
-		AudutValidatedByBuildingKind,
-		AudutDraftByBuildingKind
-	>
->;
-
-type _audutRoleValidatedMatchesDraft = Assert<
 	IsMutualByKind<
 		AuditableBuildingKind,
-		AudutRoleValidatedByBuildingKindAndRole,
-		AudutRoleDraftByBuildingKindAndRole
+		AudutDraftByBuildingKind,
+		AudutByBuildingKind
 	>
 >;

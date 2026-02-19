@@ -1,7 +1,6 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
-import { HospitalFormSchema } from "./generated/hospital/reshape-schema";
 import { HospitalServerSchema } from "./generated/hospital/server-schema";
-import { SchoolFormSchema } from "./generated/school/reshape-schema";
 import { SchoolServerSchema } from "./generated/school/server-schema";
 import {
 	HospitalFormValidatedSchemaForRole,
@@ -18,14 +17,18 @@ export const batteriesFor = {
 		kind: "Hospital",
 		codec: HospitalServerToFormCodec,
 		serverSchema: HospitalServerSchema,
-		formSchema: HospitalFormSchema,
-		formValidatedSchemaForRole: HospitalFormValidatedSchemaForRole,
+		formResolverForRole: {
+			Electrician: zodResolver(HospitalFormValidatedSchemaForRole.Electrician),
+			Plumber: zodResolver(HospitalFormValidatedSchemaForRole.Plumber),
+		},
 	},
 	School: {
 		kind: "School",
 		codec: SchoolServerToFormCodec,
 		serverSchema: SchoolServerSchema,
-		formSchema: SchoolFormSchema,
-		formValidatedSchemaForRole: SchoolFormValidatedSchemaForRole,
+		formResolverForRole: {
+			Electrician: zodResolver(SchoolFormValidatedSchemaForRole.Electrician),
+			Plumber: zodResolver(SchoolFormValidatedSchemaForRole.Plumber),
+		},
 	},
 } as const satisfies BatteriesRecord<AuditableBuildingKind, UserRole>;

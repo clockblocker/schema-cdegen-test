@@ -1,3 +1,4 @@
+import type { Resolver } from "react-hook-form";
 import type { z } from "zod";
 
 type CodecLike<
@@ -18,10 +19,9 @@ type AudutBattery<
 	kind: TKind;
 	codec: TCodec;
 	serverSchema: TServerSchema;
-	formSchema: TFormDraftSchema;
-	formValidatedSchemaForRole: Record<
+	formResolverForRole: Record<
 		TRole,
-		z.ZodType<z.output<TFormDraftSchema>, any, z.input<TFormDraftSchema>>
+		Resolver<z.input<TFormDraftSchema>, unknown, z.output<TFormDraftSchema>>
 	>;
 };
 

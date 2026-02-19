@@ -1,11 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { createElement, type ReactElement } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, type Resolver, useForm } from "react-hook-form";
 import { batteriesFor } from "../batteries/batteries";
 import type {
 	AudutFormDraft,
 	AudutFormValidatedFor,
-	AudutFormValidatedSchemaFor,
 } from "../batteries/batteries-types";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import {
@@ -15,6 +13,14 @@ import {
 } from "./generic-rhf.utils";
 import { HospitalFormFields } from "./hospital";
 import { SchoolFormFields } from "./school";
+
+type FormResolverContext<
+	F extends AuditableBuildingKind,
+	R extends UserRole,
+> = {
+	buildingKind: F;
+	userRole: R;
+};
 
 export function GenericRhfForm<
 	F extends AuditableBuildingKind,
@@ -27,7 +33,7 @@ export function GenericRhfForm<
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: GenericFormProps<F, R>): ReactElement {
-	const { formValidatedSchema, fieldsNode } = selectBuildingKindForm(
+	const { formResolver, fieldsNode } = selectBuildingKindFormResolver(
 		buildingKind,
 		userRole,
 	);
@@ -35,10 +41,8 @@ export function GenericRhfForm<
 	const defaultValues = initialValue;
 
 	const methods = useForm({
-		// biome-ignore lint/suspicious/noExplicitAny: intentional per requested RHF generic signature
-		resolver: zodResolver<AudutFormDraft<F>, any, AudutFormValidatedFor<R, F>>(
-			formValidatedSchema,
-		),
+		resolver: formResolver,
+		context: { buildingKind, userRole },
 		defaultValues,
 	});
 
@@ -60,38 +64,51 @@ export function GenericRhfForm<
 		children: formNode,
 	};
 
-	const TypedFormProvider = FormProvider<
-		AudutFormDraft<F>,
-		any,
-		AudutFormValidatedFor<R, F>
-	>;
-
-	return createElement(TypedFormProvider, providerProps);
+	return createElement(
+		FormProvider<
+			AudutFormDraft<F>,
+			FormResolverContext<F, R>,
+			AudutFormValidatedFor<R, F>
+		>,
+		providerProps,
+	);
 }
 
-function selectBuildingKindForm<
+function selectBuildingKindFormResolver<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
 >(
 	buildingKind: F,
 	userRole: R,
 ): {
-	formValidatedSchema: AudutFormValidatedSchemaFor<F, R>;
+	formResolver: Resolver<
+		AudutFormDraft<F>,
+		FormResolverContext<F, R>,
+		AudutFormValidatedFor<R, F>
+	>;
 	fieldsNode: ReactElement;
 } {
 	switch (buildingKind) {
 		case "Hospital":
 			return {
-				formValidatedSchema: batteriesFor.Hospital.formValidatedSchemaForRole[
+				formResolver: batteriesFor.Hospital.formResolverForRole[
 					userRole
-				] as AudutFormValidatedSchemaFor<F, R>,
+				] as unknown as Resolver<
+					AudutFormDraft<F>,
+					FormResolverContext<F, R>,
+					AudutFormValidatedFor<R, F>
+				>,
 				fieldsNode: createElement(HospitalFormFields),
 			};
 		case "School":
 			return {
-				formValidatedSchema: batteriesFor.School.formValidatedSchemaForRole[
+				formResolver: batteriesFor.School.formResolverForRole[
 					userRole
-				] as AudutFormValidatedSchemaFor<F, R>,
+				] as unknown as Resolver<
+					AudutFormDraft<F>,
+					FormResolverContext<F, R>,
+					AudutFormValidatedFor<R, F>
+				>,
 				fieldsNode: createElement(SchoolFormFields),
 			};
 		default: {
