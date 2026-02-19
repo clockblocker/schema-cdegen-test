@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createElement, type ReactElement } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, type FormProviderProps, useForm } from "react-hook-form";
 import { batteriesFor } from "../batteries/batteries";
 import type {
 	AudutFormDraft,
@@ -55,13 +55,22 @@ export function GenericRhfForm<
 		fieldsNode,
 	});
 
-	return createElement(
-		FormProvider as never,
-		{
-			...methods,
-			children: formNode,
-		} as never,
-	);
+	const providerProps: FormProviderProps<
+		AudutFormDraft<F>,
+		any,
+		AudutFormValidatedFor<R, F>
+	> = {
+		...methods,
+		children: formNode,
+	};
+
+	const TypedFormProvider = FormProvider<
+		AudutFormDraft<F>,
+		any,
+		AudutFormValidatedFor<R, F>
+	>;
+
+	return createElement(TypedFormProvider, providerProps);
 }
 
 function selectBuildingKindForm<
