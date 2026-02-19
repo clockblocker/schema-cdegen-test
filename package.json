@@ -8,7 +8,6 @@
 		"check": "biome check .",
 		"check:unsafe": "biome check --write --unsafe .",
 		"check:write": "biome check --write .",
-		"codegen:codec-example": "node scripts/generate-codec-output-schema.mjs --entry src/components/wadk-typings/common-codecs/codec-pair.codegen-example.ts --export ExampleServerToFormCodec --schema ExampleFormSchema --out src/components/wadk-typings/common-codecs/codec-pair.codegen-example.output-schema.ts",
 		"codegen:codec-reshape-example": "node scripts/generate-codec-output-schema.mjs --entry src/components/wadk-typings/common-codecs/codec-pair.reshape-example.ts --export ReshapeServerToPartiesCodec --schema ReshapeOutputSchema --out src/components/wadk-typings/common-codecs/codec-pair.reshape-example.output-schema.ts",
 		"check:codec-reshape-example": "bun run scripts/check-codec-reshape-example.ts",
 		"dev": "next dev --turbo",
