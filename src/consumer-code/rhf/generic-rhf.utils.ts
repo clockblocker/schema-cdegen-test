@@ -60,16 +60,8 @@ export function renderGenericRhfFormShell({
 export function getResolver<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
->(
-	buildingKind: F,
-	userRole: R,
-	batteries: typeof batteriesFor = batteriesFor,
-): Resolver<
-	z.input<(typeof batteriesFor)[F]["formSchema"]>,
-	FormResolverContext<F, R>,
-	z.output<(typeof batteriesFor)[F]["formValidatedSchemaForRole"][R]>
-> {
-	const schema = batteries[buildingKind].formValidatedSchemaForRole[
+>(buildingKind: F, userRole: R) {
+	const schema = batteriesFor[buildingKind].formValidatedSchemaForRole[
 		userRole
 	] as (typeof batteriesFor)[F]["formValidatedSchemaForRole"][R];
 
