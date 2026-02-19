@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import { SchoolFormSchema } from "../src/consumer-code/batteries/generated/school/reshape-schema";
-import {
-	SchoolServerSchema,
-	SchoolServerToFormCodec,
-} from "../src/consumer-code/batteries/hand-written-codecs/school";
+import { SchoolServerSchema } from "../src/consumer-code/batteries/generated/school/server-schema";
+import { SchoolServerToFormCodec } from "../src/consumer-code/batteries/batteries";
 
 const serverSample = SchoolServerSchema.parse({
 	questionsSchool: {

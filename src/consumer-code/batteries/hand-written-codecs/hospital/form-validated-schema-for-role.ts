@@ -1,5 +1,5 @@
-import type { UserRole } from "~/consumer-code/business-types";
 import { z } from "zod";
+import type { UserRole } from "~/consumer-code/business-types";
 import { HospitalFormSchema } from "../../generated/hospital/reshape-schema";
 
 const hospitalFormValidatedSchema = HospitalFormSchema.extend({
@@ -46,8 +46,8 @@ const hospitalElectricianValidatedSchema =
 		}
 	});
 
-const hospitalPlumberValidatedSchema =
-	hospitalFormValidatedSchema.superRefine((formValue, ctx) => {
+const hospitalPlumberValidatedSchema = hospitalFormValidatedSchema.superRefine(
+	(formValue, ctx) => {
 		if (formValue.l0.q3 === undefined) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
@@ -63,12 +63,17 @@ const hospitalPlumberValidatedSchema =
 				message: "Plumber audit requires L1 Q1.",
 			});
 		}
-	});
+	},
+);
 
 export const HospitalFormValidatedSchemaForRole = {
 	Electrician: hospitalElectricianValidatedSchema,
 	Plumber: hospitalPlumberValidatedSchema,
 } as const satisfies Record<
 	UserRole,
-	z.ZodType<z.output<typeof HospitalFormSchema>, any, z.input<typeof HospitalFormSchema>>
+	z.ZodType<
+		z.output<typeof HospitalFormSchema>,
+		any,
+		z.input<typeof HospitalFormSchema>
+	>
 >;

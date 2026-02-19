@@ -353,17 +353,22 @@ function buildObjectZod(objectType, checker, seen, warnings) {
 	}
 
 	const fragments = [];
+	const objectDeclaration =
+		objectType.symbol?.valueDeclaration ?? objectType.symbol?.declarations?.[0];
 	for (const prop of props) {
-		const declaration = prop.valueDeclaration ?? prop.declarations?.[0];
-		if (!declaration) {
+		const declaration =
+			prop.valueDeclaration ?? prop.declarations?.[0] ?? objectDeclaration;
+		let propType = declaration
+			? checker.getTypeOfSymbolAtLocation(prop, declaration)
+			: checker.getDeclaredTypeOfSymbol(prop);
+
+		if (!propType) {
 			warnings.push(
-				`Property "${prop.name}" has no declaration; using z.unknown().`,
+				`Property "${prop.name}" type could not be resolved; using z.unknown().`,
 			);
 			fragments.push(`${JSON.stringify(prop.name)}: z.unknown()`);
 			continue;
 		}
-
-		let propType = checker.getTypeOfSymbolAtLocation(prop, declaration);
 		const optionalByFlag = (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
 		const withoutUndefined = removeUnionMembers(propType, checker, (member) =>
 			isUndefinedType(member),

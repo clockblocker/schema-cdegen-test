@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import { HospitalFormSchema } from "../src/consumer-code/batteries/generated/hospital/reshape-schema";
-import {
-	HospitalServerSchema,
-	HospitalServerToFormCodec,
-} from "../src/consumer-code/batteries/hand-written-codecs/hospital";
+import { HospitalServerSchema } from "../src/consumer-code/batteries/generated/hospital/server-schema";
+import { HospitalServerToFormCodec } from "../src/consumer-code/batteries/batteries";
 
 const serverSample = HospitalServerSchema.parse({
 	q1l0: true,

@@ -22,14 +22,13 @@ const schoolFormValidatedSchema = SchoolFormSchema.superRefine(
 	},
 );
 
-const schoolElectricianValidatedSchema =
-	schoolFormValidatedSchema.refine(
-		(formValue) => formValue.questions.q3 === "Yes",
-		{
-			path: ["questions", "q3"],
-			message: "Electrician audit requires Question 3 to be Yes.",
-		},
-	);
+const schoolElectricianValidatedSchema = schoolFormValidatedSchema.refine(
+	(formValue) => formValue.questions.q3 === "Yes",
+	{
+		path: ["questions", "q3"],
+		message: "Electrician audit requires Question 3 to be Yes.",
+	},
+);
 
 const schoolPlumberValidatedSchema = schoolFormValidatedSchema.refine(
 	(formValue) => formValue.questions.q4 === "Yes",
