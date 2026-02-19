@@ -1,5 +1,5 @@
 import type { Codec } from "../build-codec";
-import { dateValueOrUndefined } from "../wadk-input-schemas";
+import { dateValueOrUndefined } from "../shitty-input-schemas";
 
 export function isoStringToDate(v: string): Date;
 export function isoStringToDate(v: string | undefined): Date | undefined;

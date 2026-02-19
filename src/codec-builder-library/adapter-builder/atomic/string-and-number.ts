@@ -1,5 +1,5 @@
 import type { Codec } from "../build-codec";
-import { numericStringOrUndefined } from "../wadk-input-schemas";
+import { numericStringOrUndefined } from "../shitty-input-schemas";
 
 export function numberToString(v: number): string;
 export function numberToString(v: number | undefined): string | undefined;

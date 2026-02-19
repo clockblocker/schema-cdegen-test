@@ -1,5 +1,5 @@
 import type { Codec } from "../build-codec";
-import { yesNoOrUndefined } from "../wadk-input-schemas";
+import { yesNoOrUndefined } from "../shitty-input-schemas";
 
 export function yesNoToBool(v: "Yes" | "No"): boolean;
 export function yesNoToBool(v: "Yes" | "No" | undefined): boolean | undefined;
