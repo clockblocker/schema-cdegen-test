@@ -19,32 +19,35 @@ import {
 	LoansScorerFormOutSchema,
 } from "~/components/schemas/generated-validation-schemas/loans-validations";
 
-export type ScoringKind = "AR" | "Loans";
+export type AudutKind = "Hospital" | "School";
 export type Role = "Sales" | "Scorer";
 
 const schemaFor = {
-	AR: {
+	Hospital: {
 		Sales: ArSalesFormValidationSchema,
 		Scorer: ArScorerFormValidationSchema,
 	},
-	Loans: { Sales: LoansSalesFormOutSchema, Scorer: LoansScorerFormOutSchema },
-} satisfies Record<ScoringKind, Record<Role, z.ZodTypeAny>>;
+	School: {
+		Sales: LoansSalesFormOutSchema,
+		Scorer: LoansScorerFormOutSchema,
+	},
+} satisfies Record<AudutKind, Record<Role, z.ZodTypeAny>>;
 
 type SchemaMap = typeof schemaFor;
 
 const baseFormSchemas = {
-	AR: ArFormSchema,
-	Loans: LoansFormSchema,
-} as const satisfies Record<ScoringKind, z.ZodTypeAny>;
+	Hospital: ArFormSchema,
+	School: LoansFormSchema,
+} as const satisfies Record<AudutKind, z.ZodTypeAny>;
 
-export type FormInFor<SK extends ScoringKind> = z.infer<
+export type FormInFor<SK extends AudutKind> = z.infer<
 	(typeof baseFormSchemas)[SK]
 >;
-export type FormOutFor<SK extends ScoringKind, R extends Role> = z.output<
+export type FormOutFor<SK extends AudutKind, R extends Role> = z.output<
 	SchemaMap[SK][R]
 >;
 
-export function getSchema<SK extends ScoringKind, R extends Role>(
+export function getSchema<SK extends AudutKind, R extends Role>(
 	sk: SK,
 	role: R,
 ): z.ZodType<
@@ -60,13 +63,13 @@ export function getSchema<SK extends ScoringKind, R extends Role>(
 }
 
 export const defaultValuesFor: {
-	[SK in ScoringKind]: DefaultValues<FormInFor<SK>>;
+	[SK in AudutKind]: DefaultValues<FormInFor<SK>>;
 } = {
-	AR: {
+	Hospital: {
 		q1l0: undefined,
 		q2l0: undefined,
 	},
-	Loans: {
+	School: {
 		questionsLoans: {
 			q3: undefined,
 			q4: undefined,
@@ -76,12 +79,12 @@ export const defaultValuesFor: {
 
 // decode: server → form (for loading server data into forms)
 export const serverToFormCodec = {
-	AR: arServerToForm,
-	Loans: loansServerToForm,
+	Hospital: arServerToForm,
+	School: loansServerToForm,
 };
 
 // encode: form → server (for submitting form data to the server)
 export const formToServerCodec = {
-	AR: arFormToServer,
-	Loans: loansFormToServer,
+	Hospital: arFormToServer,
+	School: loansFormToServer,
 };

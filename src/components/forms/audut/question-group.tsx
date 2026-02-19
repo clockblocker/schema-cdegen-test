@@ -1,8 +1,8 @@
 import { QuestionField } from "./question-field";
-import type { ScoringQuestionGroup } from "./types";
+import type { AudutQuestionGroup } from "./types";
 import { useGroupWeight } from "./use-group-weight";
 
-export function QuestionGroup({ group }: { group: ScoringQuestionGroup }) {
+export function QuestionGroup({ group }: { group: AudutQuestionGroup }) {
 	const weight = useGroupWeight(group);
 
 	return (

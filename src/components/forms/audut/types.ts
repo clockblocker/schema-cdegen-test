@@ -6,8 +6,8 @@ export type AnswerScore = {
 	weight?: number;
 };
 
-export type ScoringQuestionGroup = {
-	__typename?: "ScoringQuestionGroup";
+export type AudutQuestionGroup = {
+	__typename?: "AudutQuestionGroup";
 	answersTree: Array<AnswerScore>;
 	groupId?: number;
 	groupWeight?: number;
@@ -16,6 +16,6 @@ export type ScoringQuestionGroup = {
 
 export type GroupFormValues = Record<string, string | undefined>;
 
-export type ScoringFormValues = {
+export type AudutFormValues = {
 	groups: Record<string, GroupFormValues>;
 };

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: preserving broad zod object compatibility for adapter inputs */
 import { z } from "zod";
 import { dateToIsoString, isoStringToDate } from "../atomic/date-and-isoString";
 import {

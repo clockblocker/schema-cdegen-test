@@ -2,33 +2,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
 import { FormProvider, useForm } from "react-hook-form";
 import { ArFormFields } from "~/components/forms/ar-form";
+import { AudutForm } from "~/components/forms/audut/audut-form";
+import { mockAudutGroups } from "~/components/forms/audut/mock-data";
 import { LoansFormFields } from "~/components/forms/loans-form";
-import { mockScoringGroups } from "~/components/forms/scoring/mock-data";
-import { ScoringForm } from "~/components/forms/scoring/scoring-form";
 import { Button } from "~/components/ui/button";
 import {
+	type AudutKind,
 	defaultValuesFor,
 	type FormInFor,
 	type FormOutFor,
 	getSchema,
 	type Role,
-	type ScoringKind,
 } from "~/generics";
 
-function QuestionForm<SK extends ScoringKind, R extends Role>({
+function QuestionForm<SK extends AudutKind, R extends Role>({
 	sk,
-	scoringRole,
+	audutRole,
 }: {
 	sk: SK;
-	scoringRole: R;
+	audutRole: R;
 }) {
 	const methods = useForm<FormInFor<SK>, unknown, FormOutFor<SK, R>>({
-		resolver: zodResolver(getSchema(sk, scoringRole)),
+		resolver: zodResolver(getSchema(sk, audutRole)),
 		defaultValues: defaultValuesFor[sk],
 	});
 
 	const onSubmit = (data: FormOutFor<SK, R>) => {
-		console.log(`${sk}/${scoringRole} submitted:`, data);
+		console.log(`${sk}/${audutRole} submitted:`, data);
 	};
 
 	return (
@@ -37,9 +37,9 @@ function QuestionForm<SK extends ScoringKind, R extends Role>({
 				className="flex w-full max-w-sm flex-col gap-6 rounded-lg border p-6"
 				onSubmit={methods.handleSubmit(onSubmit)}
 			>
-				<h2 className="font-semibold text-lg">{scoringRole}</h2>
-				{sk === "AR" && <ArFormFields />}
-				{sk === "Loans" && <LoansFormFields />}
+				<h2 className="font-semibold text-lg">{audutRole}</h2>
+				{sk === "Hospital" && <ArFormFields />}
+				{sk === "School" && <LoansFormFields />}
 				<Button type="submit" variant="outline">
 					Submit
 				</Button>
@@ -61,12 +61,12 @@ export default function Home() {
 			</Head>
 			<main className="flex min-h-screen flex-col items-center gap-12 p-8">
 				<div className="flex items-start justify-center gap-8">
-					<QuestionForm scoringRole="Sales" sk="AR" />
-					<QuestionForm scoringRole="Scorer" sk="AR" />
-					<QuestionForm scoringRole="Sales" sk="Loans" />
-					<QuestionForm scoringRole="Scorer" sk="Loans" />
+					<QuestionForm audutRole="Sales" sk="Hospital" />
+					<QuestionForm audutRole="Scorer" sk="Hospital" />
+					<QuestionForm audutRole="Sales" sk="School" />
+					<QuestionForm audutRole="Scorer" sk="School" />
 				</div>
-				<ScoringForm groups={mockScoringGroups} />
+				<AudutForm groups={mockAudutGroups} />
 			</main>
 		</>
 	);

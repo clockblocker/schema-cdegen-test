@@ -13,7 +13,12 @@ import {
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
-import { codec, pipeCodecs, type CodecPair, withOutputSchema } from "./codec-pair";
+import {
+	type CodecPair,
+	codec,
+	pipeCodecs,
+	withOutputSchema,
+} from "./codec-pair";
 
 export type { Codec };
 export type { CodecPair };

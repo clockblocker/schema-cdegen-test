@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: zod schema input generic is intentionally unconstrained */
 import type { z } from "zod";
 
 export type CodecPair<I, O> = {

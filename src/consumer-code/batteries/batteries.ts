@@ -1,4 +1,4 @@
-import type { ScoringFlavor } from "../business-types";
+import type { AuditableBuildingKind } from "../business-types";
 import { ArFormSchema } from "./generated/ar/reshape-schema";
 import { ArServerSchema } from "./generated/ar/server-schema";
 import { LoansFormSchema } from "./generated/loans/reshape-schema";
@@ -8,16 +8,16 @@ import { LoansServerToFormCodec } from "./hand-written-codecs/loans";
 import type { BatteriesRecord } from "./helper-shapes";
 
 export const batteriesFor = {
-	AR: {
-		flavor: "AR",
+	Hospital: {
+		kind: "Hospital",
 		codec: ArServerToFormCodec,
 		serverSchema: ArServerSchema,
 		formSchema: ArFormSchema,
 	},
-	Loans: {
-		flavor: "Loans",
+	School: {
+		kind: "School",
 		codec: LoansServerToFormCodec,
 		serverSchema: LoansServerSchema,
 		formSchema: LoansFormSchema,
 	},
-} as const satisfies BatteriesRecord<ScoringFlavor>;
+} as const satisfies BatteriesRecord<AuditableBuildingKind>;

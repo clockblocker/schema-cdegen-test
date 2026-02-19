@@ -6,7 +6,9 @@ export const LoansSalesFormOutSchema = LoansFormSchema.extend({
 });
 
 export const LoansScorerFormOutSchema = LoansSalesFormOutSchema.extend({
-	questionsLoans: LoansSalesFormOutSchema.shape.questionsLoans.required({ q4: true }),
+	questionsLoans: LoansSalesFormOutSchema.shape.questionsLoans.required({
+		q4: true,
+	}),
 });
 
 export type LoansSalesFormOut = z.infer<typeof LoansSalesFormOutSchema>;

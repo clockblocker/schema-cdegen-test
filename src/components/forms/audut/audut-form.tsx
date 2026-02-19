@@ -4,10 +4,10 @@ import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { QuestionGroup } from "./question-group";
-import type { ScoringFormValues, ScoringQuestionGroup } from "./types";
+import type { AudutFormValues, AudutQuestionGroup } from "./types";
 
-function TotalWeight({ groups }: { groups: ScoringQuestionGroup[] }) {
-	const allGroupValues = useWatch<ScoringFormValues, "groups">({
+function TotalWeight({ groups }: { groups: AudutQuestionGroup[] }) {
+	const allGroupValues = useWatch<AudutFormValues, "groups">({
 		name: "groups",
 	});
 
@@ -54,7 +54,7 @@ function TotalWeight({ groups }: { groups: ScoringQuestionGroup[] }) {
 	);
 }
 
-export function ScoringForm({ groups }: { groups: ScoringQuestionGroup[] }) {
+export function AudutForm({ groups }: { groups: AudutQuestionGroup[] }) {
 	const schema = useMemo(() => {
 		const groupSchemas: Record<string, z.ZodTypeAny> = {};
 		for (const g of groups) {
@@ -81,13 +81,13 @@ export function ScoringForm({ groups }: { groups: ScoringQuestionGroup[] }) {
 		return { groups: groupDefaults };
 	}, [groups]);
 
-	const methods = useForm<ScoringFormValues>({
+	const methods = useForm<AudutFormValues>({
 		resolver: zodResolver(schema),
 		defaultValues,
 	});
 
-	const onSubmit = (data: ScoringFormValues) => {
-		console.log("Scoring form submitted:", data);
+	const onSubmit = (data: AudutFormValues) => {
+		console.log("Audut form submitted:", data);
 	};
 
 	return (

@@ -1,16 +1,12 @@
 import { useWatch } from "react-hook-form";
-import type {
-	AnswerScore,
-	ScoringFormValues,
-	ScoringQuestionGroup,
-} from "./types";
+import type { AnswerScore, AudutFormValues, AudutQuestionGroup } from "./types";
 
 export function useQuestionOptions(
-	group: ScoringQuestionGroup,
+	group: AudutQuestionGroup,
 	questionIndex: number,
 ): AnswerScore[] {
 	const groupId = String(group.groupId);
-	const groupValues = useWatch<ScoringFormValues, `groups.${string}`>({
+	const groupValues = useWatch<AudutFormValues, `groups.${string}`>({
 		name: `groups.${groupId}`,
 	});
 

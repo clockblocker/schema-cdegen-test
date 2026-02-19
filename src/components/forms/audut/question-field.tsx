@@ -7,14 +7,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "~/components/ui/select";
-import type { ScoringFormValues, ScoringQuestionGroup } from "./types";
+import type { AudutFormValues, AudutQuestionGroup } from "./types";
 import { useQuestionOptions } from "./use-question-options";
 
 export function QuestionField({
 	group,
 	questionIndex,
 }: {
-	group: ScoringQuestionGroup;
+	group: AudutQuestionGroup;
 	questionIndex: number;
 }) {
 	const groupId = String(group.groupId);
@@ -25,12 +25,12 @@ export function QuestionField({
 	const commentFieldName =
 		`groups.${groupId}.${questionId}_comment` as `groups.${string}.${string}`;
 
-	const { resetField } = useFormContext<ScoringFormValues>();
-	const { field } = useController<ScoringFormValues, typeof fieldName>({
+	const { resetField } = useFormContext<AudutFormValues>();
+	const { field } = useController<AudutFormValues, typeof fieldName>({
 		name: fieldName,
 	});
 	const { field: commentField } = useController<
-		ScoringFormValues,
+		AudutFormValues,
 		typeof commentFieldName
 	>({
 		name: commentFieldName,

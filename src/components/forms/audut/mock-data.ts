@@ -1,6 +1,6 @@
-import type { ScoringQuestionGroup } from "./types";
+import type { AudutQuestionGroup } from "./types";
 
-export const mockScoringGroups: ScoringQuestionGroup[] = [
+export const mockAudutGroups: AudutQuestionGroup[] = [
 	{
 		groupId: 1,
 		groupWeight: 2,

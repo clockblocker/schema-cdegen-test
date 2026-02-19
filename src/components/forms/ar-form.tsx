@@ -22,16 +22,10 @@ export function ArFormFields() {
 						error={q1Message}
 						label="Question 1"
 						onChange={(v) => {
-							field.onChange(
-								v === undefined ? undefined : v === "Yes",
-							);
+							field.onChange(v === undefined ? undefined : v === "Yes");
 						}}
 						value={
-							field.value === undefined
-								? undefined
-								: field.value
-									? "Yes"
-									: "No"
+							field.value === undefined ? undefined : field.value ? "Yes" : "No"
 						}
 					/>
 				)}

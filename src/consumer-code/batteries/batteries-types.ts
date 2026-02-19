@@ -1,24 +1,24 @@
 import type { z } from "zod";
-import type { ScoringFlavor } from "../business-types";
+import type { AuditableBuildingKind } from "../business-types";
 import type { batteriesFor } from "./batteries";
-import type { Assert, IsMutualByFlavor } from "./helper-shapes";
+import type { Assert, IsMutualByKind } from "./helper-shapes";
 
-export type Scoring<F extends ScoringFlavor> = z.infer<
+export type Audut<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["formSchema"]
 >;
 
-export type ScoringServerInput<F extends ScoringFlavor> = z.infer<
+export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["serverSchema"]
 >;
 
-export type ScoringFromSchema = {
-	[F in ScoringFlavor]: z.infer<(typeof batteriesFor)[F]["formSchema"]>;
+export type AudutFromSchema = {
+	[F in AuditableBuildingKind]: z.infer<(typeof batteriesFor)[F]["formSchema"]>;
 };
 
-type ScoringByFlavor = {
-	[F in ScoringFlavor]: Scoring<F>;
+type AudutByBuildingKind = {
+	[F in AuditableBuildingKind]: Audut<F>;
 };
 
-type _scoringMatchesSchema = Assert<
-	IsMutualByFlavor<ScoringFlavor, ScoringFromSchema, ScoringByFlavor>
+type _audutMatchesSchema = Assert<
+	IsMutualByKind<AuditableBuildingKind, AudutFromSchema, AudutByBuildingKind>
 >;

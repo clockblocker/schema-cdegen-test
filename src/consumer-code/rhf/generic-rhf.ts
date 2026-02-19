@@ -2,8 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createElement, type ReactElement } from "react";
 import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
 import { batteriesFor } from "../batteries/batteries";
-import type { Scoring } from "../batteries/batteries-types";
-import type { ScoringFlavor } from "../business-types";
+import type { Audut } from "../batteries/batteries-types";
+import type { AuditableBuildingKind } from "../business-types";
 import { ArFormFields } from "./ar";
 import {
 	DEFAULT_FORM_CLASS,
@@ -12,49 +12,49 @@ import {
 } from "./generic-rhf.utils";
 import { LoansFormFields } from "./loans";
 
-function selectFlavorForm<F extends ScoringFlavor>(
-	flavor: F,
+function selectBuildingKindForm<F extends AuditableBuildingKind>(
+	buildingKind: F,
 ): {
 	formSchema: (typeof batteriesFor)[F]["formSchema"];
 	fieldsNode: ReactElement;
 } {
-	switch (flavor) {
-		case "AR":
+	switch (buildingKind) {
+		case "Hospital":
 			return {
-				formSchema: batteriesFor.AR
+				formSchema: batteriesFor.Hospital
 					.formSchema as (typeof batteriesFor)[F]["formSchema"],
 				fieldsNode: createElement(ArFormFields),
 			};
-		case "Loans":
+		case "School":
 			return {
-				formSchema: batteriesFor.Loans
+				formSchema: batteriesFor.School
 					.formSchema as (typeof batteriesFor)[F]["formSchema"],
 				fieldsNode: createElement(LoansFormFields),
 			};
 		default: {
-			const unreachable: never = flavor;
-			throw new Error(`Unsupported flavor: ${String(unreachable)}`);
+			const unreachable: never = buildingKind;
+			throw new Error(`Unsupported building kind: ${String(unreachable)}`);
 		}
 	}
 }
 
-export function GenericRhfForm<F extends ScoringFlavor>({
-	flavor,
+export function GenericRhfForm<F extends AuditableBuildingKind>({
+	buildingKind,
 	initialValue,
 	onSubmit,
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: GenericFormProps<F>): ReactElement {
-	const { formSchema, fieldsNode } = selectFlavorForm(flavor);
-	const defaultValues = initialValue as DefaultValues<Scoring<F>>;
+	const { formSchema, fieldsNode } = selectBuildingKindForm(buildingKind);
+	const defaultValues = initialValue as DefaultValues<Audut<F>>;
 
 	// biome-ignore lint/suspicious/noExplicitAny: intentional per requested RHF generic signature
-	const methods = useForm<Scoring<F>, any, Scoring<F>>({
+	const methods = useForm<Audut<F>, any, Audut<F>>({
 		resolver: zodResolver(formSchema as never) as never,
 		defaultValues,
 	});
 
-	const handleSubmit = methods.handleSubmit((formValue: Scoring<F>) => {
+	const handleSubmit = methods.handleSubmit((formValue: Audut<F>) => {
 		onSubmit?.(formValue);
 	});
 

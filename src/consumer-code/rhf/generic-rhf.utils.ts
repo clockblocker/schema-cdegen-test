@@ -1,8 +1,8 @@
 import type { FormEventHandler } from "react";
 import { createElement, type ReactElement } from "react";
 import { Button } from "~/components/ui/button";
-import type { Scoring } from "../batteries/batteries-types";
-import type { ScoringFlavor } from "../business-types";
+import type { Audut } from "../batteries/batteries-types";
+import type { AuditableBuildingKind } from "../business-types";
 
 export const DEFAULT_FORM_CLASS =
 	"flex w-full max-w-xl flex-col gap-6 rounded-lg border p-6";
@@ -12,15 +12,16 @@ type SharedFormProps = {
 	submitLabel?: string;
 };
 
-export type GenericFormProps<F extends ScoringFlavor> = SharedFormProps & {
-	flavor: F;
-	initialValue: Scoring<F>;
-	onSubmit?: (formValue: Scoring<F>) => void;
-};
+export type GenericFormProps<F extends AuditableBuildingKind> =
+	SharedFormProps & {
+		buildingKind: F;
+		initialValue: Audut<F>;
+		onSubmit?: (formValue: Audut<F>) => void;
+	};
 
 export type GenericRhfFormProps = {
-	[F in ScoringFlavor]: GenericFormProps<F>;
-}[ScoringFlavor];
+	[F in AuditableBuildingKind]: GenericFormProps<F>;
+}[AuditableBuildingKind];
 
 type FormShellProps = {
 	className: string;

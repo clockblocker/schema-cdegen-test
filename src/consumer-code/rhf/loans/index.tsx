@@ -1,12 +1,12 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
-import type { Scoring } from "../../batteries/batteries-types";
+import type { Audut } from "../../batteries/batteries-types";
 
 export function LoansFormFields() {
 	const {
 		control,
 		formState: { errors },
-	} = useFormContext<Scoring<"Loans">>();
+	} = useFormContext<Audut<"School">>();
 
 	const q3Message =
 		typeof errors.questions?.q3?.message === "string"
