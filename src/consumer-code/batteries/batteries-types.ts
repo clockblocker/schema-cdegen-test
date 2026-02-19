@@ -1,7 +1,11 @@
 import type { z } from "zod";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import type { batteriesFor } from "./batteries";
-import type { Assert, IsAssignableByKind, IsMutualByKind } from "./helper-shapes";
+import type {
+	Assert,
+	IsAssignableByKind,
+	IsMutualByKind,
+} from "./helper-shapes";
 
 export type AudutFormSchema<F extends AuditableBuildingKind> =
 	(typeof batteriesFor)[F]["formSchema"];
@@ -51,8 +55,16 @@ type AudutValidatedByBuildingKind = {
 	[F in AuditableBuildingKind]: AudutFormValidated<F>;
 };
 
-type AudutRoleValidatedByBuildingKind = {
-	[F in AuditableBuildingKind]: AudutFormValidatedFor<UserRole, F>;
+type AudutRoleValidatedByBuildingKindAndRole = {
+	[F in AuditableBuildingKind]: {
+		[R in UserRole]: AudutFormValidatedFor<R, F>;
+	};
+};
+
+type AudutRoleDraftByBuildingKindAndRole = {
+	[F in AuditableBuildingKind]: {
+		[R in UserRole]: AudutFormDraft<F>;
+	};
 };
 
 type _audutMatchesSchema = Assert<
@@ -67,10 +79,10 @@ type _audutValidatedAssignableToDraft = Assert<
 	>
 >;
 
-type _audutRoleValidatedAssignableToDraft = Assert<
-	IsAssignableByKind<
+type _audutRoleValidatedMatchesDraft = Assert<
+	IsMutualByKind<
 		AuditableBuildingKind,
-		AudutRoleValidatedByBuildingKind,
-		AudutDraftByBuildingKind
+		AudutRoleValidatedByBuildingKindAndRole,
+		AudutRoleDraftByBuildingKindAndRole
 	>
 >;

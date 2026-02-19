@@ -25,10 +25,16 @@ type AudutBattery<
 	serverSchema: TServerSchema;
 	formSchema: TFormDraftSchema;
 	formValidatedSchema: TFormValidatedSchema;
-	formValidatedSchemaForRole: Record<TRole, z.ZodTypeAny>;
+	formValidatedSchemaForRole: Record<
+		TRole,
+		z.ZodType<z.output<TFormDraftSchema>, any, z.input<TFormDraftSchema>>
+	>;
 };
 
-export type BatteriesRecord<TKind extends string, TRole extends string> = Record<
+export type BatteriesRecord<
+	TKind extends string,
+	TRole extends string,
+> = Record<
 	TKind,
 	AudutBattery<
 		TKind,

@@ -1,16 +1,37 @@
-import type { UserRole } from "~/consumer-code/business-types";
 import { z } from "zod";
-import { SchoolFormValidatedSchema } from "./form-validated-schema";
+import type { UserRole } from "~/consumer-code/business-types";
+import { SchoolFormSchema } from "../../generated/school/reshape-schema";
 
-const schoolElectricianValidatedSchema = SchoolFormValidatedSchema.refine(
-	(formValue) => formValue.questions.q3 === "Yes",
-	{
-		path: ["questions", "q3"],
-		message: "Electrician audit requires Question 3 to be Yes.",
+const schoolBaseValidatedForRoleSchema = SchoolFormSchema.superRefine(
+	(formValue, ctx) => {
+		if (formValue.questions.q3 === undefined) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["questions", "q3"],
+				message: "Question 3 is required.",
+			});
+		}
+
+		if (formValue.questions.q4 === undefined) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["questions", "q4"],
+				message: "Question 4 is required.",
+			});
+		}
 	},
 );
 
-const schoolPlumberValidatedSchema = SchoolFormValidatedSchema.refine(
+const schoolElectricianValidatedSchema =
+	schoolBaseValidatedForRoleSchema.refine(
+		(formValue) => formValue.questions.q3 === "Yes",
+		{
+			path: ["questions", "q3"],
+			message: "Electrician audit requires Question 3 to be Yes.",
+		},
+	);
+
+const schoolPlumberValidatedSchema = schoolBaseValidatedForRoleSchema.refine(
 	(formValue) => formValue.questions.q4 === "Yes",
 	{
 		path: ["questions", "q4"],
@@ -21,4 +42,11 @@ const schoolPlumberValidatedSchema = SchoolFormValidatedSchema.refine(
 export const SchoolFormValidatedSchemaForRole = {
 	Electrician: schoolElectricianValidatedSchema,
 	Plumber: schoolPlumberValidatedSchema,
-} as const satisfies Record<UserRole, z.ZodTypeAny>;
+} as const satisfies Record<
+	UserRole,
+	z.ZodType<
+		z.output<typeof SchoolFormSchema>,
+		any,
+		z.input<typeof SchoolFormSchema>
+	>
+>;
