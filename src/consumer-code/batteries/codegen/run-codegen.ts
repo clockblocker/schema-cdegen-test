@@ -1,7 +1,7 @@
 import {
-	generateCodecOutputSchemas,
 	type CodecOutputSchemaConfig,
-} from "~/codec-builder-library/codegen/generate-codec-output-schema";
+	generateCodecOutputSchemas,
+} from "./lib/generate-codec-output-schema";
 import { codecOutputSchemaTasks } from "./codec-output-schema-tasks";
 
 type TaskName = keyof typeof codecOutputSchemaTasks;

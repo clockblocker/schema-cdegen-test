@@ -1,5 +1,22 @@
 import type { z } from "zod";
 
+export type BatteriesRecord<
+	TKind extends string,
+	TRole extends string,
+> = Record<
+	TKind,
+	AudutBattery<
+		TKind,
+		TRole,
+		z.ZodTypeAny,
+		z.ZodTypeAny,
+		Record<TRole, z.ZodTypeAny>,
+		CodecLike<z.ZodTypeAny, z.ZodTypeAny>
+	>
+>;
+
+// -- Internal helpers
+
 type CodecLike<
 	TServerSchema extends z.ZodTypeAny,
 	TFormSchema extends z.ZodTypeAny,
@@ -25,18 +42,3 @@ type AudutBattery<
 	formSchema: TFormDraftSchema;
 	formValidatedSchemaForRole: TFormValidatedSchemaForRole;
 };
-
-export type BatteriesRecord<
-	TKind extends string,
-	TRole extends string,
-> = Record<
-	TKind,
-	AudutBattery<
-		TKind,
-		TRole,
-		z.ZodTypeAny,
-		z.ZodTypeAny,
-		Record<TRole, z.ZodTypeAny>,
-		CodecLike<z.ZodTypeAny, z.ZodTypeAny>
-	>
->;

@@ -61,7 +61,8 @@ function generateCodecOutputSchemaWithProgram(
 ): GenerateCodecOutputSchemaResult {
 	const entryPath = path.resolve(cwd, config.entry);
 	const outputPath = path.resolve(cwd, config.out);
-	const schemaName = config.schemaName || `${config.codecExportName}OutputSchema`;
+	const schemaName =
+		config.schemaName || `${config.codecExportName}OutputSchema`;
 	const checker = program.getTypeChecker();
 	const sourceFile = getSourceFileOrThrow(program, entryPath);
 	const codecSymbol = getExportedSymbol(

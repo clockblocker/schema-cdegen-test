@@ -1,4 +1,4 @@
-import type { CodecOutputSchemaConfigRecord } from "~/codec-builder-library/codegen/generate-codec-output-schema";
+import type { CodecOutputSchemaConfigRecord } from "./lib/generate-codec-output-schema";
 
 export const codecOutputSchemaTasks = {
 	hospital: {
