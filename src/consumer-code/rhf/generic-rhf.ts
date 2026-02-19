@@ -14,6 +14,11 @@ import {
 import { HospitalFormFields } from "./hospital";
 import { SchoolFormFields } from "./school";
 
+const fieldsComponentFor = {
+	Hospital: HospitalFormFields,
+	School: SchoolFormFields,
+} as const satisfies Record<AuditableBuildingKind, () => ReactElement>;
+
 type FormResolverContext<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
@@ -33,10 +38,14 @@ export function GenericRhfForm<
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: GenericFormProps<F, R>): ReactElement {
-	const { formResolver, fieldsNode } = selectBuildingKindFormResolver(
-		buildingKind,
-		userRole,
-	);
+	const formResolver = batteriesFor[buildingKind].formResolverForRole[
+		userRole
+	] as unknown as Resolver<
+		AudutFormDraft<F>,
+		FormResolverContext<F, R>,
+		AudutFormValidatedFor<R, F>
+	>;
+	const fieldsNode = createElement(fieldsComponentFor[buildingKind]);
 
 	const defaultValues = initialValue;
 
@@ -72,50 +81,6 @@ export function GenericRhfForm<
 		>,
 		providerProps,
 	);
-}
-
-function selectBuildingKindFormResolver<
-	F extends AuditableBuildingKind,
-	R extends UserRole,
->(
-	buildingKind: F,
-	userRole: R,
-): {
-	formResolver: Resolver<
-		AudutFormDraft<F>,
-		FormResolverContext<F, R>,
-		AudutFormValidatedFor<R, F>
-	>;
-	fieldsNode: ReactElement;
-} {
-	switch (buildingKind) {
-		case "Hospital":
-			return {
-				formResolver: batteriesFor.Hospital.formResolverForRole[
-					userRole
-				] as unknown as Resolver<
-					AudutFormDraft<F>,
-					FormResolverContext<F, R>,
-					AudutFormValidatedFor<R, F>
-				>,
-				fieldsNode: createElement(HospitalFormFields),
-			};
-		case "School":
-			return {
-				formResolver: batteriesFor.School.formResolverForRole[
-					userRole
-				] as unknown as Resolver<
-					AudutFormDraft<F>,
-					FormResolverContext<F, R>,
-					AudutFormValidatedFor<R, F>
-				>,
-				fieldsNode: createElement(SchoolFormFields),
-			};
-		default: {
-			const unreachable: never = buildingKind;
-			throw new Error(`Unsupported building kind: ${String(unreachable)}`);
-		}
-	}
 }
 
 export type { GenericRhfFormProps } from "./generic-rhf.utils";
