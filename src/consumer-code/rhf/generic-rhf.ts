@@ -4,10 +4,10 @@ import type {
 	AudutFormDraft,
 	AudutFormValidatedFor,
 } from "../batteries/batteries-types";
-import type { FormResolverContext } from "../batteries/helper-shapes";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import {
 	DEFAULT_FORM_CLASS,
+	type FormResolverContext,
 	type GenericFormProps,
 	getResolver,
 	renderGenericRhfFormShell,

@@ -36,7 +36,8 @@
 		"**/*.tsx",
 		"**/*.cjs",
 		"**/*.js",
-		".next/types/**/*.ts"
+		".next/types/**/*.ts",
+		"src/consumer-code/batteries/batteries-shape-and-assertions.ts"
 	],
 	"exclude": ["node_modules", "generated"]
 }

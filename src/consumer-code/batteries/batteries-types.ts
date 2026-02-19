@@ -1,7 +1,6 @@
 import type { z } from "zod";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import type { batteriesFor } from "./batteries";
-import type { Assert, IsMutualByKind } from "./helper-shapes";
 
 export type AudutFormSchema<F extends AuditableBuildingKind> =
 	(typeof batteriesFor)[F]["formSchema"];
@@ -32,31 +31,3 @@ export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 export type AudutFromSchema = {
 	[F in AuditableBuildingKind]: z.infer<(typeof batteriesFor)[F]["formSchema"]>;
 };
-
-type AudutByBuildingKind = {
-	[F in AuditableBuildingKind]: Audut<F>;
-};
-
-type AudutRoleValidatedByBuildingKindAndRole = {
-	[F in AuditableBuildingKind]: {
-		[R in UserRole]: AudutFormValidatedFor<R, F>;
-	};
-};
-
-type AudutRoleDraftByBuildingKindAndRole = {
-	[F in AuditableBuildingKind]: {
-		[R in UserRole]: AudutFormDraft<F>;
-	};
-};
-
-type _audutMatchesSchema = Assert<
-	IsMutualByKind<AuditableBuildingKind, AudutFromSchema, AudutByBuildingKind>
->;
-
-type _audutRoleValidatedMatchesDraft = Assert<
-	IsMutualByKind<
-		AuditableBuildingKind,
-		AudutRoleValidatedByBuildingKindAndRole,
-		AudutRoleDraftByBuildingKindAndRole
-	>
->;

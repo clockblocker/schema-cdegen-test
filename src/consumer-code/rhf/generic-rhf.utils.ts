@@ -9,11 +9,16 @@ import type {
 	AudutFormDraft,
 	AudutFormValidatedFor,
 } from "../batteries/batteries-types";
-import type { FormResolverContext } from "../batteries/helper-shapes";
+
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 
 export const DEFAULT_FORM_CLASS =
 	"flex w-full max-w-xl flex-col gap-6 rounded-lg border p-6";
+
+export type FormResolverContext<TKind extends string, TRole extends string> = {
+	buildingKind: TKind;
+	userRole: TRole;
+};
 
 type SharedFormProps = {
 	className?: string;

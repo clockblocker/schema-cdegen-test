@@ -1,4 +1,11 @@
 import type { z } from "zod";
+import type { AuditableBuildingKind, UserRole } from "../business-types";
+import type {
+	Audut,
+	AudutFormDraft,
+	AudutFormValidatedFor,
+	AudutFromSchema,
+} from "./batteries-types";
 
 type CodecLike<
 	TServerSchema extends z.ZodTypeAny,
@@ -41,10 +48,7 @@ export type BatteriesRecord<
 	>
 >;
 
-export type FormResolverContext<TKind extends string, TRole extends string> = {
-	buildingKind: TKind;
-	userRole: TRole;
-};
+// --- Assertions
 
 type IsMutuallyAssignable<TA, TB> = [TA] extends [TB]
 	? [TB] extends [TA]
@@ -52,9 +56,9 @@ type IsMutuallyAssignable<TA, TB> = [TA] extends [TB]
 		: false
 	: false;
 
-export type Assert<T extends true> = T;
+type Assert<T extends true> = T;
 
-export type IsMutualByKind<
+type IsMutualByKind<
 	TKind extends string,
 	TLeft extends Record<TKind, unknown>,
 	TRight extends Record<TKind, unknown>,
@@ -73,3 +77,31 @@ export type IsAssignableByKind<
 }[TKind] extends true
 	? true
 	: false;
+
+type AudutByBuildingKind = {
+	[F in AuditableBuildingKind]: Audut<F>;
+};
+
+type AudutRoleValidatedByBuildingKindAndRole = {
+	[F in AuditableBuildingKind]: {
+		[R in UserRole]: AudutFormValidatedFor<R, F>;
+	};
+};
+
+type AudutRoleDraftByBuildingKindAndRole = {
+	[F in AuditableBuildingKind]: {
+		[R in UserRole]: AudutFormDraft<F>;
+	};
+};
+
+type _audutMatchesSchema = Assert<
+	IsMutualByKind<AuditableBuildingKind, AudutFromSchema, AudutByBuildingKind>
+>;
+
+type _audutRoleValidatedMatchesDraft = Assert<
+	IsMutualByKind<
+		AuditableBuildingKind,
+		AudutRoleValidatedByBuildingKindAndRole,
+		AudutRoleDraftByBuildingKindAndRole
+	>
+>;
