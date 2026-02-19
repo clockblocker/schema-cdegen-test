@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import {
 	ReshapeServerSchema,
 	ReshapeServerToPartiesCodec,
-} from "../src/components/wadk-typings/common-codecs/codec-pair.reshape-example";
-import { ReshapeOutputSchema } from "../src/components/wadk-typings/common-codecs/codec-pair.reshape-example.output-schema";
+} from "../src/consumer-code/adapters/hand-written-codecs/reshape";
+import { ReshapeOutputSchema } from "../src/consumer-code/adapters/generated/reshape/reshape-schema";
 
 function normalizeDates(value: unknown): unknown {
 	if (value instanceof Date) {
