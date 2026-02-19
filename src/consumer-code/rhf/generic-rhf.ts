@@ -1,8 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { createElement, type ReactElement } from "react";
-import { FormProvider, type Resolver, useForm } from "react-hook-form";
-import type { z } from "zod";
-import { batteriesFor } from "../batteries/batteries";
+import { FormProvider, useForm } from "react-hook-form";
 import type {
 	AudutFormDraft,
 	AudutFormValidatedFor,
@@ -12,6 +9,7 @@ import type { AuditableBuildingKind, UserRole } from "../business-types";
 import {
 	DEFAULT_FORM_CLASS,
 	type GenericFormProps,
+	getResolver,
 	renderGenericRhfFormShell,
 } from "./generic-rhf.utils";
 import { HospitalFormFields } from "./hospital";
@@ -21,29 +19,6 @@ const fieldsComponentFor = {
 	Hospital: HospitalFormFields,
 	School: SchoolFormFields,
 } as const satisfies Record<AuditableBuildingKind, () => ReactElement>;
-
-export function getResolver<
-	F extends AuditableBuildingKind,
-	R extends UserRole,
->(
-	buildingKind: F,
-	userRole: R,
-	batteries: typeof batteriesFor = batteriesFor,
-): Resolver<
-	z.input<(typeof batteriesFor)[F]["formSchema"]>,
-	FormResolverContext<F, R>,
-	z.output<(typeof batteriesFor)[F]["formValidatedSchemaForRole"][R]>
-> {
-	const schema = batteries[buildingKind].formValidatedSchemaForRole[
-		userRole
-	] as (typeof batteriesFor)[F]["formValidatedSchemaForRole"][R];
-
-	return zodResolver(schema as never) as unknown as Resolver<
-		z.input<(typeof batteriesFor)[F]["formSchema"]>,
-		FormResolverContext<F, R>,
-		z.output<(typeof batteriesFor)[F]["formValidatedSchemaForRole"][R]>
-	>;
-}
 
 export function GenericRhfForm<
 	F extends AuditableBuildingKind,
