@@ -1,7 +1,11 @@
 import type { FormEventHandler } from "react";
 import { createElement, type ReactElement } from "react";
+import type { DefaultValues } from "react-hook-form";
 import { Button } from "~/components/ui/button";
-import type { Audut } from "../batteries/batteries-types";
+import type {
+	AudutFormDraft,
+	AudutFormValidated,
+} from "../batteries/batteries-types";
 import type { AuditableBuildingKind } from "../business-types";
 
 export const DEFAULT_FORM_CLASS =
@@ -15,8 +19,8 @@ type SharedFormProps = {
 export type GenericFormProps<F extends AuditableBuildingKind> =
 	SharedFormProps & {
 		buildingKind: F;
-		initialValue: Audut<F>;
-		onSubmit?: (formValue: Audut<F>) => void;
+		initialValue: DefaultValues<AudutFormDraft<F>>;
+		onSubmit?: (formValue: AudutFormValidated<F>) => void;
 	};
 
 export type GenericRhfFormProps = {

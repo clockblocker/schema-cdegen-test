@@ -11,19 +11,26 @@ type CodecLike<
 type AudutBattery<
 	TKind extends string,
 	TServerSchema extends z.ZodTypeAny,
-	TFormSchema extends z.ZodTypeAny,
-	TCodec extends CodecLike<TServerSchema, TFormSchema>,
+	TFormDraftSchema extends z.ZodTypeAny,
+	TFormValidatedSchema extends z.ZodType<
+		z.output<TFormDraftSchema>,
+		any,
+		z.input<TFormDraftSchema>
+	>,
+	TCodec extends CodecLike<TServerSchema, TFormDraftSchema>,
 > = {
 	kind: TKind;
 	codec: TCodec;
 	serverSchema: TServerSchema;
-	formSchema: TFormSchema;
+	formSchema: TFormDraftSchema;
+	formValidatedSchema: TFormValidatedSchema;
 };
 
 export type BatteriesRecord<TKind extends string> = Record<
 	TKind,
 	AudutBattery<
 		TKind,
+		z.ZodTypeAny,
 		z.ZodTypeAny,
 		z.ZodTypeAny,
 		CodecLike<z.ZodTypeAny, z.ZodTypeAny>
@@ -44,6 +51,16 @@ export type IsMutualByKind<
 	TRight extends Record<TKind, unknown>,
 > = {
 	[K in TKind]: IsMutuallyAssignable<TLeft[K], TRight[K]>;
+}[TKind] extends true
+	? true
+	: false;
+
+export type IsAssignableByKind<
+	TKind extends string,
+	TFrom extends Record<TKind, unknown>,
+	TTo extends Record<TKind, unknown>,
+> = {
+	[K in TKind]: [TFrom[K]] extends [TTo[K]] ? true : false;
 }[TKind] extends true
 	? true
 	: false;
