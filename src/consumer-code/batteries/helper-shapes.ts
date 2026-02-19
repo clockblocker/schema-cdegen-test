@@ -10,6 +10,7 @@ type CodecLike<
 
 type AudutBattery<
 	TKind extends string,
+	TRole extends string,
 	TServerSchema extends z.ZodTypeAny,
 	TFormDraftSchema extends z.ZodTypeAny,
 	TFormValidatedSchema extends z.ZodType<
@@ -24,12 +25,14 @@ type AudutBattery<
 	serverSchema: TServerSchema;
 	formSchema: TFormDraftSchema;
 	formValidatedSchema: TFormValidatedSchema;
+	formValidatedSchemaForRole: Record<TRole, z.ZodTypeAny>;
 };
 
-export type BatteriesRecord<TKind extends string> = Record<
+export type BatteriesRecord<TKind extends string, TRole extends string> = Record<
 	TKind,
 	AudutBattery<
 		TKind,
+		TRole,
 		z.ZodTypeAny,
 		z.ZodTypeAny,
 		z.ZodTypeAny,

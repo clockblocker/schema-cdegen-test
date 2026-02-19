@@ -4,10 +4,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import { batteriesFor } from "../batteries/batteries";
 import type {
 	AudutFormDraft,
-	AudutFormValidated,
-	AudutFormValidatedSchema,
+	AudutFormValidatedFor,
+	AudutFormValidatedSchemaFor,
 } from "../batteries/batteries-types";
-import type { AuditableBuildingKind } from "../business-types";
+import type { AuditableBuildingKind, UserRole } from "../business-types";
 import {
 	DEFAULT_FORM_CLASS,
 	type GenericFormProps,
@@ -16,26 +16,32 @@ import {
 import { HospitalFormFields } from "./hospital";
 import { SchoolFormFields } from "./school";
 
-export function GenericRhfForm<F extends AuditableBuildingKind>({
+export function GenericRhfForm<
+	F extends AuditableBuildingKind,
+	R extends UserRole,
+>({
 	buildingKind,
+	userRole,
 	initialValue,
 	onSubmit,
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
-}: GenericFormProps<F>): ReactElement {
-	const { formValidatedSchema, fieldsNode } = selectBuildingKindForm(buildingKind);
+}: GenericFormProps<F, R>): ReactElement {
+	const { formValidatedSchema, fieldsNode } =
+		selectBuildingKindForm(buildingKind, userRole);
+
 	const defaultValues = initialValue;
 
-	// biome-ignore lint/suspicious/noExplicitAny: intentional per requested RHF generic signature
-	const methods = useForm<AudutFormDraft<F>, any, AudutFormValidated<F>>({
-		resolver: zodResolver<AudutFormDraft<F>, any, AudutFormValidated<F>>(
+	const methods = useForm<AudutFormDraft<F>, any, AudutFormValidatedFor<R, F>>({
+		// biome-ignore lint/suspicious/noExplicitAny: intentional per requested RHF generic signature
+		resolver: zodResolver<AudutFormDraft<F>, any, AudutFormValidatedFor<R, F>>(
 			formValidatedSchema,
 		),
 		defaultValues,
 	});
 
 	const handleSubmit = methods.handleSubmit(
-		(formValue: AudutFormValidated<F>) => {
+		(formValue: AudutFormValidatedFor<R, F>) => {
 			onSubmit?.(formValue);
 		},
 	);
@@ -56,23 +62,31 @@ export function GenericRhfForm<F extends AuditableBuildingKind>({
 	);
 }
 
-function selectBuildingKindForm<F extends AuditableBuildingKind>(
+function selectBuildingKindForm<
+	F extends AuditableBuildingKind,
+	R extends UserRole,
+>(
 	buildingKind: F,
+	userRole: R,
 ): {
-	formValidatedSchema: AudutFormValidatedSchema<F>;
+	formValidatedSchema: AudutFormValidatedSchemaFor<F, R>;
 	fieldsNode: ReactElement;
 } {
 	switch (buildingKind) {
 		case "Hospital":
 			return {
 				formValidatedSchema:
-					batteriesFor.Hospital.formValidatedSchema as AudutFormValidatedSchema<F>,
+					batteriesFor.Hospital.formValidatedSchemaForRole[
+						userRole
+					] as AudutFormValidatedSchemaFor<F, R>,
 				fieldsNode: createElement(HospitalFormFields),
 			};
 		case "School":
 			return {
 				formValidatedSchema:
-					batteriesFor.School.formValidatedSchema as AudutFormValidatedSchema<F>,
+					batteriesFor.School.formValidatedSchemaForRole[
+						userRole
+					] as AudutFormValidatedSchemaFor<F, R>,
 				fieldsNode: createElement(SchoolFormFields),
 			};
 		default: {
