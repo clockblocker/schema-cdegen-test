@@ -22,22 +22,24 @@ const l2ArrItem = {
 	l3_arr: arrayOf(l2),
 };
 
+const arFieldCodec = {
+	q1l0: noOpCodec,
+	q2l0: yesNoBool,
+	q3l0: stringNumber,
+	q4l0: dateIso,
+	q5l0: nullishEmpty,
+	l1: {
+		q1l1: yesNoBool,
+		q2l1: yesNoBool,
+		q3l1: stringNumber,
+		q4l1: dateIso,
+		q5l1: nullishEmpty,
+		l2,
+		l2_arr: arrayOf(l2ArrItem),
+	},
+};
+
 export const arFieldAdaptersCodec = buildAddaptersAndOutputSchema(
 	ArServerSchema,
-	{
-		q1l0: noOpCodec,
-		q2l0: yesNoBool,
-		q3l0: stringNumber,
-		q4l0: dateIso,
-		q5l0: nullishEmpty,
-		l1: {
-			q1l1: yesNoBool,
-			q2l1: yesNoBool,
-			q3l1: stringNumber,
-			q4l1: dateIso,
-			q5l1: nullishEmpty,
-			l2,
-			l2_arr: arrayOf(l2ArrItem),
-		},
-	},
+	arFieldCodec,
 );

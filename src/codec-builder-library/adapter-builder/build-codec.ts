@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: library */
 import { z } from "zod";
 
 export interface Codec<
@@ -29,7 +30,7 @@ type KnownKeys<T> = {
 			: symbol extends K
 				? never
 				: K;
-	}[keyof T];
+}[keyof T];
 
 interface ArrayCodecShape<
 	TItemShape extends RuntimeArrayItemShape = RuntimeCodecShape,
@@ -38,7 +39,10 @@ interface ArrayCodecShape<
 	readonly itemShape: TItemShape;
 }
 
-type RuntimeArrayItemShape = RuntimeCodecShape | Codec<any, any, any> | NoOpCodec;
+type RuntimeArrayItemShape =
+	| RuntimeCodecShape
+	| Codec<any, any, any>
+	| NoOpCodec;
 
 export function arrayOf<const TItemShape extends RuntimeArrayItemShape>(
 	itemShape: TItemShape,
@@ -163,8 +167,7 @@ type CodecShapeNodeForField<TField extends z.ZodTypeAny> =
 						| WideObjectShapeNodeForField<TField>
 						| WideArrayShapeNodeForField<TField>
 				: InputCompatibleCodecForField<TField> | NoOpCodec
-			: CodecShapeForSchemaShape<NestedSchemaShape<TField>>
-	;
+			: CodecShapeForSchemaShape<NestedSchemaShape<TField>>;
 
 type OutputZodArrayItemFromCodecNode<TItemShape> =
 	TItemShape extends Codec<any, any, infer TSchema>
@@ -189,29 +192,30 @@ type OutputZodArrayItemFromOutputValue<TValue, TItemShape> =
 type OutputZodArrayItemForInputField<
 	TInputField extends z.ZodTypeAny,
 	TItemShape,
-> = TItemShape extends Codec<any, any, infer TSchema>
-	? TSchema
-	: TItemShape extends NoOpCodec
-		? ArrayItemSchemaOf<TInputField>
-		: TItemShape extends RuntimeCodecShape
-			? ArrayItemSchemaShape<TInputField> extends never
-				? IsWideZodType<TInputField> extends true
-					? [ArrayItemObjectOutput<TInputField>] extends [never]
-						? z.ZodObject<OutputZodShapeFromCodecShape<TItemShape>>
-						: z.ZodObject<
-								OutputZodShapeFromOutputObject<
-									ArrayItemObjectOutput<TInputField>,
-									TItemShape
+> =
+	TItemShape extends Codec<any, any, infer TSchema>
+		? TSchema
+		: TItemShape extends NoOpCodec
+			? ArrayItemSchemaOf<TInputField>
+			: TItemShape extends RuntimeCodecShape
+				? ArrayItemSchemaShape<TInputField> extends never
+					? IsWideZodType<TInputField> extends true
+						? [ArrayItemObjectOutput<TInputField>] extends [never]
+							? z.ZodObject<OutputZodShapeFromCodecShape<TItemShape>>
+							: z.ZodObject<
+									OutputZodShapeFromOutputObject<
+										ArrayItemObjectOutput<TInputField>,
+										TItemShape
+									>
 								>
+						: never
+					: z.ZodObject<
+							OutputZodShapeForSchemaShape<
+								ArrayItemSchemaShape<TInputField>,
+								TItemShape
 							>
-					: never
-				: z.ZodObject<
-						OutputZodShapeForSchemaShape<
-							ArrayItemSchemaShape<TInputField>,
-							TItemShape
 						>
-					>
-			: never;
+				: never;
 
 type CodecShapeForSchemaShape<TShape extends z.ZodRawShape> = {
 	[K in keyof TShape]: TShape[K] extends z.ZodTypeAny
@@ -389,7 +393,10 @@ function convertArrayItemFromInput(
 		return item;
 	}
 
-	return convertFromInput(itemShape as RuntimeCodecShape, item as Record<string, unknown>);
+	return convertFromInput(
+		itemShape as RuntimeCodecShape,
+		item as Record<string, unknown>,
+	);
 }
 
 function convertArrayItemFromOutput(
@@ -428,7 +435,9 @@ function buildOutputZodShape(
 			result[key] = schemaNode;
 		} else if (isArrayCodecShape(node)) {
 			const itemSchema = getArrayItemSchema(schemaNode);
-			result[key] = z.array(buildOutputZodArrayItem(node.itemShape, itemSchema));
+			result[key] = z.array(
+				buildOutputZodArrayItem(node.itemShape, itemSchema),
+			);
 		} else {
 			const nestedObjectSchema = getNestedObjectSchema(schemaNode);
 			result[key] = z.object(

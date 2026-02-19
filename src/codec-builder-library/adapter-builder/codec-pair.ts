@@ -1,4 +1,4 @@
-import { z } from "zod";
+import type { z } from "zod";
 
 export type CodecPair<I, O> = {
 	fromInput: (input: I) => O;
@@ -6,11 +6,11 @@ export type CodecPair<I, O> = {
 };
 
 export function codec<I>() {
-	return function <O>(fromInput: (input: I) => O) {
-		return function (fromOutput: (output: O) => I): CodecPair<I, O> {
-			return { fromInput, fromOutput };
-		};
-	};
+	return <O>(fromInput: (input: I) => O) =>
+		(fromOutput: (output: O) => I): CodecPair<I, O> => ({
+			fromInput,
+			fromOutput,
+		});
 }
 
 export function pipeCodecs<A, B, C>(

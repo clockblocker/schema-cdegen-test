@@ -1,12 +1,17 @@
-import type { LoansServerToFormCodec as LoansServerToFormCodecType } from "./shape-change";
+import { pipeCodecs } from "~/codec-builder-library/adapter-builder";
+import { loansFieldAdaptersCodec } from "./field-adapters";
+import { loansReshapeCodec } from "./reshape";
 
 export {
-	LoansServerSchema,
 	type LoansServer,
+	LoansServerSchema,
 } from "../../generated/loans/server-schema";
-export { loansFieldAdaptersCodec } from "./field-adapters";
-export { LoansServerToFormCodec } from "./shape-change";
+
+export const LoansServerToFormCodec = pipeCodecs(
+	loansFieldAdaptersCodec,
+	loansReshapeCodec,
+);
 
 export type LoansForm = ReturnType<
-	(typeof LoansServerToFormCodecType)["fromInput"]
+	(typeof LoansServerToFormCodec)["fromInput"]
 >;

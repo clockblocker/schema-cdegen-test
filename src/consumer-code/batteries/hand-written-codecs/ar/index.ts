@@ -1,7 +1,15 @@
-import type { ArServerToFormCodec as ArServerToFormCodecType } from "./shape-change";
+import { pipeCodecs } from "~/codec-builder-library/adapter-builder";
+import { arFieldAdaptersCodec } from "./field-adapters";
+import { arReshapeCodec } from "./reshape";
 
-export { ArServerSchema, type ArServer } from "../../generated/ar/server-schema";
-export { arFieldAdaptersCodec } from "./field-adapters";
-export { ArServerToFormCodec } from "./shape-change";
+export {
+	type ArServer,
+	ArServerSchema,
+} from "../../generated/ar/server-schema";
 
-export type ArForm = ReturnType<(typeof ArServerToFormCodecType)["fromInput"]>;
+export const ArServerToFormCodec = pipeCodecs(
+	arFieldAdaptersCodec,
+	arReshapeCodec,
+);
+
+export type ArForm = ReturnType<(typeof ArServerToFormCodec)["fromInput"]>;
