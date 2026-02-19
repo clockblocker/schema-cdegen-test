@@ -2,11 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createElement, type ReactElement } from "react";
 import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
-import {
-	batteriesFor,
-	type Scoring,
-	type ScoringServerInput,
-} from "../batteries/generic-batteries";
+import { batteriesFor } from "../batteries/batteries";
+import type { Scoring, ScoringServerInput } from "../batteries/batteries-types";
 import { ArFormFields } from "./ar";
 import { LoansFormFields } from "./loans";
 

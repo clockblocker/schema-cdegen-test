@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { YesNoPicker } from "~/components/YesNoPicker";
-import type { Scoring } from "../../batteries/generic-batteries";
+import type { Scoring } from "../../batteries/batteries-types";
 
 function dateToInputValue(value: Date | undefined): string {
 	if (!(value instanceof Date) || Number.isNaN(value.getTime())) {

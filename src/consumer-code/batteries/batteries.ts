@@ -1,17 +1,11 @@
-import type { z } from "zod";
+import type { ScoringFlavor } from "../business-types";
 import { ArFormSchema } from "./generated/ar/reshape-schema";
 import { ArServerSchema } from "./generated/ar/server-schema";
 import { LoansFormSchema } from "./generated/loans/reshape-schema";
 import { LoansServerSchema } from "./generated/loans/server-schema";
 import { ArServerToFormCodec } from "./hand-written-codecs/ar";
 import { LoansServerToFormCodec } from "./hand-written-codecs/loans";
-import type {
-	Assert,
-	BatteriesRecord,
-	IsMutualByFlavor,
-} from "./helper-shapes";
-
-export type Flavor = "AR" | "Loans";
+import type { BatteriesRecord } from "./helper-shapes";
 
 export const batteriesFor = {
 	AR: {
@@ -26,24 +20,4 @@ export const batteriesFor = {
 		serverSchema: LoansServerSchema,
 		formSchema: LoansFormSchema,
 	},
-} as const satisfies BatteriesRecord<Flavor>;
-
-export type Scoring<F extends Flavor> = z.infer<
-	(typeof batteriesFor)[F]["formSchema"]
->;
-
-export type ScoringServerInput<F extends Flavor> = z.infer<
-	(typeof batteriesFor)[F]["serverSchema"]
->;
-
-export type ScoringFromSchema = {
-	[F in Flavor]: z.infer<(typeof batteriesFor)[F]["formSchema"]>;
-};
-
-type ScoringByFlavor = {
-	[F in Flavor]: Scoring<F>;
-};
-
-type _scoringMatchesSchema = Assert<
-	IsMutualByFlavor<Flavor, ScoringFromSchema, ScoringByFlavor>
->;
+} as const satisfies BatteriesRecord<ScoringFlavor>;
