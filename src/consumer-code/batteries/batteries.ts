@@ -1,5 +1,4 @@
 import type { AuditableBuildingKind, UserRole } from "../business-types";
-import type { BatteriesRecord } from "./batteries-shape-and-assertions.ts";
 import { HospitalFormSchema } from "./generated/hospital/reshape-schema";
 import { HospitalServerSchema } from "./generated/hospital/server-schema";
 import { SchoolFormSchema } from "./generated/school/reshape-schema";
@@ -12,6 +11,7 @@ import {
 	SchoolFormValidatedSchemaForRole,
 	SchoolServerToFormCodec,
 } from "./hand-written-codecs/school";
+import type { BatteriesRecord } from "./type-constraint/batteries-shape";
 
 export const batteriesFor = {
 	Hospital: {

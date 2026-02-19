@@ -2,14 +2,6 @@ import type { z } from "zod";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import type { batteriesFor } from "./batteries";
 
-export type AudutFormSchema<F extends AuditableBuildingKind> =
-	(typeof batteriesFor)[F]["formSchema"];
-
-export type AudutFormValidatedSchemaFor<
-	F extends AuditableBuildingKind,
-	R extends UserRole,
-> = (typeof batteriesFor)[F]["formValidatedSchemaForRole"][R];
-
 export type AudutFormDraft<F extends AuditableBuildingKind> = z.input<
 	AudutFormSchema<F>
 >;
@@ -19,15 +11,18 @@ export type AudutFormValidatedFor<
 	F extends AuditableBuildingKind,
 > = z.output<AudutFormValidatedSchemaFor<F, R>>;
 
-export type AudutFormValidated<F extends AuditableBuildingKind> =
-	AudutFormDraft<F>;
-
 export type Audut<F extends AuditableBuildingKind> = AudutFormDraft<F>;
 
 export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["serverSchema"]
 >;
 
-export type AudutFromSchema = {
-	[F in AuditableBuildingKind]: z.infer<(typeof batteriesFor)[F]["formSchema"]>;
-};
+// -- Helpers
+
+type AudutFormSchema<F extends AuditableBuildingKind> =
+	(typeof batteriesFor)[F]["formSchema"];
+
+type AudutFormValidatedSchemaFor<
+	F extends AuditableBuildingKind,
+	R extends UserRole,
+> = (typeof batteriesFor)[F]["formValidatedSchemaForRole"][R];

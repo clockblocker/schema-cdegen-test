@@ -37,7 +37,7 @@
 		"**/*.cjs",
 		"**/*.js",
 		".next/types/**/*.ts",
-		"src/consumer-code/batteries/batteries-shape-and-assertions.ts"
+		"src/consumer-code/batteries/type-constraint/batteries-shape.ts"
 	],
 	"exclude": ["node_modules", "generated"]
 }
