@@ -9,13 +9,16 @@ import { stringNumber } from "./atomic/string-and-number";
 import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
-	buildCodecAndFormSchema,
+	buildAddaptersAndOutputSchema,
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
+import { codec, pipeCodecs, type CodecPair, withOutputSchema } from "./codec-pair";
 
 export type { Codec };
-export { arrayOf, buildCodecAndFormSchema as buildCodec };
+export type { CodecPair };
+export { arrayOf, buildAddaptersAndOutputSchema as buildCodec };
+export { codec, pipeCodecs, withOutputSchema };
 
 export const atomicCodecs = {
 	arrayOf,
