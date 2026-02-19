@@ -3,9 +3,9 @@ import { createElement, type ReactElement } from "react";
 import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import {
+	batteriesFor,
 	type Scoring,
 	type ScoringServerInput,
-	scoringBatteries,
 } from "../batteries/generic-batteries";
 import { ArFormFields } from "./ar";
 import { LoansFormFields } from "./loans";
@@ -44,7 +44,7 @@ function ArGenericForm({
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: Omit<ArGenericFormProps, "flavor">): ReactElement {
-	const battery = scoringBatteries.AR;
+	const battery = batteriesFor.AR;
 	const defaultValues = battery.codec.fromInput(
 		initialServerValue,
 	) as DefaultValues<Scoring<"AR">>;
@@ -89,7 +89,7 @@ function LoansGenericForm({
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: Omit<LoansGenericFormProps, "flavor">): ReactElement {
-	const battery = scoringBatteries.Loans;
+	const battery = batteriesFor.Loans;
 	const defaultValues = battery.codec.fromInput(
 		initialServerValue,
 	) as DefaultValues<Scoring<"Loans">>;
