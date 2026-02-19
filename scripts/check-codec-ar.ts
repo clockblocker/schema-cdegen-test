@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { ArFormSchema } from "../src/consumer-code/adapters/generated/ar/reshape-schema";
+import { ArFormSchema } from "../src/consumer-code/batteries/generated/ar/reshape-schema";
 import {
 	ArServerSchema,
 	ArServerToFormCodec,
-} from "../src/consumer-code/adapters/hand-written-codecs/ar";
+} from "../src/consumer-code/batteries/hand-written-codecs/ar";
 
 const serverSample = ArServerSchema.parse({
 	q1l0: true,

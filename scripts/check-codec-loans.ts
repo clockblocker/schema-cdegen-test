@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { LoansFormSchema } from "../src/consumer-code/adapters/generated/loans/reshape-schema";
+import { LoansFormSchema } from "../src/consumer-code/batteries/generated/loans/reshape-schema";
 import {
 	LoansServerSchema,
 	LoansServerToFormCodec,
-} from "../src/consumer-code/adapters/hand-written-codecs/loans";
+} from "../src/consumer-code/batteries/hand-written-codecs/loans";
 
 const serverSample = LoansServerSchema.parse({
 	questionsLoans: {

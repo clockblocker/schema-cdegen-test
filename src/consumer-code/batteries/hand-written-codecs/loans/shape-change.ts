@@ -1,12 +1,18 @@
 import { codec, pipeCodecs } from "../../../../components/wadk-typings/common-codecs/codec-pair";
-import { loansFieldAdaptersCodec } from "./codec-for-field-adapters";
+import { loansFieldAdaptersCodec } from "./field-adapters";
 
 type FieldAdaptersOutput = ReturnType<typeof loansFieldAdaptersCodec.fromInput>;
 
 const loansShapeChangeCodec = codec<FieldAdaptersOutput>()((input) => ({
-	questions: input.questionsLoans,
+	questions: {
+		q3: input.questionsLoans.q3,
+		q4: input.questionsLoans.q4,
+	},
 }))((output) => ({
-	questionsLoans: output.questions,
+	questionsLoans: {
+		q3: output.questions.q3,
+		q4: output.questions.q4,
+	},
 }));
 
 export const LoansServerToFormCodec = pipeCodecs(
