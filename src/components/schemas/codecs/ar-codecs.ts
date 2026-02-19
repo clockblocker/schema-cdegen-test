@@ -1,6 +1,6 @@
 import type { z } from "zod";
-import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
-import { buildCodecAndFormSchema } from "../../wadk-typings/common-codecs/build-codec";
+import { atomicCodecs } from "~/codec-builder-library/adapter-builder";
+import { buildAddaptersAndOutputSchema } from "~/codec-builder-library/adapter-builder/build-codec";
 import { ArServerSchema } from "../server/ar-server";
 
 const { yesNoBool, stringNumber, dateIso, nullishEmpty, noOpCodec, arrayOf } =
@@ -23,7 +23,7 @@ const l2ArrItem = {
 	l3_arr: arrayOf(l2),
 };
 
-const ar = buildCodecAndFormSchema(ArServerSchema, {
+const ar = buildAddaptersAndOutputSchema(ArServerSchema, {
 	q1l0: noOpCodec,
 	q2l0: yesNoBool,
 	q3l0: stringNumber,

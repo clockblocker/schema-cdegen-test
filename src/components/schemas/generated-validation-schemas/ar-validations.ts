@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { maxNumericValue } from "../../wadk-typings/wadk-input-schemas";
+import { maxNumericValue } from "~/codec-builder-library/adapter-builder/wadk-input-schemas";
 import { ArFormSchema } from "../codecs/ar-codecs";
 
 const ArFormWithLimitsSchema = ArFormSchema.extend({

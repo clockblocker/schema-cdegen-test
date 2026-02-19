@@ -1,5 +1,5 @@
-import { atomicCodecs } from "../../../../components/wadk-typings/common-codecs";
-import { buildAddaptersAndOutputSchema } from "../../../../components/wadk-typings/common-codecs/build-codec";
+import { atomicCodecs } from "~/codec-builder-library/adapter-builder";
+import { buildAddaptersAndOutputSchema } from "~/codec-builder-library/adapter-builder/build-codec";
 import { LoansServerSchema } from "../../generated/loans/server-schema";
 
 export const loansFieldAdaptersCodec = buildAddaptersAndOutputSchema(

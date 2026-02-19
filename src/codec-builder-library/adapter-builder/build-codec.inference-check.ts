@@ -2,7 +2,7 @@ import { z } from "zod";
 import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
-	buildCodecAndFormSchema,
+	buildAddaptersAndOutputSchema,
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
@@ -35,18 +35,18 @@ const counterpartyCodec = {
 	id: noOpCodec,
 };
 
-const widened = buildCodecAndFormSchema(ClientSchemaWidened(), {
+const widened = buildAddaptersAndOutputSchema(ClientSchemaWidened(), {
 	id: noOpCodec,
 	counterparties: arrayOf(counterpartyCodec),
 });
 
-buildCodecAndFormSchema(ClientSchemaWidened(), {
+buildAddaptersAndOutputSchema(ClientSchemaWidened(), {
 	// @ts-expect-error widened scalar number field cannot use yes/no codec
 	id: yesNoBool,
 	counterparties: arrayOf(counterpartyCodec),
 });
 
-buildCodecAndFormSchema(ClientSchemaWidened(), {
+buildAddaptersAndOutputSchema(ClientSchemaWidened(), {
 	// @ts-expect-error widened scalar number field cannot use array shape
 	id: arrayOf(counterpartyCodec),
 	counterparties: arrayOf(counterpartyCodec),
@@ -69,12 +69,12 @@ const strict = z.object({
 	id: z.number(),
 });
 
-buildCodecAndFormSchema(strict, {
+buildAddaptersAndOutputSchema(strict, {
 	// @ts-expect-error number field cannot use yes/no codec
 	id: yesNoBool,
 });
 
-buildCodecAndFormSchema(strict, {
+buildAddaptersAndOutputSchema(strict, {
 	// @ts-expect-error scalar field cannot use array shape
 	id: arrayOf(counterpartyCodec),
 });
@@ -85,7 +85,7 @@ const numberOrStringInputCodec = {
 	outputSchema: z.string(),
 } satisfies Codec<string, number | string, z.ZodString>;
 
-buildCodecAndFormSchema(strict, {
+buildAddaptersAndOutputSchema(strict, {
 	id: numberOrStringInputCodec,
 });
 
@@ -99,14 +99,14 @@ const numberToDateCodec = {
 	outputSchema: z.date(),
 } satisfies Codec<Date, number, z.ZodDate>;
 
-const strictArrayMapped = buildCodecAndFormSchema(strictArray, {
+const strictArrayMapped = buildAddaptersAndOutputSchema(strictArray, {
 	dates: arrayOf(numberToDateCodec),
 });
 
 type StrictArrayMappedOutput = z.infer<typeof strictArrayMapped.outputSchema>;
 const _strictArrayMappedCheck: StrictArrayMappedOutput["dates"] = [new Date()];
 
-buildCodecAndFormSchema(strictArray, {
+buildAddaptersAndOutputSchema(strictArray, {
 	// @ts-expect-error number[] item cannot use yes/no codec
 	dates: arrayOf(yesNoBool),
 });

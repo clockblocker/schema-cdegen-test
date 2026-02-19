@@ -1,9 +1,9 @@
 import type { z } from "zod";
-import { atomicCodecs } from "~/components/wadk-typings/common-codecs";
-import { buildCodecAndFormSchema } from "../../wadk-typings/common-codecs/build-codec";
+import { atomicCodecs } from "~/codec-builder-library/adapter-builder";
+import { buildAddaptersAndOutputSchema } from "~/codec-builder-library/adapter-builder/build-codec";
 import { LoansServerSchema } from "../server/loans-server";
 
-const loans = buildCodecAndFormSchema(LoansServerSchema(), {
+const loans = buildAddaptersAndOutputSchema(LoansServerSchema(), {
 	questionsLoans: {
 		q3: atomicCodecs.yesNoBool,
 		q4: atomicCodecs.yesNoBool,

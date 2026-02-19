@@ -495,7 +495,7 @@ function convertFromOutput(
 	return result;
 }
 
-export function buildCodecAndFormSchema<
+export function buildAddaptersAndOutputSchema<
 	TInputSchema extends z.AnyZodObject,
 	const S extends RuntimeCodecShape,
 >(

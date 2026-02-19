@@ -1,4 +1,7 @@
-import { codec, pipeCodecs } from "../../../../components/wadk-typings/common-codecs/codec-pair";
+import {
+	codec,
+	pipeCodecs,
+} from "~/codec-builder-library/adapter-builder/codec-pair";
 import { arFieldAdaptersCodec } from "./field-adapters";
 
 type FieldAdaptersOutput = ReturnType<typeof arFieldAdaptersCodec.fromInput>;

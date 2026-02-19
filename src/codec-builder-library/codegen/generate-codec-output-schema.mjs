@@ -28,7 +28,7 @@ function assertRequiredArgs(args) {
 	for (const key of required) {
 		if (!args[key]) {
 			throw new Error(
-				`Missing --${key}. Usage: node scripts/generate-codec-output-schema.mjs --entry <file.ts> --export <codecExportName> --out <output.ts> [--schema <schemaConstName>]`,
+				`Missing --${key}. Usage: node src/codec-builder-library/codegen/generate-codec-output-schema.mjs --entry <file.ts> --export <codecExportName> --out <output.ts> [--schema <schemaConstName>]`,
 			);
 		}
 	}
@@ -65,13 +65,17 @@ function loadProgram(cwd) {
 function getExportedSymbol(sourceFile, checker, exportName) {
 	const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
 	if (!moduleSymbol) {
-		throw new Error(`Could not resolve module symbol for ${sourceFile.fileName}`);
+		throw new Error(
+			`Could not resolve module symbol for ${sourceFile.fileName}`,
+		);
 	}
 
 	const exported = checker.getExportsOfModule(moduleSymbol);
 	const match = exported.find((symbol) => symbol.name === exportName);
 	if (!match) {
-		throw new Error(`Export "${exportName}" was not found in ${sourceFile.fileName}`);
+		throw new Error(
+			`Export "${exportName}" was not found in ${sourceFile.fileName}`,
+		);
 	}
 
 	if (match.flags & ts.SymbolFlags.Alias) {
@@ -94,8 +98,14 @@ function getFromInputOutputType(codecSymbol, checker) {
 		throw new Error(`Export "${codecSymbol.name}" does not have "fromInput"`);
 	}
 
-	const fromInputType = checker.getTypeOfSymbolAtLocation(fromInputSymbol, location);
-	const signatures = checker.getSignaturesOfType(fromInputType, ts.SignatureKind.Call);
+	const fromInputType = checker.getTypeOfSymbolAtLocation(
+		fromInputSymbol,
+		location,
+	);
+	const signatures = checker.getSignaturesOfType(
+		fromInputType,
+		ts.SignatureKind.Call,
+	);
 	if (signatures.length === 0) {
 		throw new Error(`"fromInput" in "${codecSymbol.name}" is not callable`);
 	}
@@ -130,7 +140,10 @@ function removeUnionMembers(type, checker, predicate) {
 		return { type: kept[0], removed: true };
 	}
 
-	return { type: checker.getUnionType(kept, ts.UnionReduction.None), removed: true };
+	return {
+		type: checker.getUnionType(kept, ts.UnionReduction.None),
+		removed: true,
+	};
 }
 
 function isUndefinedType(type) {
@@ -159,7 +172,9 @@ function isBooleanLiteralType(type) {
 
 function buildZodForType(type, checker, seen, warnings) {
 	if (seen.has(type.id)) {
-		warnings.push("Recursive type detected; using z.unknown() at recursion point.");
+		warnings.push(
+			"Recursive type detected; using z.unknown() at recursion point.",
+		);
 		return "z.unknown()";
 	}
 
@@ -293,9 +308,13 @@ function buildUnionZod(unionType, checker, seen, warnings) {
 	const coreType = nonNullable.type;
 	if (coreType.isUnion()) {
 		const members = coreType.types;
-		const stringLiteralOnly = members.every((member) => isStringLiteralType(member));
+		const stringLiteralOnly = members.every((member) =>
+			isStringLiteralType(member),
+		);
 		if (stringLiteralOnly) {
-			const options = members.map((member) => JSON.stringify(member.value)).join(", ");
+			const options = members
+				.map((member) => JSON.stringify(member.value))
+				.join(", ");
 			expr = `z.enum([${options}])`;
 		} else {
 			const schemas = members.map((member) =>
@@ -337,7 +356,9 @@ function buildObjectZod(objectType, checker, seen, warnings) {
 	for (const prop of props) {
 		const declaration = prop.valueDeclaration ?? prop.declarations?.[0];
 		if (!declaration) {
-			warnings.push(`Property "${prop.name}" has no declaration; using z.unknown().`);
+			warnings.push(
+				`Property "${prop.name}" has no declaration; using z.unknown().`,
+			);
 			fragments.push(`${JSON.stringify(prop.name)}: z.unknown()`);
 			continue;
 		}
