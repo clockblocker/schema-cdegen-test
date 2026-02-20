@@ -3,14 +3,10 @@ import {
 	atomicCodecs,
 	buildAddaptersAndOutputSchema,
 	type Codec,
-	pipeCodecs,
 } from "~/lib/codec-builder-library/adapter-builder";
-import {
-	LibraryReshapedSchema,
-	libraryReshapeCodec,
-} from "./reshape-wo-codegen";
+import { LibraryServerSchema } from "../../generated/library/server-schema";
 
-const { stringNumber, yesNoBool, noOpCodec } = atomicCodecs;
+const { arrayOf, stringNumber, yesNoBool, noOpCodec } = atomicCodecs;
 
 type YesNo = "Yes" | "No";
 
@@ -23,34 +19,28 @@ const stringToYesNoOptionalCodec = {
 	outputSchema: yesNoOptionalSchema,
 } satisfies Codec<YesNo | undefined, string, typeof yesNoOptionalSchema>;
 
+const answersItemFieldCodec = {
+	ans_to_q2: stringToYesNoOptionalCodec,
+	comment_to_q2_: noOpCodec,
+};
+
 const libraryFieldCodec = {
+	ans_to_q1: stringToYesNoOptionalCodec,
+	comment_to_q1_: noOpCodec,
 	id: noOpCodec,
 	dateOfConstuction: noOpCodec,
+	answers: arrayOf(answersItemFieldCodec),
 	libraryName: noOpCodec,
-	city: noOpCodec,
-	country: noOpCodec,
+	address: {
+		city: noOpCodec,
+		country: noOpCodec,
+	},
 	memberCapacity: stringNumber,
 	openLate: yesNoBool,
-	questionare: {
-		q1: {
-			answer: stringToYesNoOptionalCodec,
-			comment: noOpCodec,
-		},
-		q2: {
-			answer: stringToYesNoOptionalCodec,
-			comment: noOpCodec,
-		},
-	},
 };
 
 export const libraryFieldAdaptersCodec = buildAddaptersAndOutputSchema(
-	LibraryReshapedSchema,
+	LibraryServerSchema,
 	libraryFieldCodec,
 );
-
-export const LibraryCodec = pipeCodecs(
-	libraryReshapeCodec,
-	libraryFieldAdaptersCodec,
-);
-
-export const LibraryFormSchema = libraryFieldAdaptersCodec.outputSchema;
+export const WithFieldsAdapted = libraryFieldAdaptersCodec.outputSchema;

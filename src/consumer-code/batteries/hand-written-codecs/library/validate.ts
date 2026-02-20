@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { UserRole } from "~/consumer-code/business-types";
-import { LibraryFormSchema } from "./adapt-fields";
+import { LibraryFormSchema } from "./reshape-wo-codegen";
 
 const libraryFormValidatedSchema = LibraryFormSchema.superRefine(
 	(formValue, ctx) => {

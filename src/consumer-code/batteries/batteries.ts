@@ -7,10 +7,7 @@ import { SchoolServerSchema } from "./generated/school/server-schema";
 import { hospitalFieldAdaptersCodec } from "./hand-written-codecs/hospital/adapt-fields";
 import { hospitalReshapeCodec } from "./hand-written-codecs/hospital/reshape";
 import { HospitalFormValidatedSchemaForRole } from "./hand-written-codecs/hospital/validate";
-import {
-	LibraryCodec,
-	LibraryFormSchema,
-} from "./hand-written-codecs/library/adapt-fields";
+import { LibraryCodec, LibraryFormSchema } from "./hand-written-codecs/library/reshape-wo-codegen";
 import { LibraryFormValidatedSchemaForRole } from "./hand-written-codecs/library/validate";
 import {
 	SchoolCodec,

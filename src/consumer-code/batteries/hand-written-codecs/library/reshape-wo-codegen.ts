@@ -1,39 +1,41 @@
 import { z } from "zod";
 import {
 	type Codec,
+	pipeCodecs,
 	type ReshapeShapeFor,
 	reshapeFor,
 } from "~/lib/codec-builder-library/adapter-builder";
-import { LibraryServerSchema } from "../../generated/library/server-schema";
+import { libraryFieldAdaptersCodec, WithFieldsAdapted } from "./adapt-fields";
 
-type RawQuestionarePair = {
-	answer: string;
+type YesNo = "Yes" | "No";
+type QuestionarePair = {
+	answer?: YesNo;
 	comment: string;
 };
 
-const rawQuestionarePairSchema = z.object({
-	answer: z.string(),
+const questionarePairSchema = z.object({
+	answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
 	comment: z.string(),
 });
 
-const rawQuestionarePairCodec = {
-	fromInput: (pair: readonly [string, string]): RawQuestionarePair => ({
+const questionarePairCodec = {
+	fromInput: (pair: readonly [YesNo | undefined, string]): QuestionarePair => ({
 		answer: pair[0],
 		comment: pair[1],
 	}),
-	fromOutput: (pair: RawQuestionarePair): readonly [string, string] => [
+	fromOutput: (pair: QuestionarePair): readonly [YesNo | undefined, string] => [
 		pair.answer,
 		pair.comment,
 	],
-	outputSchema: rawQuestionarePairSchema,
+	outputSchema: questionarePairSchema,
 } satisfies Codec<
-	RawQuestionarePair,
-	readonly [string, string],
-	typeof rawQuestionarePairSchema
+	QuestionarePair,
+	readonly [YesNo | undefined, string],
+	typeof questionarePairSchema
 >;
 
 const { fromPath, fromPaths, removeField, build } =
-	reshapeFor(LibraryServerSchema);
+	reshapeFor(WithFieldsAdapted);
 
 const libraryReshapeShape = {
 	ans_to_q1: removeField,
@@ -45,16 +47,21 @@ const libraryReshapeShape = {
 	memberCapacity: fromPath(["memberCapacity"]),
 	openLate: fromPath(["openLate"]),
 	questionare: {
-		q1: fromPaths([["ans_to_q1"], ["comment_to_q1_"]], rawQuestionarePairCodec),
+		q1: fromPaths([["ans_to_q1"], ["comment_to_q1_"]], questionarePairCodec),
 		q2: fromPaths(
 			[
 				["answers", "0", "ans_to_q2"],
 				["answers", "0", "comment_to_q2_"],
 			],
-			rawQuestionarePairCodec,
+			questionarePairCodec,
 		),
 	},
-} satisfies ReshapeShapeFor<typeof LibraryServerSchema>;
+} satisfies ReshapeShapeFor<typeof WithFieldsAdapted>;
 
-export const { outputSchema: LibraryReshapedSchema, ...libraryReshapeCodec } =
+export const { outputSchema: LibraryFormSchema, ...libraryReshapeCodec } =
 	build(libraryReshapeShape);
+
+export const LibraryCodec = pipeCodecs(
+	libraryFieldAdaptersCodec,
+	libraryReshapeCodec,
+);

@@ -3,7 +3,7 @@ import { LibraryServerSchema } from "../src/consumer-code/batteries/generated/li
 import {
 	LibraryCodec,
 	LibraryFormSchema,
-} from "../src/consumer-code/batteries/hand-written-codecs/library/adapt-fields";
+} from "../src/consumer-code/batteries/hand-written-codecs/library/reshape-wo-codegen";
 
 const serverSample = LibraryServerSchema.parse({
 	ans_to_q1: "Yes",
