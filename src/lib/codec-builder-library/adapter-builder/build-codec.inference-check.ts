@@ -9,6 +9,7 @@ import {
 	fromPath,
 	fromPaths,
 	noOpCodec,
+	removeField,
 } from "./build-codec";
 
 type Properties<T> = {
@@ -199,8 +200,9 @@ const qCodec = {
 const evenLooserQuestionnaire = buildEvenLooserAddaptersAndOutputSchema(
 	questionnaireServerSchema,
 	{
-		id: noOpCodec,
-		dateOfConstuction: noOpCodec,
+		ans_to_q1: removeField,
+		comment_to_q1_: removeField,
+		answers: removeField,
 		questionare: {
 			q1: fromPaths(["ans_to_q1", "comment_to_q1_"], qCodec),
 			q2: fromPaths(
@@ -227,6 +229,12 @@ const _evenLooserQuestionareQ2: EvenLooserQuestionnaireOutput["questionare"]["q2
 	};
 const _evenLooserQuestionareFirstQAnswer: EvenLooserQuestionnaireOutput["firstQAnswer"] =
 	"Yes";
+const _evenLooserQuestionareId: EvenLooserQuestionnaireOutput["id"] = 1;
+const _evenLooserQuestionareDate: EvenLooserQuestionnaireOutput["dateOfConstuction"] =
+	"2020-01-01";
+// @ts-expect-error removed source key should not be present in form output
+const _evenLooserQuestionareRemovedField: EvenLooserQuestionnaireOutput["ans_to_q1"] =
+	"Yes";
 
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
@@ -236,3 +244,5 @@ void _looseNestedDefaultC;
 void _evenLooserQuestionareQ1;
 void _evenLooserQuestionareQ2;
 void _evenLooserQuestionareFirstQAnswer;
+void _evenLooserQuestionareId;
+void _evenLooserQuestionareDate;

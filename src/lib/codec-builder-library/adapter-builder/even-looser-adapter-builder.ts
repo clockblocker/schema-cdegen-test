@@ -16,6 +16,7 @@ import {
 	noOpCodec,
 	type OutputZodArrayItemFromCodecNode,
 	type RuntimeCodecShape,
+	type SchemaShapeOf,
 	tryGetArrayItemSchema,
 	tryGetNestedObjectSchema,
 	unwrapOptionalNullableSchema,
@@ -39,6 +40,14 @@ interface FromPathsCodecShape<
 	readonly codec: TCodec;
 }
 
+interface RemoveFieldCodec {
+	readonly __removeFieldCodec: true;
+}
+
+export const removeField = {
+	__removeFieldCodec: true,
+} as const satisfies RemoveFieldCodec;
+
 type RuntimeEvenLooserBaseNode =
 	| RuntimeCodecShape
 	| Codec<any, any, any>
@@ -48,7 +57,8 @@ type RuntimeEvenLooserBaseNode =
 type RuntimeEvenLooserShapeNode =
 	| RuntimeEvenLooserBaseNode
 	| FromPathCodecShape
-	| FromPathsCodecShape;
+	| FromPathsCodecShape
+	| RemoveFieldCodec;
 
 type RuntimeEvenLooserShape = Record<string, RuntimeEvenLooserShapeNode>;
 
@@ -105,41 +115,79 @@ type SchemaAtPathOrUnknown<
 		? SchemaAtPath<TInputSchema, TPath>
 		: z.ZodUnknown;
 
+type RemoveFieldShapeKeys<S extends RuntimeEvenLooserShape> = {
+	[K in KnownKeys<S>]: S[K] extends RemoveFieldCodec ? K : never;
+}[KnownKeys<S>];
+
+type ExplicitEvenLooserShapeKeys<S extends RuntimeEvenLooserShape> = Exclude<
+	KnownKeys<S>,
+	RemoveFieldShapeKeys<S>
+>;
+
+type InputSchemaUntouchedShape<
+	TInputSchema extends z.AnyZodObject,
+	S extends RuntimeEvenLooserShape,
+> = {
+	[K in Exclude<KnownKeys<SchemaShapeOf<TInputSchema>>, KnownKeys<S>>]:
+		SchemaShapeOf<TInputSchema>[K];
+};
+
 type EvenLooserOutputZodNodeBase<
 	TInputSchema extends z.AnyZodObject,
+	TInputFieldSchema,
 	TNode extends RuntimeEvenLooserBaseNode,
 > =
 	TNode extends Codec<any, any, infer TSchema>
 		? TSchema
 		: TNode extends typeof noOpCodec
-			? z.ZodUnknown
+			? TInputFieldSchema extends z.ZodTypeAny
+				? TInputFieldSchema
+				: z.ZodUnknown
 			: TNode extends ArrayCodecShape<infer TItemShape>
 				? z.ZodArray<OutputZodArrayItemFromCodecNode<TItemShape>>
 				: TNode extends RuntimeEvenLooserShape
-					? z.ZodObject<EvenLooserOutputZodShapeForInput<TInputSchema, TNode>>
+					? z.ZodObject<
+							EvenLooserOutputZodShapeForInput<TInputSchema, TNode, false>
+						>
 					: never;
 
 type EvenLooserOutputZodNode<
 	TInputSchema extends z.AnyZodObject,
+	TInputFieldSchema,
 	TShapeNode extends RuntimeEvenLooserShapeNode,
 > =
 	TShapeNode extends FromPathCodecShape<infer TPath, infer TNode>
 		? TNode extends typeof noOpCodec
 			? SchemaAtPathOrUnknown<TInputSchema, TPath>
-			: EvenLooserOutputZodNodeBase<TInputSchema, TNode>
+			: EvenLooserOutputZodNodeBase<TInputSchema, never, TNode>
 		: TShapeNode extends FromPathsCodecShape<any, infer TCodec>
 			? TCodec extends Codec<any, any, infer TSchema>
 				? TSchema
 				: never
+			: TShapeNode extends RemoveFieldCodec
+				? never
 			: TShapeNode extends RuntimeEvenLooserBaseNode
-				? EvenLooserOutputZodNodeBase<TInputSchema, TShapeNode>
+				? EvenLooserOutputZodNodeBase<
+						TInputSchema,
+						TInputFieldSchema,
+						TShapeNode
+					>
 				: never;
 
 type EvenLooserOutputZodShapeForInput<
 	TInputSchema extends z.AnyZodObject,
 	S extends RuntimeEvenLooserShape,
-> = {
-	[K in KnownKeys<S>]: EvenLooserOutputZodNode<TInputSchema, S[K]>;
+	TIncludeUnspecifiedInputKeys extends boolean,
+> = (TIncludeUnspecifiedInputKeys extends true
+	? InputSchemaUntouchedShape<TInputSchema, S>
+	: {}) & {
+	[K in ExplicitEvenLooserShapeKeys<S>]: EvenLooserOutputZodNode<
+		TInputSchema,
+		K extends keyof SchemaShapeOf<TInputSchema>
+			? SchemaShapeOf<TInputSchema>[K]
+			: never,
+		S[K]
+	>;
 };
 
 export function fromPath<
@@ -185,8 +233,22 @@ function isFromPathsCodecShape(v: unknown): v is FromPathsCodecShape {
 	);
 }
 
+function isRemoveFieldCodec(v: unknown): v is RemoveFieldCodec {
+	return (
+		typeof v === "object" &&
+		v !== null &&
+		"__removeFieldCodec" in v &&
+		(v as RemoveFieldCodec).__removeFieldCodec === true
+	);
+}
+
 function pathTokens(path: string): string[] {
 	return path.match(/[^.[\]]+/g) ?? [];
+}
+
+function topLevelPathKey(path: string): string | undefined {
+	const [firstToken] = pathTokens(path);
+	return firstToken;
 }
 
 function isNumericPathToken(token: string): boolean {
@@ -341,6 +403,9 @@ function buildOutputZodShapeEvenLooser(
 		if (!node) {
 			continue;
 		}
+		if (isRemoveFieldCodec(node)) {
+			continue;
+		}
 		const schemaNode = schemaShape?.[key];
 		if (isFromPathCodecShape(node)) {
 			const sourceSchema = getSchemaAtPath(inputSchema, node.path);
@@ -457,6 +522,10 @@ function convertFromInputEvenLooser(
 		if (!node) {
 			continue;
 		}
+		if (isRemoveFieldCodec(node)) {
+			delete result[key];
+			continue;
+		}
 		if (isFromPathCodecShape(node)) {
 			const sourceValue = getValueAtPath(rootInput, node.path);
 			result[key] = convertNodeFromInputEvenLooserBase(
@@ -497,10 +566,17 @@ function convertFromOutputEvenLooser(
 		? { ...data }
 		: {};
 	const rootTarget = rootResult ?? result;
+	const writtenTopLevelKeys = new Set<string>();
 
 	for (const key in shape) {
 		const node = shape[key];
 		if (!node) {
+			continue;
+		}
+		if (isRemoveFieldCodec(node)) {
+			if (!writtenTopLevelKeys.has(key)) {
+				delete result[key];
+			}
 			continue;
 		}
 		delete result[key];
@@ -513,6 +589,10 @@ function convertFromOutputEvenLooser(
 				rootTarget,
 			);
 			setValueAtPath(rootTarget, node.path, sourceValue);
+			const topLevelKey = topLevelPathKey(node.path);
+			if (topLevelKey) {
+				writtenTopLevelKeys.add(topLevelKey);
+			}
 			continue;
 		}
 
@@ -529,6 +609,10 @@ function convertFromOutputEvenLooser(
 
 			node.paths.forEach((path, index) => {
 				setValueAtPath(rootTarget, path, sourceValues[index]);
+				const topLevelKey = topLevelPathKey(path);
+				if (topLevelKey) {
+					writtenTopLevelKeys.add(topLevelKey);
+				}
 			});
 			continue;
 		}
@@ -540,7 +624,6 @@ function convertFromOutputEvenLooser(
 			rootTarget,
 		);
 		if (
-			!options.includeUnspecifiedInputKeys &&
 			typeof result[key] === "object" &&
 			result[key] !== null &&
 			!Array.isArray(result[key]) &&
@@ -565,6 +648,9 @@ function isShapeWithLocalFromOutputFields(
 		if (isFromPathCodecShape(node) || isFromPathsCodecShape(node)) {
 			continue;
 		}
+		if (isRemoveFieldCodec(node)) {
+			continue;
+		}
 
 		if (isCodec(node) || isNoOpCodec(node) || isArrayCodecShape(node)) {
 			return true;
@@ -580,15 +666,16 @@ function isShapeWithLocalFromOutputFields(
 export function buildEvenLooserAddaptersAndOutputSchema<
 	TInputSchema extends z.AnyZodObject,
 	const S extends RuntimeEvenLooserShape,
+	const TIncludeUnspecifiedInputKeys extends boolean = true,
 >(
 	inputSchema: TInputSchema,
 	shape: S,
 	options?: {
-		includeUnspecifiedInputKeys?: boolean;
+		includeUnspecifiedInputKeys?: TIncludeUnspecifiedInputKeys;
 	},
 ) {
 	const includeUnspecifiedInputKeys =
-		options?.includeUnspecifiedInputKeys ?? false;
+		options?.includeUnspecifiedInputKeys ?? true;
 	const outputSchema = z.object(
 		buildOutputZodShapeEvenLooser(
 			shape as RuntimeEvenLooserShape,
@@ -596,7 +683,13 @@ export function buildEvenLooserAddaptersAndOutputSchema<
 			inputSchema.shape as z.ZodRawShape,
 			includeUnspecifiedInputKeys,
 		),
-	) as z.ZodObject<EvenLooserOutputZodShapeForInput<TInputSchema, S>>;
+	) as z.ZodObject<
+		EvenLooserOutputZodShapeForInput<
+			TInputSchema,
+			S,
+			TIncludeUnspecifiedInputKeys
+		>
+	>;
 
 	type InputType = z.infer<TInputSchema>;
 	type OutputType = z.infer<typeof outputSchema>;

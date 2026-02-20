@@ -5,6 +5,7 @@ import {
 	type Codec,
 	fromPath,
 	fromPaths,
+	removeField,
 } from "~/lib/codec-builder-library/adapter-builder";
 import { LibraryServerSchema } from "../../generated/library/server-schema";
 
@@ -40,9 +41,10 @@ const questionarePairCodec = {
 } satisfies Codec<QuestionarePair, unknown[], typeof questionarePairSchema>;
 
 const libraryCodecShape = {
-	id: fromPath("id"),
-	dateOfConstuction: fromPath("dateOfConstuction"),
-	libraryName: fromPath("libraryName"),
+	ans_to_q1: removeField,
+	comment_to_q1_: removeField,
+	answers: removeField,
+	address: removeField,
 	city: fromPath("address.city"),
 	country: fromPath("address.country"),
 	memberCapacity: fromPath("memberCapacity", stringNumber),

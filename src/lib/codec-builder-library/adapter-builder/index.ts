@@ -15,6 +15,7 @@ import {
 	type Codec,
 	fromPath,
 	fromPaths,
+	removeField,
 	noOpCodec,
 } from "./build-codec";
 import {
@@ -30,6 +31,7 @@ export {
 	arrayOf,
 	fromPath,
 	fromPaths,
+	removeField,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
 	buildAddaptersAndOutputSchema,
