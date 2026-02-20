@@ -9,6 +9,12 @@ export const SchoolServerSchema = z.object({
 		q3: boolOrUndefined,
 		q4: boolOrUndefined,
 	}),
+	classrooms: z.array(
+		z.object({
+			id: z.number(),
+			wallColor: z.string(),
+		}),
+	),
 });
 
 export type SchoolServer = z.infer<typeof SchoolServerSchema>;

@@ -8,7 +8,6 @@ import { hospitalFieldAdaptersCodec } from "./hand-written-codecs/hospital/adapt
 import { hospitalReshapeCodec } from "./hand-written-codecs/hospital/reshape";
 import { HospitalFormValidatedSchemaForRole } from "./hand-written-codecs/hospital/validate";
 import { schoolFieldAdaptersCodec } from "./hand-written-codecs/school/adapt-fields";
-import { schoolReshapeCodec } from "./hand-written-codecs/school/reshape";
 import { SchoolFormValidatedSchemaForRole } from "./hand-written-codecs/school/validate";
 import type { BatteriesRecord } from "./type-constraint/batteries-shape";
 
@@ -17,10 +16,7 @@ export const HospitalServerToFormCodec = pipeCodecs(
 	hospitalReshapeCodec,
 );
 
-export const SchoolServerToFormCodec = pipeCodecs(
-	schoolFieldAdaptersCodec,
-	schoolReshapeCodec,
-);
+export const SchoolServerToFormCodec = schoolFieldAdaptersCodec;
 
 export const batteriesFor = {
 	Hospital: {

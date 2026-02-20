@@ -303,6 +303,86 @@ type OutputZodShapeForSchemaShape<
 		: never;
 };
 
+type LooseOutputZodArrayItemForInputField<
+	TInputField extends z.ZodTypeAny,
+	TItemShape,
+> =
+	TItemShape extends Codec<any, any, infer TSchema>
+		? TSchema
+		: TItemShape extends NoOpCodec
+			? ArrayItemSchemaOf<TInputField>
+			: TItemShape extends RuntimeCodecShape
+				? ArrayItemSchemaShape<TInputField> extends never
+					? IsWideZodType<TInputField> extends true
+						? [ArrayItemObjectOutput<TInputField>] extends [never]
+							? z.ZodObject<OutputZodShapeFromCodecShape<TItemShape>>
+							: z.ZodObject<
+									OutputZodShapeFromOutputObject<
+										ArrayItemObjectOutput<TInputField>,
+										TItemShape
+									>
+								>
+						: z.ZodObject<OutputZodShapeFromCodecShape<TItemShape>>
+					: z.ZodObject<
+							LooseOutputZodShapeForSchemaShape<
+								ArrayItemSchemaShape<TInputField>,
+								TItemShape
+							>
+						>
+				: never;
+
+type LooseOutputZodNodeForField<
+	TInputField extends z.ZodTypeAny,
+	TShapeNode,
+> =
+	TShapeNode extends Codec<any, any, infer TSchema>
+		? TSchema
+		: TShapeNode extends NoOpCodec
+			? TInputField
+			: TShapeNode extends ArrayCodecShape<infer TItemShape>
+				? z.ZodArray<LooseOutputZodArrayItemForInputField<TInputField, TItemShape>>
+				: TShapeNode extends Record<string, any>
+					? NestedSchemaShape<TInputField> extends never
+						? IsWideZodType<TInputField> extends true
+							? [ObjectOutput<TInputField>] extends [never]
+								? z.ZodObject<OutputZodShapeFromCodecShape<TShapeNode>>
+								: z.ZodObject<
+										OutputZodShapeFromOutputObject<
+											ObjectOutput<TInputField>,
+											TShapeNode
+										>
+									>
+							: z.ZodObject<OutputZodShapeFromCodecShape<TShapeNode>>
+						: z.ZodObject<
+								LooseOutputZodShapeForSchemaShape<
+									NestedSchemaShape<TInputField>,
+									TShapeNode
+								>
+							>
+					: never;
+
+type LooseOutputZodNodeWithoutInput<TShapeNode> =
+	TShapeNode extends Codec<any, any, infer TSchema>
+		? TSchema
+		: TShapeNode extends NoOpCodec
+			? z.ZodUnknown
+			: TShapeNode extends ArrayCodecShape<infer TItemShape>
+				? z.ZodArray<OutputZodArrayItemFromCodecNode<TItemShape>>
+				: TShapeNode extends RuntimeCodecShape
+					? z.ZodObject<OutputZodShapeFromCodecShape<TShapeNode>>
+					: never;
+
+type LooseOutputZodShapeForSchemaShape<
+	TShape extends z.ZodRawShape,
+	S extends RuntimeCodecShape,
+> = {
+	[K in KnownKeys<S>]: K extends keyof TShape
+		? TShape[K] extends z.ZodTypeAny
+			? LooseOutputZodNodeForField<TShape[K], S[K]>
+			: never
+		: LooseOutputZodNodeWithoutInput<S[K]>;
+};
+
 function isCodec(v: unknown): v is Codec<any, any, any> {
 	return (
 		typeof v === "object" &&
@@ -360,6 +440,40 @@ function getArrayItemSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
 	return current.element;
 }
 
+function tryGetNestedObjectSchema(
+	schema: z.ZodTypeAny | undefined,
+): z.AnyZodObject | null {
+	if (!schema) {
+		return null;
+	}
+
+	try {
+		return getNestedObjectSchema(schema);
+	} catch {
+		return null;
+	}
+}
+
+function tryGetArrayItemSchema(
+	schema: z.ZodTypeAny | undefined,
+): z.ZodTypeAny | null {
+	if (!schema) {
+		return null;
+	}
+
+	try {
+		return getArrayItemSchema(schema);
+	} catch {
+		return null;
+	}
+}
+
+function asRecord(v: unknown): Record<string, unknown> {
+	return typeof v === "object" && v !== null
+		? (v as Record<string, unknown>)
+		: {};
+}
+
 function buildOutputZodArrayItem(
 	itemShape: RuntimeArrayItemShape,
 	itemSchema: z.ZodTypeAny,
@@ -381,6 +495,27 @@ function buildOutputZodArrayItem(
 	);
 }
 
+function buildOutputZodArrayItemLoose(
+	itemShape: RuntimeArrayItemShape,
+	itemSchema: z.ZodTypeAny | null,
+): z.ZodTypeAny {
+	if (isCodec(itemShape)) {
+		return itemShape.outputSchema;
+	}
+
+	if (isNoOpCodec(itemShape)) {
+		return itemSchema ?? z.unknown();
+	}
+
+	const nestedObjectSchema = tryGetNestedObjectSchema(itemSchema ?? undefined);
+	return z.object(
+		buildOutputZodShapeLoose(
+			itemShape as RuntimeCodecShape,
+			nestedObjectSchema?.shape,
+		),
+	);
+}
+
 function convertArrayItemFromInput(
 	itemShape: RuntimeArrayItemShape,
 	item: unknown,
@@ -395,7 +530,7 @@ function convertArrayItemFromInput(
 
 	return convertFromInput(
 		itemShape as RuntimeCodecShape,
-		item as Record<string, unknown>,
+		asRecord(item),
 	);
 }
 
@@ -413,7 +548,7 @@ function convertArrayItemFromOutput(
 
 	return convertFromOutput(
 		itemShape as RuntimeCodecShape,
-		item as Record<string, unknown>,
+		asRecord(item),
 	);
 }
 
@@ -451,6 +586,44 @@ function buildOutputZodShape(
 	return result;
 }
 
+function buildOutputZodShapeLoose(
+	shape: RuntimeCodecShape,
+	schemaShape?: z.ZodRawShape,
+): Record<string, z.ZodTypeAny> {
+	const result: Record<string, z.ZodTypeAny> = {};
+	for (const key in shape) {
+		const node = shape[key];
+		const schemaNode = schemaShape?.[key];
+
+		if (isCodec(node)) {
+			result[key] = node.outputSchema;
+			continue;
+		}
+
+		if (isNoOpCodec(node)) {
+			result[key] = schemaNode ?? z.unknown();
+			continue;
+		}
+
+		if (isArrayCodecShape(node)) {
+			const itemSchema = tryGetArrayItemSchema(schemaNode);
+			result[key] = z.array(
+				buildOutputZodArrayItemLoose(node.itemShape, itemSchema),
+			);
+			continue;
+		}
+
+		const nestedObjectSchema = tryGetNestedObjectSchema(schemaNode);
+		result[key] = z.object(
+			buildOutputZodShapeLoose(
+				node as RuntimeCodecShape,
+				nestedObjectSchema?.shape,
+			),
+		);
+	}
+	return result;
+}
+
 function convertFromInput(
 	shape: RuntimeCodecShape,
 	data: Record<string, unknown>,
@@ -470,7 +643,7 @@ function convertFromInput(
 		} else {
 			result[key] = convertFromInput(
 				node as RuntimeCodecShape,
-				data[key] as Record<string, unknown>,
+				asRecord(data[key]),
 			);
 		}
 	}
@@ -496,7 +669,7 @@ function convertFromOutput(
 		} else {
 			result[key] = convertFromOutput(
 				node as RuntimeCodecShape,
-				data[key] as Record<string, unknown>,
+				asRecord(data[key]),
 			);
 		}
 	}
@@ -518,6 +691,43 @@ export function buildAddaptersAndOutputSchema<
 		),
 	) as z.ZodObject<
 		OutputZodShapeForSchemaShape<SchemaShapeOf<TInputSchema>, S>
+	>;
+
+	type InputType = z.infer<TInputSchema>;
+	type OutputType = z.infer<typeof outputSchema>;
+
+	const fromInput = (data: InputType): OutputType => {
+		return convertFromInput(
+			shape as RuntimeCodecShape,
+			data as Record<string, unknown>,
+		) as OutputType;
+	};
+
+	const fromOutput = (data: OutputType): InputType => {
+		return convertFromOutput(
+			shape as RuntimeCodecShape,
+			data as Record<string, unknown>,
+		) as InputType;
+	};
+
+	return {
+		outputSchema,
+		fromInput,
+		fromOutput,
+	};
+}
+
+export function buildLooseAddaptersAndOutputSchema<
+	TInputSchema extends z.AnyZodObject,
+	const S extends RuntimeCodecShape,
+>(inputSchema: TInputSchema, shape: S) {
+	const outputSchema = z.object(
+		buildOutputZodShapeLoose(
+			shape as RuntimeCodecShape,
+			inputSchema.shape as z.ZodRawShape,
+		),
+	) as z.ZodObject<
+		LooseOutputZodShapeForSchemaShape<SchemaShapeOf<TInputSchema>, S>
 	>;
 
 	type InputType = z.infer<TInputSchema>;

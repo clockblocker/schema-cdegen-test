@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FormEventHandler } from "react";
 import { createElement, type ReactElement } from "react";
-import type { DefaultValues, Resolver } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import type { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { batteriesFor } from "../batteries/batteries";
@@ -31,7 +31,7 @@ export type GenericFormProps<
 > = SharedFormProps & {
 	buildingKind: F;
 	userRole: R;
-	initialValue: DefaultValues<AudutFormDraft<F>>;
+	auditFormValues: AudutFormDraft<F>;
 	onSubmit?: (formValue: AudutFormValidatedFor<R, F>) => void;
 };
 

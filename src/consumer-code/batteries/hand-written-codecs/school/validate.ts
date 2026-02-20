@@ -4,18 +4,18 @@ import { SchoolFormSchema } from "../../generated/school/reshape-schema";
 
 const schoolFormValidatedSchema = SchoolFormSchema.superRefine(
 	(formValue, ctx) => {
-		if (formValue.questions.q3 === undefined) {
+		if (formValue.questionsSchool.q3 === undefined) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				path: ["questions", "q3"],
+				path: ["questionsSchool", "q3"],
 				message: "Question 3 is required.",
 			});
 		}
 
-		if (formValue.questions.q4 === undefined) {
+		if (formValue.questionsSchool.q4 === undefined) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				path: ["questions", "q4"],
+				path: ["questionsSchool", "q4"],
 				message: "Question 4 is required.",
 			});
 		}
@@ -23,17 +23,17 @@ const schoolFormValidatedSchema = SchoolFormSchema.superRefine(
 );
 
 const schoolElectricianValidatedSchema = schoolFormValidatedSchema.refine(
-	(formValue) => formValue.questions.q3 === "Yes",
+	(formValue) => formValue.questionsSchool.q3 === "Yes",
 	{
-		path: ["questions", "q3"],
+		path: ["questionsSchool", "q3"],
 		message: "Electrician audit requires Question 3 to be Yes.",
 	},
 );
 
 const schoolPlumberValidatedSchema = schoolFormValidatedSchema.refine(
-	(formValue) => formValue.questions.q4 === "Yes",
+	(formValue) => formValue.questionsSchool.q4 === "Yes",
 	{
-		path: ["questions", "q4"],
+		path: ["questionsSchool", "q4"],
 		message: "Plumber audit requires Question 4 to be Yes.",
 	},
 );

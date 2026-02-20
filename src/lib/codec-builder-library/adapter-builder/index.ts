@@ -10,6 +10,7 @@ import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
 	buildAddaptersAndOutputSchema,
+	buildLooseAddaptersAndOutputSchema,
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
@@ -23,6 +24,8 @@ import {
 export type { Codec };
 export type { CodecPair };
 export { arrayOf, buildAddaptersAndOutputSchema as buildCodec };
+export { buildLooseAddaptersAndOutputSchema };
+export { buildLooseAddaptersAndOutputSchema as buildLooseCodec };
 export { codec, pipeCodecs, withOutputSchema };
 
 export const atomicCodecs = {

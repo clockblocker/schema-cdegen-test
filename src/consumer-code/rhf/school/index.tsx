@@ -9,19 +9,19 @@ export function SchoolFormFields() {
 	} = useFormContext<Audut<"School">>();
 
 	const q3Message =
-		typeof errors.questions?.q3?.message === "string"
-			? errors.questions.q3.message
+		typeof errors.questionsSchool?.q3?.message === "string"
+			? errors.questionsSchool.q3.message
 			: undefined;
 	const q4Message =
-		typeof errors.questions?.q4?.message === "string"
-			? errors.questions.q4.message
+		typeof errors.questionsSchool?.q4?.message === "string"
+			? errors.questionsSchool.q4.message
 			: undefined;
 
 	return (
 		<div className="flex flex-col gap-6">
 			<Controller
 				control={control}
-				name="questions.q3"
+				name="questionsSchool.q3"
 				render={({ field }) => (
 					<YesNoPicker
 						error={q3Message}
@@ -34,7 +34,7 @@ export function SchoolFormFields() {
 
 			<Controller
 				control={control}
-				name="questions.q4"
+				name="questionsSchool.q4"
 				render={({ field }) => (
 					<YesNoPicker
 						error={q4Message}

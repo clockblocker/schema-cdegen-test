@@ -3,6 +3,7 @@ import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
 	buildAddaptersAndOutputSchema,
+	buildLooseAddaptersAndOutputSchema,
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
@@ -111,5 +112,38 @@ buildAddaptersAndOutputSchema(strictArray, {
 	dates: arrayOf(yesNoBool),
 });
 
+const strictNested = z.object({
+	a: z.object({
+		b: z.number(),
+		c: z.string(),
+	}),
+});
+
+buildAddaptersAndOutputSchema(strictNested, {
+	a: {
+		b: noOpCodec,
+		c: noOpCodec,
+		packed: noOpCodec,
+	},
+});
+
+const unknownToStringCodec = {
+	fromInput: (v: unknown) => String(v ?? ""),
+	fromOutput: (v: string) => v,
+	outputSchema: z.string(),
+} satisfies Codec<string, unknown, z.ZodString>;
+
+const looseNested = buildLooseAddaptersAndOutputSchema(strictNested, {
+	a: {
+		b: noOpCodec,
+		c: noOpCodec,
+		packed: unknownToStringCodec,
+	},
+});
+
+type LooseNestedOutput = z.infer<typeof looseNested.outputSchema>;
+const _looseNestedPacked: LooseNestedOutput["a"]["packed"] = "ok";
+
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
+void _looseNestedPacked;

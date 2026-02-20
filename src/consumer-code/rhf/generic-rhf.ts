@@ -1,5 +1,5 @@
 import { createElement, type ReactElement } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
 import type {
 	AudutFormDraft,
 	AudutFormValidatedFor,
@@ -26,14 +26,14 @@ export function GenericRhfForm<
 >({
 	buildingKind,
 	userRole,
-	initialValue,
+	auditFormValues,
 	onSubmit,
 	className = DEFAULT_FORM_CLASS,
 	submitLabel = "Submit",
 }: GenericFormProps<F, R>): ReactElement {
 	const fieldsNode = createElement(fieldsComponentFor[buildingKind]);
 
-	const defaultValues = initialValue;
+	const defaultValues = auditFormValues as DefaultValues<AudutFormDraft<F>>;
 
 	const methods = useForm({
 		resolver: getResolver(buildingKind, userRole),
