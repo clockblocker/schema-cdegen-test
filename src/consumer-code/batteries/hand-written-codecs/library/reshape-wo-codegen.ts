@@ -17,18 +17,18 @@ const rawQuestionarePairSchema = z.object({
 });
 
 const rawQuestionarePairCodec = {
-	fromInput: (pair: unknown[]): RawQuestionarePair => ({
-		answer: typeof pair[0] === "string" ? pair[0] : "",
-		comment: typeof pair[1] === "string" ? pair[1] : "",
+	fromInput: (pair: readonly [string, string]): RawQuestionarePair => ({
+		answer: pair[0],
+		comment: pair[1],
 	}),
-	fromOutput: (pair: RawQuestionarePair): unknown[] => [
+	fromOutput: (pair: RawQuestionarePair): readonly [string, string] => [
 		pair.answer,
 		pair.comment,
 	],
 	outputSchema: rawQuestionarePairSchema,
 } satisfies Codec<
 	RawQuestionarePair,
-	unknown[],
+	readonly [string, string],
 	typeof rawQuestionarePairSchema
 >;
 

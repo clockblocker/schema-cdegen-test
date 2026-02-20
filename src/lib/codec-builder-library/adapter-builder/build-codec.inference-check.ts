@@ -180,18 +180,21 @@ type QuestionnaireOutputQ = {
 };
 
 const qCodec = {
-	fromInput: (pair: unknown[]) => ({
-		answer: String(pair[0] ?? ""),
-		comment: String(pair[1] ?? ""),
+	fromInput: (pair: readonly [string, string]) => ({
+		answer: pair[0],
+		comment: pair[1],
 	}),
-	fromOutput: (q: QuestionnaireOutputQ) => [q.answer, q.comment],
+	fromOutput: (q: QuestionnaireOutputQ): readonly [string, string] => [
+		q.answer,
+		q.comment,
+	],
 	outputSchema: z.object({
 		answer: z.string(),
 		comment: z.string(),
 	}),
 } satisfies Codec<
 	QuestionnaireOutputQ,
-	unknown[],
+	readonly [string, string],
 	z.ZodObject<{
 		answer: z.ZodString;
 		comment: z.ZodString;
@@ -258,6 +261,10 @@ const evenLooserQuestionnaireWithTuplePaths =
 		},
 		firstQAnswer: evenLooserSchemaBoundHelpers.fromPath(["ans_to_q1"]),
 	});
+
+evenLooserSchemaBoundHelpers.fromPath(["answers", "0", "ans_to_q2"]);
+// @ts-expect-error second token under answers must be an array index
+evenLooserSchemaBoundHelpers.fromPath(["answers", "city"]);
 
 type EvenLooserQuestionnaireWithTuplePathsOutput = z.infer<
 	typeof evenLooserQuestionnaireWithTuplePaths.outputSchema

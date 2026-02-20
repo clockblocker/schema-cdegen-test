@@ -143,6 +143,29 @@ export type SchemaPathTuple<
 			  ]
 			: [];
 
+type SchemaLeafPathTuple<
+	TSchema extends z.ZodTypeAny,
+	TDepth extends PathDepth = 6,
+> = [TDepth] extends [0]
+	? []
+	: UnwrapOptionalNullableSchema<TSchema> extends z.AnyZodObject
+		? {
+				[K in keyof UnwrapOptionalNullableSchema<TSchema>["shape"] &
+					string]: UnwrapOptionalNullableSchema<
+					UnwrapOptionalNullableSchema<TSchema>["shape"][K]
+				> extends z.AnyZodObject | z.ZodArray<any, any>
+					? [K, ...SchemaLeafPathTuple<
+							UnwrapOptionalNullableSchema<TSchema>["shape"][K],
+							PreviousPathDepth[TDepth]
+					  >]
+					: [K];
+			}[keyof UnwrapOptionalNullableSchema<TSchema>["shape"] & string]
+		: UnwrapOptionalNullableSchema<TSchema> extends z.ZodArray<infer TItem, any>
+			? UnwrapOptionalNullableSchema<TItem> extends z.AnyZodObject | z.ZodArray<any, any>
+				? [`${number}`, ...SchemaLeafPathTuple<TItem, PreviousPathDepth[TDepth]>]
+				: [`${number}`]
+			: [];
+
 type SchemaAtPathTokens<
 	TSchema extends z.ZodTypeAny,
 	TTokens extends readonly string[],
@@ -168,6 +191,28 @@ type SchemaAtPath<
 	TInputSchema extends z.AnyZodObject,
 	TPath extends string,
 > = SchemaAtPathTokens<TInputSchema, SplitPath<NormalizePath<TPath>>>;
+
+type SchemaAtTuplePath<
+	TInputSchema extends z.AnyZodObject,
+	TPath extends readonly string[],
+> = SchemaAtPathTokens<TInputSchema, TPath>;
+
+type InputAtTuplePath<
+	TInputSchema extends z.AnyZodObject,
+	TPath extends readonly string[],
+> =
+	SchemaAtTuplePath<TInputSchema, TPath> extends z.ZodTypeAny
+		? z.input<SchemaAtTuplePath<TInputSchema, TPath>>
+		: unknown;
+
+type InputTupleForPaths<
+	TInputSchema extends z.AnyZodObject,
+	TPaths extends readonly (readonly string[])[],
+> = {
+	[K in keyof TPaths]: TPaths[K] extends readonly string[]
+		? InputAtTuplePath<TInputSchema, TPaths[K]>
+		: never;
+};
 
 type SchemaAtPathOrUnknown<
 	TInputSchema extends z.AnyZodObject,
@@ -818,8 +863,12 @@ export function reshapeFor<TInputSchema extends z.AnyZodObject>(
 			node?: TNode,
 		) => fromPath(path, node),
 		fromPaths: <
-			const TPaths extends readonly SchemaPathTuple<TInputSchema>[],
-			const TCodec extends Codec<any, any, any>,
+			const TPaths extends readonly SchemaLeafPathTuple<TInputSchema>[],
+			const TCodec extends Codec<
+				any,
+				InputTupleForPaths<TInputSchema, TPaths>,
+				any
+			>,
 		>(
 			paths: TPaths,
 			codec: TCodec,
