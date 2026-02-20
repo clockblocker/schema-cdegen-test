@@ -6,7 +6,7 @@ import {
 	type Codec,
 	noOpCodec,
 } from "../build-codec";
-import { buildAddaptersAndOutputSchema } from "../build-codec.strict";
+import { buildAddaptersAndOutputSchema } from "../build-codec";
 
 type ReshapeInputShape = {
 	l0_f1: z.ZodString;

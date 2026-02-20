@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import { atomicCodecs } from "~/lib/codec-builder-library/adapter-builder";
-import { buildAddaptersAndOutputSchema } from "~/lib/codec-builder-library/adapter-builder/build-codec.strict";
+import { buildAddaptersAndOutputSchema } from "~/lib/codec-builder-library/adapter-builder/build-codec";
 import { SchoolServerSchema } from "../server/school-server";
 
 const school = buildAddaptersAndOutputSchema(SchoolServerSchema(), {
