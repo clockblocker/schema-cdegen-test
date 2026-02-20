@@ -85,18 +85,18 @@ export function SupermarketFormFields() {
 				)}
 			/>
 
-			<Controller
-				control={control}
-				name="questionare.q1.answer"
-				render={({ field }) => (
-					<YesNoPicker
-						error={q1AnswerMessage}
-						label="Question 1 answer"
-						onChange={field.onChange}
-						value={field.value}
-					/>
+			<label className="flex flex-col gap-2">
+				<span className="font-medium text-sm">Question 1 answer</span>
+				<input
+					{...register("questionare.q1.answer")}
+					className="rounded border px-3 py-2"
+					placeholder="Yes"
+					type="text"
+				/>
+				{q1AnswerMessage && (
+					<p className="text-destructive text-sm">{q1AnswerMessage}</p>
 				)}
-			/>
+			</label>
 
 			<label className="flex flex-col gap-2">
 				<span className="font-medium text-sm">Question 1 comment</span>
@@ -108,18 +108,18 @@ export function SupermarketFormFields() {
 				/>
 			</label>
 
-			<Controller
-				control={control}
-				name="questionare.q2.answer"
-				render={({ field }) => (
-					<YesNoPicker
-						error={q2AnswerMessage}
-						label="Question 2 answer"
-						onChange={field.onChange}
-						value={field.value}
-					/>
+			<label className="flex flex-col gap-2">
+				<span className="font-medium text-sm">Question 2 answer</span>
+				<input
+					{...register("questionare.q2.answer")}
+					className="rounded border px-3 py-2"
+					placeholder="No"
+					type="text"
+				/>
+				{q2AnswerMessage && (
+					<p className="text-destructive text-sm">{q2AnswerMessage}</p>
 				)}
-			/>
+			</label>
 
 			<label className="flex flex-col gap-2">
 				<span className="font-medium text-sm">Question 2 comment</span>

@@ -8,9 +8,8 @@ import {
 	WithFieldsAdapted,
 } from "./adapt-fields";
 
-type YesNo = "Yes" | "No";
 type QuestionarePair = {
-	answer?: YesNo;
+	answer: string;
 	comment: string;
 };
 
@@ -20,7 +19,7 @@ type Questionare = {
 };
 
 const questionarePairSchema = z.object({
-	answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
+	answer: z.string(),
 	comment: z.string(),
 });
 
@@ -43,7 +42,7 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 					comment: input.comment_to_q1_,
 				},
 				q2: {
-					answer: firstAnswer?.ans_to_q2,
+					answer: firstAnswer?.ans_to_q2 ?? "",
 					comment: firstAnswer?.comment_to_q2_ ?? "",
 				},
 			};

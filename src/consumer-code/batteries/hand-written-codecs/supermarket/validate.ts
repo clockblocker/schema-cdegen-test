@@ -20,7 +20,7 @@ const supermarketFormValidatedSchema = SupermarketFormSchema.superRefine(
 			});
 		}
 
-		if (formValue.questionare.q1.answer === undefined) {
+		if (!formValue.questionare.q1.answer.trim()) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				path: ["questionare", "q1", "answer"],
@@ -28,7 +28,7 @@ const supermarketFormValidatedSchema = SupermarketFormSchema.superRefine(
 			});
 		}
 
-		if (formValue.questionare.q2.answer === undefined) {
+		if (!formValue.questionare.q2.answer.trim()) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				path: ["questionare", "q2", "answer"],
