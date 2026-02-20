@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { UserRole } from "~/consumer-code/business-types";
-import { SchoolFormSchema } from "../../generated/school/reshape-schema";
+import { SchoolFormSchema } from "./adapt-fields";
 
 const schoolFormValidatedSchema = SchoolFormSchema.superRefine(
 	(formValue, ctx) => {

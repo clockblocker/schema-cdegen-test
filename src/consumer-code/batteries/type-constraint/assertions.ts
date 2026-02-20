@@ -30,16 +30,6 @@ type IsMutualByKind<
 	? true
 	: false;
 
-export type IsAssignableByKind<
-	TKind extends string,
-	TFrom extends Record<TKind, unknown>,
-	TTo extends Record<TKind, unknown>,
-> = {
-	[K in TKind]: [TFrom[K]] extends [TTo[K]] ? true : false;
-}[TKind] extends true
-	? true
-	: false;
-
 type AudutByBuildingKind = {
 	[F in AuditableBuildingKind]: Audut<F>;
 };

@@ -6,6 +6,8 @@ const boolOrUndefined = z.boolean().optional();
 
 export const SchoolServerSchema = z.object({
 	questionsSchool: z.object({
+		q1: boolOrUndefined,
+		q2: boolOrUndefined,
 		q3: boolOrUndefined,
 		q4: boolOrUndefined,
 	}),

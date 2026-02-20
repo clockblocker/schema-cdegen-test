@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
-import { SchoolFormSchema } from "../src/consumer-code/batteries/generated/school/reshape-schema";
 import { SchoolServerSchema } from "../src/consumer-code/batteries/generated/school/server-schema";
-import { SchoolServerToFormCodec } from "../src/consumer-code/batteries/batteries";
+import {
+	SchoolCodec,
+	SchoolFormSchema,
+} from "../src/consumer-code/batteries/hand-written-codecs/school/adapt-fields";
 
 const serverSample = SchoolServerSchema.parse({
 	questionsSchool: {
@@ -15,10 +17,10 @@ const serverSample = SchoolServerSchema.parse({
 	],
 });
 
-const formOut = SchoolServerToFormCodec.fromInput(serverSample);
+const formOut = SchoolCodec.fromInput(serverSample);
 SchoolFormSchema.parse(formOut);
 
-const serverRoundtrip = SchoolServerToFormCodec.fromOutput(formOut);
+const serverRoundtrip = SchoolCodec.fromOutput(formOut);
 SchoolServerSchema.parse(serverRoundtrip);
 
 assert.deepStrictEqual(serverRoundtrip, {
@@ -30,7 +32,7 @@ assert.deepStrictEqual(serverRoundtrip, {
 	],
 });
 
-const formRoundtrip = SchoolServerToFormCodec.fromInput(serverRoundtrip);
+const formRoundtrip = SchoolCodec.fromInput(serverRoundtrip);
 assert.deepStrictEqual(formRoundtrip, formOut);
 
 console.log("School codec roundtrip check passed");

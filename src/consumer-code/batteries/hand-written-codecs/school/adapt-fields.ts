@@ -15,7 +15,5 @@ const schoolFieldCodec = {
 	classrooms: schoolClassroomsCodec,
 };
 
-export const schoolFieldAdaptersCodec = buildLooseAddaptersAndOutputSchema(
-	SchoolServerSchema,
-	schoolFieldCodec,
-);
+export const { outputSchema: SchoolFormSchema, ...SchoolCodec } =
+	buildLooseAddaptersAndOutputSchema(SchoolServerSchema, schoolFieldCodec);
