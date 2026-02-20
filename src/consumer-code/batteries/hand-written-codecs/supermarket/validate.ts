@@ -35,6 +35,38 @@ const supermarketFormValidatedSchema = SupermarketFormSchema.superRefine(
 				message: "Question 2 answer is required.",
 			});
 		}
+
+		if (!formValue.questionare.q3.answer.trim()) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["questionare", "q3", "answer"],
+				message: "Question 3 answer is required.",
+			});
+		}
+
+		if (!formValue.questionare.q4.answer.trim()) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["questionare", "q4", "answer"],
+				message: "Question 4 answer is required.",
+			});
+		}
+
+		if (!formValue.questionare.q5.answer.trim()) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["questionare", "q5", "answer"],
+				message: "Question 5 answer is required.",
+			});
+		}
+
+		if (!formValue.questionare.q6.answer.trim()) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["questionare", "q6", "answer"],
+				message: "Question 6 answer is required.",
+			});
+		}
 	},
 );
 
