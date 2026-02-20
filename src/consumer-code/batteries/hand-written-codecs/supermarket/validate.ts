@@ -12,10 +12,10 @@ const supermarketFormValidatedSchema = SupermarketFormSchema.superRefine(
 			});
 		}
 
-		if (!formValue.city.trim()) {
+		if (!formValue.address.city.trim()) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				path: ["city"],
+				path: ["address", "city"],
 				message: "City is required.",
 			});
 		}

@@ -2,8 +2,6 @@ import { z } from "zod";
 import {
 	buildAddFieldAdapterAndOutputSchema,
 	pipeCodecs,
-	type ReshapeShapeFor,
-	reshapeFor,
 } from "~/lib/codec-builder-library/adapter-builder";
 import {
 	supermarketFieldAdaptersCodec,
@@ -63,32 +61,9 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 	},
 );
 
-const WithQuestionare = supermarketQuestionareCodec.outputSchema;
-
-const { fromPath, removeField, build } = reshapeFor(WithQuestionare);
-
-const supermarketReshapeShape = {
-	ans_to_q1: removeField,
-	comment_to_q1_: removeField,
-	answers: removeField,
-	address: removeField,
-	city: fromPath(["address", "city"]),
-	country: fromPath(["address", "country"]),
-	memberCapacity: fromPath(["memberCapacity"]),
-	openLate: fromPath(["openLate"]),
-} satisfies ReshapeShapeFor<typeof WithQuestionare>;
-
-export const {
-	outputSchema: SupermarketFormSchema,
-	...supermarketReshapeCodec
-} = build(supermarketReshapeShape);
-
-const supermarketWithQuestionareCodec = pipeCodecs(
-	supermarketFieldAdaptersCodec,
-	supermarketQuestionareCodec,
-);
+export const SupermarketFormSchema = supermarketQuestionareCodec.outputSchema;
 
 export const SupermarketCodec = pipeCodecs(
-	supermarketWithQuestionareCodec,
-	supermarketReshapeCodec,
+	supermarketFieldAdaptersCodec,
+	supermarketQuestionareCodec,
 );

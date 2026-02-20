@@ -43,7 +43,7 @@ export function SupermarketFormFields() {
 			<label className="flex flex-col gap-2">
 				<span className="font-medium text-sm">City</span>
 				<input
-					{...register("city")}
+					{...register("address.city")}
 					className="rounded border px-3 py-2"
 					placeholder="London"
 					type="text"
@@ -53,7 +53,7 @@ export function SupermarketFormFields() {
 			<label className="flex flex-col gap-2">
 				<span className="font-medium text-sm">Country</span>
 				<input
-					{...register("country")}
+					{...register("address.country")}
 					className="rounded border px-3 py-2"
 					placeholder="UK"
 					type="text"
