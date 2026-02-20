@@ -281,6 +281,7 @@ const addQuestionareFieldCodec = buildAddFieldAdapterAndOutputSchema(
 			q1: z.object({ answer: z.string(), comment: z.string() }),
 			q2: z.object({ answer: z.string(), comment: z.string() }),
 		}),
+		dropFields: ["ans_to_q1", "comment_to_q1_", "answers"],
 		construct: (input) => ({
 			q1: {
 				answer: input.ans_to_q1,
@@ -311,6 +312,9 @@ const _addQuestionareFieldValue: AddQuestionareFieldOutput["questionare"] = {
 	q1: { answer: "Yes", comment: "ok" },
 	q2: { answer: "No", comment: "ok" },
 };
+// @ts-expect-error dropped source key should not be present in output
+const _addQuestionareDroppedAnsToQ1: AddQuestionareFieldOutput["ans_to_q1"] =
+	"Yes";
 
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;

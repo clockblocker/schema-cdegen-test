@@ -52,6 +52,15 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 	{
 		fieldName: "questionare",
 		fieldSchema: questionareSchema,
+		dropFields: [
+			"ans_to_q1",
+			"comment_to_q1",
+			"ans_to_q5",
+			"comment_to_q5",
+			"ans_to_q6",
+			"comment_to_q6",
+			"answers",
+		],
 		construct: (input): Questionare => {
 			const firstAnswer = input.answers[0];
 
