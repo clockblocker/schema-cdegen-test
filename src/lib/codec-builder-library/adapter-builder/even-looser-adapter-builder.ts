@@ -12,7 +12,9 @@ import {
 	isArrayCodecShape,
 	isCodec,
 	isNoOpCodec,
+	type KnownKeys,
 	noOpCodec,
+	type OutputZodArrayItemFromCodecNode,
 	type RuntimeCodecShape,
 	tryGetArrayItemSchema,
 	tryGetNestedObjectSchema,
@@ -20,18 +22,20 @@ import {
 } from "./strict-adapter-builder";
 
 interface FromPathCodecShape<
+	TPath extends string = string,
 	TNode extends RuntimeEvenLooserBaseNode = RuntimeEvenLooserBaseNode,
 > {
 	readonly __fromPathCodecShape: true;
-	readonly path: string;
+	readonly path: TPath;
 	readonly node: TNode;
 }
 
 interface FromPathsCodecShape<
+	TPaths extends readonly string[] = readonly string[],
 	TCodec extends Codec<any, any, any> = Codec<any, any, any>,
 > {
 	readonly __fromPathsCodecShape: true;
-	readonly paths: readonly string[];
+	readonly paths: TPaths;
 	readonly codec: TCodec;
 }
 
@@ -48,9 +52,100 @@ type RuntimeEvenLooserShapeNode =
 
 type RuntimeEvenLooserShape = Record<string, RuntimeEvenLooserShapeNode>;
 
+type UnwrapOptionalNullableSchema<TSchema extends z.ZodTypeAny> =
+	TSchema extends z.ZodOptional<infer TInner>
+		? UnwrapOptionalNullableSchema<TInner>
+		: TSchema extends z.ZodNullable<infer TInner>
+			? UnwrapOptionalNullableSchema<TInner>
+			: TSchema;
+
+type NormalizePath<TPath extends string> =
+	TPath extends `${infer THead}[${infer TIndex}]${infer TTail}`
+		? NormalizePath<`${THead}.${TIndex}${TTail}`>
+		: TPath;
+
+type SplitPath<TPath extends string> =
+	TPath extends `${infer THead}.${infer TTail}`
+		? [THead, ...SplitPath<TTail>]
+		: TPath extends ""
+			? []
+			: [TPath];
+
+type SchemaAtPathTokens<
+	TSchema extends z.ZodTypeAny,
+	TTokens extends readonly string[],
+> = TTokens extends [
+	infer THead extends string,
+	...infer TRest extends string[],
+]
+	? UnwrapOptionalNullableSchema<TSchema> extends z.AnyZodObject
+		? THead extends keyof UnwrapOptionalNullableSchema<TSchema>["shape"]
+			? SchemaAtPathTokens<
+					UnwrapOptionalNullableSchema<TSchema>["shape"][THead],
+					TRest
+				>
+			: never
+		: UnwrapOptionalNullableSchema<TSchema> extends z.ZodArray<infer TItem, any>
+			? THead extends `${number}`
+				? SchemaAtPathTokens<TItem, TRest>
+				: never
+			: never
+	: TSchema;
+
+type SchemaAtPath<
+	TInputSchema extends z.AnyZodObject,
+	TPath extends string,
+> = SchemaAtPathTokens<TInputSchema, SplitPath<NormalizePath<TPath>>>;
+
+type SchemaAtPathOrUnknown<
+	TInputSchema extends z.AnyZodObject,
+	TPath extends string,
+> =
+	SchemaAtPath<TInputSchema, TPath> extends z.ZodTypeAny
+		? SchemaAtPath<TInputSchema, TPath>
+		: z.ZodUnknown;
+
+type EvenLooserOutputZodNodeBase<
+	TInputSchema extends z.AnyZodObject,
+	TNode extends RuntimeEvenLooserBaseNode,
+> =
+	TNode extends Codec<any, any, infer TSchema>
+		? TSchema
+		: TNode extends typeof noOpCodec
+			? z.ZodUnknown
+			: TNode extends ArrayCodecShape<infer TItemShape>
+				? z.ZodArray<OutputZodArrayItemFromCodecNode<TItemShape>>
+				: TNode extends RuntimeEvenLooserShape
+					? z.ZodObject<EvenLooserOutputZodShapeForInput<TInputSchema, TNode>>
+					: never;
+
+type EvenLooserOutputZodNode<
+	TInputSchema extends z.AnyZodObject,
+	TShapeNode extends RuntimeEvenLooserShapeNode,
+> =
+	TShapeNode extends FromPathCodecShape<infer TPath, infer TNode>
+		? TNode extends typeof noOpCodec
+			? SchemaAtPathOrUnknown<TInputSchema, TPath>
+			: EvenLooserOutputZodNodeBase<TInputSchema, TNode>
+		: TShapeNode extends FromPathsCodecShape<any, infer TCodec>
+			? TCodec extends Codec<any, any, infer TSchema>
+				? TSchema
+				: never
+			: TShapeNode extends RuntimeEvenLooserBaseNode
+				? EvenLooserOutputZodNodeBase<TInputSchema, TShapeNode>
+				: never;
+
+type EvenLooserOutputZodShapeForInput<
+	TInputSchema extends z.AnyZodObject,
+	S extends RuntimeEvenLooserShape,
+> = {
+	[K in KnownKeys<S>]: EvenLooserOutputZodNode<TInputSchema, S[K]>;
+};
+
 export function fromPath<
+	const TPath extends string,
 	const TNode extends RuntimeEvenLooserBaseNode = typeof noOpCodec,
->(path: string, node?: TNode): FromPathCodecShape<TNode> {
+>(path: TPath, node?: TNode): FromPathCodecShape<TPath, TNode> {
 	return {
 		__fromPathCodecShape: true,
 		path,
@@ -58,10 +153,10 @@ export function fromPath<
 	};
 }
 
-export function fromPaths<const TCodec extends Codec<any, any, any>>(
-	paths: readonly string[],
-	codec: TCodec,
-): FromPathsCodecShape<TCodec> {
+export function fromPaths<
+	const TPaths extends readonly string[],
+	const TCodec extends Codec<any, any, any>,
+>(paths: TPaths, codec: TCodec): FromPathsCodecShape<TPaths, TCodec> {
 	return {
 		__fromPathsCodecShape: true,
 		paths,
@@ -501,7 +596,7 @@ export function buildEvenLooserAddaptersAndOutputSchema<
 			inputSchema.shape as z.ZodRawShape,
 			includeUnspecifiedInputKeys,
 		),
-	);
+	) as z.ZodObject<EvenLooserOutputZodShapeForInput<TInputSchema, S>>;
 
 	type InputType = z.infer<TInputSchema>;
 	type OutputType = z.infer<typeof outputSchema>;

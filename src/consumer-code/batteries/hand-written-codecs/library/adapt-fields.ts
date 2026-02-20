@@ -16,6 +16,11 @@ type QuestionarePair = {
 	comment: string;
 };
 
+const questionarePairSchema = z.object({
+	answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
+	comment: z.string(),
+});
+
 const questionarePairCodec = {
 	fromInput: (pair: unknown[]): QuestionarePair => {
 		const rawAnswer = pair[0];
@@ -31,18 +36,8 @@ const questionarePairCodec = {
 		pair.answer ?? "",
 		pair.comment,
 	],
-	outputSchema: z.object({
-		answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
-		comment: z.string(),
-	}),
-} satisfies Codec<
-	QuestionarePair,
-	unknown[],
-	z.ZodObject<{
-		answer: z.ZodUnion<[z.ZodEnum<["Yes", "No"]>, z.ZodUndefined]>;
-		comment: z.ZodString;
-	}>
->;
+	outputSchema: questionarePairSchema,
+} satisfies Codec<QuestionarePair, unknown[], typeof questionarePairSchema>;
 
 const libraryCodecShape = {
 	id: fromPath("id"),
@@ -61,8 +56,10 @@ const libraryCodecShape = {
 	},
 };
 
+const evenLooserLibraryCodec = buildEvenLooserAddaptersAndOutputSchema(
+	LibraryServerSchema,
+	libraryCodecShape,
+);
+
 export const { outputSchema: LibraryFormSchema, ...LibraryCodec } =
-	buildEvenLooserAddaptersAndOutputSchema(
-		LibraryServerSchema,
-		libraryCodecShape,
-	);
+	evenLooserLibraryCodec;
