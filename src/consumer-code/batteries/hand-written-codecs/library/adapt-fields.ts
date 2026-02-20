@@ -1,67 +1,56 @@
 import { z } from "zod";
 import {
 	atomicCodecs,
-	buildEvenLooserAddaptersAndOutputSchema,
+	buildAddaptersAndOutputSchema,
 	type Codec,
-	fromPath,
-	fromPaths,
-	removeField,
+	pipeCodecs,
 } from "~/lib/codec-builder-library/adapter-builder";
-import { LibraryServerSchema } from "../../generated/library/server-schema";
+import {
+	LibraryReshapedSchema,
+	libraryReshapeCodec,
+} from "./reshape-wo-codegen";
 
-const { stringNumber, yesNoBool } = atomicCodecs;
+const { stringNumber, yesNoBool, noOpCodec } = atomicCodecs;
 
 type YesNo = "Yes" | "No";
-type QuestionarePair = {
-	answer?: YesNo;
-	comment: string;
-};
 
-const questionarePairSchema = z.object({
-	answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
-	comment: z.string(),
-});
+const yesNoOptionalSchema = z.union([z.enum(["Yes", "No"]), z.undefined()]);
 
-const questionarePairCodec = {
-	fromInput: (pair: unknown[]): QuestionarePair => {
-		const rawAnswer = pair[0];
-		return {
-			answer:
-				rawAnswer === "Yes" || rawAnswer === "No"
-					? (rawAnswer as YesNo)
-					: undefined,
-			comment: typeof pair[1] === "string" ? pair[1] : "",
-		};
-	},
-	fromOutput: (pair: QuestionarePair): unknown[] => [
-		pair.answer ?? "",
-		pair.comment,
-	],
-	outputSchema: questionarePairSchema,
-} satisfies Codec<QuestionarePair, unknown[], typeof questionarePairSchema>;
+const stringToYesNoOptionalCodec = {
+	fromInput: (value: string): YesNo | undefined =>
+		value === "Yes" || value === "No" ? value : undefined,
+	fromOutput: (value: YesNo | undefined): string => value ?? "",
+	outputSchema: yesNoOptionalSchema,
+} satisfies Codec<YesNo | undefined, string, typeof yesNoOptionalSchema>;
 
-const libraryCodecShape = {
-	ans_to_q1: removeField,
-	comment_to_q1_: removeField,
-	answers: removeField,
-	address: removeField,
-	city: fromPath("address.city"),
-	country: fromPath("address.country"),
-	memberCapacity: fromPath("memberCapacity", stringNumber),
-	openLate: fromPath("openLate", yesNoBool),
+const libraryFieldCodec = {
+	id: noOpCodec,
+	dateOfConstuction: noOpCodec,
+	libraryName: noOpCodec,
+	city: noOpCodec,
+	country: noOpCodec,
+	memberCapacity: stringNumber,
+	openLate: yesNoBool,
 	questionare: {
-		q1: fromPaths(["ans_to_q1", "comment_to_q1_"], questionarePairCodec),
-		q2: fromPaths(
-			["answers[0].ans_to_q2", "answers[0].comment_to_q2_"],
-			questionarePairCodec,
-		),
+		q1: {
+			answer: stringToYesNoOptionalCodec,
+			comment: noOpCodec,
+		},
+		q2: {
+			answer: stringToYesNoOptionalCodec,
+			comment: noOpCodec,
+		},
 	},
 };
 
-const evenLooserLibraryCodec = buildEvenLooserAddaptersAndOutputSchema(
-	LibraryServerSchema,
-	libraryCodecShape,
+export const libraryFieldAdaptersCodec = buildAddaptersAndOutputSchema(
+	LibraryReshapedSchema,
+	libraryFieldCodec,
 );
 
-export const { outputSchema: LibraryFormSchema, ...LibraryCodec } =
-	evenLooserLibraryCodec;
+export const LibraryCodec = pipeCodecs(
+	libraryReshapeCodec,
+	libraryFieldAdaptersCodec,
+);
+
+export const LibraryFormSchema = libraryFieldAdaptersCodec.outputSchema;
