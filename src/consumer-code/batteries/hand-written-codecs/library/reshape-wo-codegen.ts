@@ -1,10 +1,8 @@
 import { z } from "zod";
 import {
-	buildEvenLooserAddaptersAndOutputSchema,
 	type Codec,
-	fromPath,
-	fromPaths,
-	removeField,
+	type ReshapeShapeFor,
+	reshapeFor,
 } from "~/lib/codec-builder-library/adapter-builder";
 import { LibraryServerSchema } from "../../generated/library/server-schema";
 
@@ -34,23 +32,29 @@ const rawQuestionarePairCodec = {
 	typeof rawQuestionarePairSchema
 >;
 
+const { fromPath, fromPaths, removeField, build } =
+	reshapeFor(LibraryServerSchema);
+
 const libraryReshapeShape = {
 	ans_to_q1: removeField,
 	comment_to_q1_: removeField,
 	answers: removeField,
 	address: removeField,
-	city: fromPath("address.city"),
-	country: fromPath("address.country"),
-	memberCapacity: fromPath("memberCapacity"),
-	openLate: fromPath("openLate"),
+	city: fromPath(["address", "city"]),
+	country: fromPath(["address", "country"]),
+	memberCapacity: fromPath(["memberCapacity"]),
+	openLate: fromPath(["openLate"]),
 	questionare: {
-		q1: fromPaths(["ans_to_q1", "comment_to_q1_"], rawQuestionarePairCodec),
+		q1: fromPaths([["ans_to_q1"], ["comment_to_q1_"]], rawQuestionarePairCodec),
 		q2: fromPaths(
-			["answers[0].ans_to_q2", "answers[0].comment_to_q2_"],
+			[
+				["answers", "0", "ans_to_q2"],
+				["answers", "0", "comment_to_q2_"],
+			],
 			rawQuestionarePairCodec,
 		),
 	},
-};
+} satisfies ReshapeShapeFor<typeof LibraryServerSchema>;
 
 export const { outputSchema: LibraryReshapedSchema, ...libraryReshapeCodec } =
-	buildEvenLooserAddaptersAndOutputSchema(LibraryServerSchema, libraryReshapeShape);
+	build(libraryReshapeShape);

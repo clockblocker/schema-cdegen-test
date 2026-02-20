@@ -61,6 +61,32 @@ type RuntimeEvenLooserShapeNode =
 	| RemoveFieldCodec;
 
 type RuntimeEvenLooserShape = Record<string, RuntimeEvenLooserShapeNode>;
+export type ReshapeShapeFor<TInputSchema extends z.AnyZodObject> =
+	TInputSchema extends z.AnyZodObject ? RuntimeEvenLooserShape : never;
+
+type PathInput = string | readonly string[];
+
+type JoinPathTuple<TTokens extends readonly string[]> =
+	TTokens extends readonly [
+		infer THead extends string,
+		...infer TRest extends readonly string[],
+	]
+		? TRest extends []
+			? THead
+			: `${THead}.${JoinPathTuple<TRest>}`
+		: never;
+
+type PathStringFromInput<TPath extends PathInput> = TPath extends string
+	? TPath
+	: JoinPathTuple<Extract<TPath, readonly string[]>>;
+
+type NormalizePathInputs<TPaths extends readonly PathInput[]> =
+	TPaths extends readonly [
+		infer THead extends PathInput,
+		...infer TRest extends readonly PathInput[],
+	]
+		? [PathStringFromInput<THead>, ...NormalizePathInputs<TRest>]
+		: [];
 
 type UnwrapOptionalNullableSchema<TSchema extends z.ZodTypeAny> =
 	TSchema extends z.ZodOptional<infer TInner>
@@ -68,6 +94,17 @@ type UnwrapOptionalNullableSchema<TSchema extends z.ZodTypeAny> =
 		: TSchema extends z.ZodNullable<infer TInner>
 			? UnwrapOptionalNullableSchema<TInner>
 			: TSchema;
+
+type PathDepth = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type PreviousPathDepth = {
+	0: 0;
+	1: 0;
+	2: 1;
+	3: 2;
+	4: 3;
+	5: 4;
+	6: 5;
+};
 
 type NormalizePath<TPath extends string> =
 	TPath extends `${infer THead}[${infer TIndex}]${infer TTail}`
@@ -80,6 +117,31 @@ type SplitPath<TPath extends string> =
 		: TPath extends ""
 			? []
 			: [TPath];
+
+export type SchemaPathTuple<
+	TSchema extends z.ZodTypeAny,
+	TDepth extends PathDepth = 6,
+> = [TDepth] extends [0]
+	? []
+	: UnwrapOptionalNullableSchema<TSchema> extends z.AnyZodObject
+		? {
+				[K in keyof UnwrapOptionalNullableSchema<TSchema>["shape"] &
+					string]:
+					| [K]
+					| [
+							K,
+							...SchemaPathTuple<
+								UnwrapOptionalNullableSchema<TSchema>["shape"][K],
+								PreviousPathDepth[TDepth]
+							>,
+					  ];
+			}[keyof UnwrapOptionalNullableSchema<TSchema>["shape"] & string]
+		: UnwrapOptionalNullableSchema<TSchema> extends z.ZodArray<infer TItem, any>
+			? [
+					`${number}`,
+					...SchemaPathTuple<TItem, PreviousPathDepth[TDepth]>,
+			  ]
+			: [];
 
 type SchemaAtPathTokens<
 	TSchema extends z.ZodTypeAny,
@@ -193,23 +255,42 @@ type EvenLooserOutputZodShapeForInput<
 export function fromPath<
 	const TPath extends string,
 	const TNode extends RuntimeEvenLooserBaseNode = typeof noOpCodec,
->(path: TPath, node?: TNode): FromPathCodecShape<TPath, TNode> {
+>(path: TPath, node?: TNode): FromPathCodecShape<TPath, TNode>;
+export function fromPath<
+	const TPath extends readonly string[],
+	const TNode extends RuntimeEvenLooserBaseNode = typeof noOpCodec,
+>(path: TPath, node?: TNode): FromPathCodecShape<JoinPathTuple<TPath>, TNode>;
+export function fromPath<
+	const TPath extends PathInput,
+	const TNode extends RuntimeEvenLooserBaseNode = typeof noOpCodec,
+>(path: TPath, node?: TNode): FromPathCodecShape<PathStringFromInput<TPath>, TNode> {
 	return {
 		__fromPathCodecShape: true,
-		path,
+		path: normalizePathInput(path),
 		node: (node ?? noOpCodec) as TNode,
-	};
+	} as FromPathCodecShape<PathStringFromInput<TPath>, TNode>;
 }
 
 export function fromPaths<
 	const TPaths extends readonly string[],
 	const TCodec extends Codec<any, any, any>,
->(paths: TPaths, codec: TCodec): FromPathsCodecShape<TPaths, TCodec> {
+>(paths: TPaths, codec: TCodec): FromPathsCodecShape<TPaths, TCodec>;
+export function fromPaths<
+	const TPaths extends readonly (readonly string[])[],
+	const TCodec extends Codec<any, any, any>,
+>(
+	paths: TPaths,
+	codec: TCodec,
+): FromPathsCodecShape<NormalizePathInputs<TPaths>, TCodec>;
+export function fromPaths<
+	const TPaths extends readonly PathInput[],
+	const TCodec extends Codec<any, any, any>,
+>(paths: TPaths, codec: TCodec): FromPathsCodecShape<NormalizePathInputs<TPaths>, TCodec> {
 	return {
 		__fromPathsCodecShape: true,
-		paths,
+		paths: paths.map((path) => normalizePathInput(path)) as NormalizePathInputs<TPaths>,
 		codec,
-	};
+	} as FromPathsCodecShape<NormalizePathInputs<TPaths>, TCodec>;
 }
 function isFromPathCodecShape(v: unknown): v is FromPathCodecShape {
 	return (
@@ -240,6 +321,14 @@ function isRemoveFieldCodec(v: unknown): v is RemoveFieldCodec {
 		"__removeFieldCodec" in v &&
 		(v as RemoveFieldCodec).__removeFieldCodec === true
 	);
+}
+
+function normalizePathInput(path: PathInput): string {
+	if (Array.isArray(path)) {
+		return path.join(".");
+	}
+
+	return path as string;
 }
 
 function pathTokens(path: string): string[] {
@@ -715,4 +804,35 @@ export function buildEvenLooserAddaptersAndOutputSchema<
 		fromInput,
 		fromOutput,
 	};
+}
+
+export function reshapeFor<TInputSchema extends z.AnyZodObject>(
+	inputSchema: TInputSchema,
+) {
+	return {
+		fromPath: <
+			const TPath extends SchemaPathTuple<TInputSchema>,
+			const TNode extends RuntimeEvenLooserBaseNode = typeof noOpCodec,
+		>(
+			path: TPath,
+			node?: TNode,
+		) => fromPath(path, node),
+		fromPaths: <
+			const TPaths extends readonly SchemaPathTuple<TInputSchema>[],
+			const TCodec extends Codec<any, any, any>,
+		>(
+			paths: TPaths,
+			codec: TCodec,
+		) => fromPaths(paths, codec),
+		removeField,
+		build: <
+			const S extends RuntimeEvenLooserShape,
+			const TIncludeUnspecifiedInputKeys extends boolean = true,
+		>(
+			shape: S,
+			options?: {
+				includeUnspecifiedInputKeys?: TIncludeUnspecifiedInputKeys;
+			},
+		) => buildEvenLooserAddaptersAndOutputSchema(inputSchema, shape, options),
+	} as const;
 }

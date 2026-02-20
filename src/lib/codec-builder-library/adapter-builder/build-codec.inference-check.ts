@@ -10,6 +10,7 @@ import {
 	fromPaths,
 	noOpCodec,
 	removeField,
+	reshapeFor,
 } from "./build-codec";
 
 type Properties<T> = {
@@ -236,6 +237,34 @@ const _evenLooserQuestionareDate: EvenLooserQuestionnaireOutput["dateOfConstucti
 const _evenLooserQuestionareRemovedField: EvenLooserQuestionnaireOutput["ans_to_q1"] =
 	"Yes";
 
+const evenLooserSchemaBoundHelpers = reshapeFor(questionnaireServerSchema);
+const evenLooserQuestionnaireWithTuplePaths =
+	buildEvenLooserAddaptersAndOutputSchema(questionnaireServerSchema, {
+		ans_to_q1: evenLooserSchemaBoundHelpers.removeField,
+		comment_to_q1_: evenLooserSchemaBoundHelpers.removeField,
+		answers: evenLooserSchemaBoundHelpers.removeField,
+		questionare: {
+			q1: evenLooserSchemaBoundHelpers.fromPaths(
+				[["ans_to_q1"], ["comment_to_q1_"]],
+				qCodec,
+			),
+			q2: evenLooserSchemaBoundHelpers.fromPaths(
+				[
+					["answers", "0", "ans_to_q2"],
+					["answers", "0", "comment_to_q2_"],
+				],
+				qCodec,
+			),
+		},
+		firstQAnswer: evenLooserSchemaBoundHelpers.fromPath(["ans_to_q1"]),
+	});
+
+type EvenLooserQuestionnaireWithTuplePathsOutput = z.infer<
+	typeof evenLooserQuestionnaireWithTuplePaths.outputSchema
+>;
+const _evenLooserTuplePathFirstQAnswer: EvenLooserQuestionnaireWithTuplePathsOutput["firstQAnswer"] =
+	"Yes";
+
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
 void _looseNestedPacked;
@@ -246,3 +275,4 @@ void _evenLooserQuestionareQ2;
 void _evenLooserQuestionareFirstQAnswer;
 void _evenLooserQuestionareId;
 void _evenLooserQuestionareDate;
+void _evenLooserTuplePathFirstQAnswer;

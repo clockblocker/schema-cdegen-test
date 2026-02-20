@@ -2,7 +2,10 @@ export {
 	buildEvenLooserAddaptersAndOutputSchema,
 	fromPath,
 	fromPaths,
+	reshapeFor,
 	removeField,
+	type ReshapeShapeFor,
+	type SchemaPathTuple,
 } from "./even-looser-adapter-builder";
 export { buildLooseAddaptersAndOutputSchema } from "./loose-adapter-builder";
 export {

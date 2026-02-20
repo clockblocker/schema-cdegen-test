@@ -16,6 +16,9 @@ import {
 	fromPath,
 	fromPaths,
 	removeField,
+	reshapeFor,
+	type ReshapeShapeFor,
+	type SchemaPathTuple,
 	noOpCodec,
 } from "./build-codec";
 import {
@@ -27,11 +30,13 @@ import {
 
 export type { Codec };
 export type { CodecPair };
+export type { ReshapeShapeFor, SchemaPathTuple };
 export {
 	arrayOf,
 	fromPath,
 	fromPaths,
 	removeField,
+	reshapeFor,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
 	buildAddaptersAndOutputSchema,
