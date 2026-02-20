@@ -2,10 +2,16 @@ import { pipeCodecs } from "~/lib/codec-builder-library/adapter-builder";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import { HospitalFormSchema } from "./generated/hospital/reshape-schema";
 import { HospitalServerSchema } from "./generated/hospital/server-schema";
+import { LibraryServerSchema } from "./generated/library/server-schema";
 import { SchoolServerSchema } from "./generated/school/server-schema";
 import { hospitalFieldAdaptersCodec } from "./hand-written-codecs/hospital/adapt-fields";
 import { hospitalReshapeCodec } from "./hand-written-codecs/hospital/reshape";
 import { HospitalFormValidatedSchemaForRole } from "./hand-written-codecs/hospital/validate";
+import {
+	LibraryCodec,
+	LibraryFormSchema,
+} from "./hand-written-codecs/library/adapt-fields";
+import { LibraryFormValidatedSchemaForRole } from "./hand-written-codecs/library/validate";
 import {
 	SchoolCodec,
 	SchoolFormSchema,
@@ -32,5 +38,12 @@ export const batteriesFor = {
 		serverSchema: SchoolServerSchema,
 		formSchema: SchoolFormSchema,
 		formValidatedSchemaForRole: SchoolFormValidatedSchemaForRole,
+	},
+	Library: {
+		kind: "Library",
+		codec: LibraryCodec,
+		serverSchema: LibraryServerSchema,
+		formSchema: LibraryFormSchema,
+		formValidatedSchemaForRole: LibraryFormValidatedSchemaForRole,
 	},
 } as const satisfies BatteriesRecord<AuditableBuildingKind, UserRole>;

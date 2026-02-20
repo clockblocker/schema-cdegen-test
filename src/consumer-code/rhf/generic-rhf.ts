@@ -13,11 +13,13 @@ import {
 	renderGenericRhfFormShell,
 } from "./generic-rhf.utils";
 import { HospitalFormFields } from "./hospital";
+import { LibraryFormFields } from "./library";
 import { SchoolFormFields } from "./school";
 
 const fieldsComponentFor = {
 	Hospital: HospitalFormFields,
 	School: SchoolFormFields,
+	Library: LibraryFormFields,
 } as const satisfies Record<AuditableBuildingKind, () => ReactElement>;
 
 export function GenericRhfForm<
