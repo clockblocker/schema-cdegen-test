@@ -15,11 +15,13 @@ import {
 import { HospitalFormFields } from "./hospital";
 import { LibraryFormFields } from "./library";
 import { SchoolFormFields } from "./school";
+import { SupermarketFormFields } from "./supermarket";
 
 const fieldsComponentFor = {
 	Hospital: HospitalFormFields,
 	School: SchoolFormFields,
 	Library: LibraryFormFields,
+	Supermarket: SupermarketFormFields,
 } as const satisfies Record<AuditableBuildingKind, () => ReactElement>;
 
 export function GenericRhfForm<
