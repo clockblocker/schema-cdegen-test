@@ -17,6 +17,8 @@ export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["serverSchema"]
 >;
 
+type asdsd = Audut<"School">;
+
 // -- Helpers
 
 type AudutFormSchema<F extends AuditableBuildingKind> =
