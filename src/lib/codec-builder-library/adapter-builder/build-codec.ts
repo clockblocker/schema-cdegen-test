@@ -372,10 +372,17 @@ type LooseOutputZodNodeWithoutInput<TShapeNode> =
 					? z.ZodObject<OutputZodShapeFromCodecShape<TShapeNode>>
 					: never;
 
-type LooseOutputZodShapeForSchemaShape<
+type LooseUnspecifiedSchemaKeysShape<
 	TShape extends z.ZodRawShape,
 	S extends RuntimeCodecShape,
 > = {
+	[K in Exclude<keyof TShape, KnownKeys<S>>]: TShape[K];
+};
+
+type LooseOutputZodShapeForSchemaShape<
+	TShape extends z.ZodRawShape,
+	S extends RuntimeCodecShape,
+> = LooseUnspecifiedSchemaKeysShape<TShape, S> & {
 	[K in KnownKeys<S>]: K extends keyof TShape
 		? TShape[K] extends z.ZodTypeAny
 			? LooseOutputZodNodeForField<TShape[K], S[K]>
@@ -621,6 +628,19 @@ function buildOutputZodShapeLoose(
 			),
 		);
 	}
+
+	if (schemaShape) {
+		for (const key in schemaShape) {
+			if (key in shape) {
+				continue;
+			}
+			const schemaNode = schemaShape[key];
+			if (schemaNode) {
+				result[key] = schemaNode;
+			}
+		}
+	}
+
 	return result;
 }
 
@@ -668,6 +688,97 @@ function convertFromOutput(
 				: value;
 		} else {
 			result[key] = convertFromOutput(
+				node as RuntimeCodecShape,
+				asRecord(data[key]),
+			);
+		}
+	}
+
+	return result;
+}
+
+function convertArrayItemFromInputLoose(
+	itemShape: RuntimeArrayItemShape,
+	item: unknown,
+): unknown {
+	if (isCodec(itemShape)) {
+		return itemShape.fromInput(item);
+	}
+
+	if (isNoOpCodec(itemShape)) {
+		return item;
+	}
+
+	return convertFromInputLoose(
+		itemShape as RuntimeCodecShape,
+		asRecord(item),
+	);
+}
+
+function convertArrayItemFromOutputLoose(
+	itemShape: RuntimeArrayItemShape,
+	item: unknown,
+): unknown {
+	if (isCodec(itemShape)) {
+		return itemShape.fromOutput(item);
+	}
+
+	if (isNoOpCodec(itemShape)) {
+		return item;
+	}
+
+	return convertFromOutputLoose(
+		itemShape as RuntimeCodecShape,
+		asRecord(item),
+	);
+}
+
+function convertFromInputLoose(
+	shape: RuntimeCodecShape,
+	data: Record<string, unknown>,
+): Record<string, unknown> {
+	const result: Record<string, unknown> = { ...data };
+	for (const key in shape) {
+		const node = shape[key];
+		if (isCodec(node)) {
+			result[key] = node.fromInput(data[key]);
+		} else if (isNoOpCodec(node)) {
+			result[key] = data[key];
+		} else if (isArrayCodecShape(node)) {
+			const value = data[key];
+			result[key] = Array.isArray(value)
+				? value.map((item) => convertArrayItemFromInputLoose(node.itemShape, item))
+				: value;
+		} else {
+			result[key] = convertFromInputLoose(
+				node as RuntimeCodecShape,
+				asRecord(data[key]),
+			);
+		}
+	}
+	return result;
+}
+
+function convertFromOutputLoose(
+	shape: RuntimeCodecShape,
+	data: Record<string, unknown>,
+): Record<string, unknown> {
+	const result: Record<string, unknown> = { ...data };
+	for (const key in shape) {
+		const node = shape[key];
+		if (isCodec(node)) {
+			result[key] = node.fromOutput(data[key]);
+		} else if (isNoOpCodec(node)) {
+			result[key] = data[key];
+		} else if (isArrayCodecShape(node)) {
+			const value = data[key];
+			result[key] = Array.isArray(value)
+				? value.map((item) =>
+						convertArrayItemFromOutputLoose(node.itemShape, item),
+					)
+				: value;
+		} else {
+			result[key] = convertFromOutputLoose(
 				node as RuntimeCodecShape,
 				asRecord(data[key]),
 			);
@@ -734,14 +845,14 @@ export function buildLooseAddaptersAndOutputSchema<
 	type OutputType = z.infer<typeof outputSchema>;
 
 	const fromInput = (data: InputType): OutputType => {
-		return convertFromInput(
+		return convertFromInputLoose(
 			shape as RuntimeCodecShape,
 			data as Record<string, unknown>,
 		) as OutputType;
 	};
 
 	const fromOutput = (data: OutputType): InputType => {
-		return convertFromOutput(
+		return convertFromOutputLoose(
 			shape as RuntimeCodecShape,
 			data as Record<string, unknown>,
 		) as InputType;

@@ -9,11 +9,11 @@ import { stringNumber } from "./atomic/string-and-number";
 import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
-	buildAddaptersAndOutputSchema,
-	buildLooseAddaptersAndOutputSchema,
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
+import { buildLooseAddaptersAndOutputSchema } from "./build-codec.loose";
+import { buildAddaptersAndOutputSchema } from "./build-codec.strict";
 import {
 	type CodecPair,
 	codec,

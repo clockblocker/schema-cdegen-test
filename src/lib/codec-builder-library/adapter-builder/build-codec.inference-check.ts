@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { yesNoBool } from "./atomic/yesNo-and-bool";
+import { buildLooseAddaptersAndOutputSchema } from "./build-codec.loose";
+import { buildAddaptersAndOutputSchema } from "./build-codec.strict";
 import {
 	arrayOf,
-	buildAddaptersAndOutputSchema,
-	buildLooseAddaptersAndOutputSchema,
 	type Codec,
 	noOpCodec,
 } from "./build-codec";
@@ -144,6 +144,18 @@ const looseNested = buildLooseAddaptersAndOutputSchema(strictNested, {
 type LooseNestedOutput = z.infer<typeof looseNested.outputSchema>;
 const _looseNestedPacked: LooseNestedOutput["a"]["packed"] = "ok";
 
+const looseNestedDefaults = buildLooseAddaptersAndOutputSchema(strictNested, {
+	a: {
+		packed: unknownToStringCodec,
+	},
+});
+
+type LooseNestedDefaultsOutput = z.infer<typeof looseNestedDefaults.outputSchema>;
+const _looseNestedDefaultB: LooseNestedDefaultsOutput["a"]["b"] = 1;
+const _looseNestedDefaultC: LooseNestedDefaultsOutput["a"]["c"] = "value";
+
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
 void _looseNestedPacked;
+void _looseNestedDefaultB;
+void _looseNestedDefaultC;

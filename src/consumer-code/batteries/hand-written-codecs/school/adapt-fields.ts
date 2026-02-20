@@ -1,5 +1,5 @@
 import { atomicCodecs } from "~/lib/codec-builder-library/adapter-builder";
-import { buildLooseAddaptersAndOutputSchema } from "~/lib/codec-builder-library/adapter-builder/build-codec";
+import { buildLooseAddaptersAndOutputSchema } from "~/lib/codec-builder-library/adapter-builder/build-codec.loose";
 import { SchoolServerSchema } from "../../generated/school/server-schema";
 import { schoolClassroomsCodec } from "./custom-field-codecs/school-classrooms-codec";
 
