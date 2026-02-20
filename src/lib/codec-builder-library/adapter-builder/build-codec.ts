@@ -1,10 +1,11 @@
+export { buildAddFieldAdapterAndOutputSchema } from "./add-field-adapter-builder";
 export {
 	buildEvenLooserAddaptersAndOutputSchema,
 	fromPath,
 	fromPaths,
-	reshapeFor,
-	removeField,
 	type ReshapeShapeFor,
+	removeField,
+	reshapeFor,
 	type SchemaPathTuple,
 } from "./even-looser-adapter-builder";
 export { buildLooseAddaptersAndOutputSchema } from "./loose-adapter-builder";

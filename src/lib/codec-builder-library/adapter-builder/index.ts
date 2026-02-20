@@ -10,16 +10,17 @@ import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
 	buildAddaptersAndOutputSchema,
+	buildAddFieldAdapterAndOutputSchema,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
 	type Codec,
 	fromPath,
 	fromPaths,
+	noOpCodec,
+	type ReshapeShapeFor,
 	removeField,
 	reshapeFor,
-	type ReshapeShapeFor,
 	type SchemaPathTuple,
-	noOpCodec,
 } from "./build-codec";
 import {
 	type CodecPair,
@@ -40,6 +41,7 @@ export {
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
 	buildAddaptersAndOutputSchema,
+	buildAddFieldAdapterAndOutputSchema,
 };
 
 export { codec, pipeCodecs, withOutputSchema };

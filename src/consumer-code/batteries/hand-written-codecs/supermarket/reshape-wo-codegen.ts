@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-	type Codec,
+	buildAddFieldAdapterAndOutputSchema,
 	pipeCodecs,
 	type ReshapeShapeFor,
 	reshapeFor,
@@ -16,29 +16,56 @@ type QuestionarePair = {
 	comment: string;
 };
 
+type Questionare = {
+	q1: QuestionarePair;
+	q2: QuestionarePair;
+};
+
 const questionarePairSchema = z.object({
 	answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
 	comment: z.string(),
 });
 
-const questionarePairCodec = {
-	fromInput: (pair: readonly [YesNo | undefined, string]): QuestionarePair => ({
-		answer: pair[0],
-		comment: pair[1],
-	}),
-	fromOutput: (pair: QuestionarePair): readonly [YesNo | undefined, string] => [
-		pair.answer,
-		pair.comment,
-	],
-	outputSchema: questionarePairSchema,
-} satisfies Codec<
-	QuestionarePair,
-	readonly [YesNo | undefined, string],
-	typeof questionarePairSchema
->;
+const questionareSchema = z.object({
+	q1: questionarePairSchema,
+	q2: questionarePairSchema,
+});
 
-const { fromPath, fromPaths, removeField, build } =
-	reshapeFor(WithFieldsAdapted);
+const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
+	WithFieldsAdapted,
+	{
+		fieldName: "questionare",
+		fieldSchema: questionareSchema,
+		construct: (input): Questionare => {
+			const firstAnswer = input.answers[0];
+
+			return {
+				q1: {
+					answer: input.ans_to_q1,
+					comment: input.comment_to_q1_,
+				},
+				q2: {
+					answer: firstAnswer?.ans_to_q2,
+					comment: firstAnswer?.comment_to_q2_ ?? "",
+				},
+			};
+		},
+		reconstruct: (questionare) => ({
+			ans_to_q1: questionare.q1.answer,
+			comment_to_q1_: questionare.q1.comment,
+			answers: [
+				{
+					ans_to_q2: questionare.q2.answer,
+					comment_to_q2_: questionare.q2.comment,
+				},
+			],
+		}),
+	},
+);
+
+const WithQuestionare = supermarketQuestionareCodec.outputSchema;
+
+const { fromPath, removeField, build } = reshapeFor(WithQuestionare);
 
 const supermarketReshapeShape = {
 	ans_to_q1: removeField,
@@ -49,24 +76,19 @@ const supermarketReshapeShape = {
 	country: fromPath(["address", "country"]),
 	memberCapacity: fromPath(["memberCapacity"]),
 	openLate: fromPath(["openLate"]),
-	questionare: {
-		q1: fromPaths([["ans_to_q1"], ["comment_to_q1_"]], questionarePairCodec),
-		q2: fromPaths(
-			[
-				["answers", "0", "ans_to_q2"],
-				["answers", "0", "comment_to_q2_"],
-			],
-			questionarePairCodec,
-		),
-	},
-} satisfies ReshapeShapeFor<typeof WithFieldsAdapted>;
+} satisfies ReshapeShapeFor<typeof WithQuestionare>;
 
 export const {
 	outputSchema: SupermarketFormSchema,
 	...supermarketReshapeCodec
 } = build(supermarketReshapeShape);
 
-export const SupermarketCodec = pipeCodecs(
+const supermarketWithQuestionareCodec = pipeCodecs(
 	supermarketFieldAdaptersCodec,
+	supermarketQuestionareCodec,
+);
+
+export const SupermarketCodec = pipeCodecs(
+	supermarketWithQuestionareCodec,
 	supermarketReshapeCodec,
 );

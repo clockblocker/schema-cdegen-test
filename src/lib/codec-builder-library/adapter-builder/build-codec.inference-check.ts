@@ -3,6 +3,7 @@ import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
 	buildAddaptersAndOutputSchema,
+	buildAddFieldAdapterAndOutputSchema,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
 	type Codec,
@@ -272,6 +273,45 @@ type EvenLooserQuestionnaireWithTuplePathsOutput = z.infer<
 const _evenLooserTuplePathFirstQAnswer: EvenLooserQuestionnaireWithTuplePathsOutput["firstQAnswer"] =
 	"Yes";
 
+const addQuestionareFieldCodec = buildAddFieldAdapterAndOutputSchema(
+	questionnaireServerSchema,
+	{
+		fieldName: "questionare",
+		fieldSchema: z.object({
+			q1: z.object({ answer: z.string(), comment: z.string() }),
+			q2: z.object({ answer: z.string(), comment: z.string() }),
+		}),
+		construct: (input) => ({
+			q1: {
+				answer: input.ans_to_q1,
+				comment: input.comment_to_q1_,
+			},
+			q2: {
+				answer: input.answers[0]?.ans_to_q2 ?? "",
+				comment: input.answers[0]?.comment_to_q2_ ?? "",
+			},
+		}),
+		reconstruct: (questionare) => ({
+			ans_to_q1: questionare.q1.answer,
+			comment_to_q1_: questionare.q1.comment,
+			answers: [
+				{
+					ans_to_q2: questionare.q2.answer,
+					comment_to_q2_: questionare.q2.comment,
+				},
+			],
+		}),
+	},
+);
+
+type AddQuestionareFieldOutput = z.infer<
+	typeof addQuestionareFieldCodec.outputSchema
+>;
+const _addQuestionareFieldValue: AddQuestionareFieldOutput["questionare"] = {
+	q1: { answer: "Yes", comment: "ok" },
+	q2: { answer: "No", comment: "ok" },
+};
+
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
 void _looseNestedPacked;
@@ -283,3 +323,4 @@ void _evenLooserQuestionareFirstQAnswer;
 void _evenLooserQuestionareId;
 void _evenLooserQuestionareDate;
 void _evenLooserTuplePathFirstQAnswer;
+void _addQuestionareFieldValue;
