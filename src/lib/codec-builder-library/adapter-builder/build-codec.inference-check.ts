@@ -3,8 +3,11 @@ import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
 	arrayOf,
 	buildAddaptersAndOutputSchema,
+	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
 	type Codec,
+	fromPath,
+	fromPaths,
 	noOpCodec,
 } from "./build-codec";
 
@@ -156,8 +159,80 @@ type LooseNestedDefaultsOutput = z.infer<
 const _looseNestedDefaultB: LooseNestedDefaultsOutput["a"]["b"] = 1;
 const _looseNestedDefaultC: LooseNestedDefaultsOutput["a"]["c"] = "value";
 
+const questionnaireServerSchema = z.object({
+	ans_to_q1: z.string(),
+	comment_to_q1_: z.string(),
+	id: z.number(),
+	dateOfConstuction: z.string(),
+	answers: z.array(
+		z.object({
+			ans_to_q2: z.string(),
+			comment_to_q2_: z.string(),
+		}),
+	),
+});
+
+type QuestionnaireOutputQ = {
+	answer: string;
+	comment: string;
+};
+
+const qCodec = {
+	fromInput: (pair: unknown[]) => ({
+		answer: String(pair[0] ?? ""),
+		comment: String(pair[1] ?? ""),
+	}),
+	fromOutput: (q: QuestionnaireOutputQ) => [q.answer, q.comment],
+	outputSchema: z.object({
+		answer: z.string(),
+		comment: z.string(),
+	}),
+} satisfies Codec<
+	QuestionnaireOutputQ,
+	unknown[],
+	z.ZodObject<{
+		answer: z.ZodString;
+		comment: z.ZodString;
+	}>
+>;
+
+const evenLooserQuestionnaire = buildEvenLooserAddaptersAndOutputSchema(
+	questionnaireServerSchema,
+	{
+		id: noOpCodec,
+		dateOfConstuction: noOpCodec,
+		questionare: {
+			q1: fromPaths(["ans_to_q1", "comment_to_q1_"], qCodec),
+			q2: fromPaths(
+				["answers[0].ans_to_q2", "answers[0].comment_to_q2_"],
+				qCodec,
+			),
+		},
+		firstQAnswer: fromPath("ans_to_q1"),
+	},
+);
+
+type EvenLooserQuestionnaireOutput = z.infer<
+	typeof evenLooserQuestionnaire.outputSchema
+>;
+const _evenLooserQuestionareQ1: EvenLooserQuestionnaireOutput["questionare"]["q1"] =
+	{
+		answer: "Yes",
+		comment: "Because",
+	};
+const _evenLooserQuestionareQ2: EvenLooserQuestionnaireOutput["questionare"]["q2"] =
+	{
+		answer: "No",
+		comment: "N/A",
+	};
+const _evenLooserQuestionareFirstQAnswer: EvenLooserQuestionnaireOutput["firstQAnswer"] =
+	"Yes";
+
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
 void _looseNestedPacked;
 void _looseNestedDefaultB;
 void _looseNestedDefaultC;
+void _evenLooserQuestionareQ1;
+void _evenLooserQuestionareQ2;
+void _evenLooserQuestionareFirstQAnswer;
