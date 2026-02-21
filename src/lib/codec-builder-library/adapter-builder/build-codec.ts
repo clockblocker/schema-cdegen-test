@@ -13,6 +13,7 @@ export {
 	type ArrayCodecShape,
 	arrayOf,
 	buildAddaptersAndOutputSchema,
+	codecArrayOf,
 	type Codec,
 	noOpCodec,
 	type RuntimeArrayItemShape,

@@ -50,6 +50,12 @@ export function arrayOf<const TItemShape extends RuntimeArrayItemShape>(
 	return { __arrayCodecShape: true, itemShape };
 }
 
+export function codecArrayOf<const TItemShape extends RuntimeArrayItemShape>(
+	itemShape: TItemShape,
+): ArrayCodecShape<TItemShape> {
+	return arrayOf(itemShape);
+}
+
 export type SchemaShapeOf<TSchema extends z.AnyZodObject> =
 	TSchema extends z.ZodObject<infer TShape, any, any, any, any>
 		? TShape

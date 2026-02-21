@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { yesNoBool } from "./atomic/yesNo-and-bool";
 import {
-	arrayOf,
 	buildAddaptersAndOutputSchema,
 	buildAddFieldAdapterAndOutputSchema,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
+	codecArrayOf,
 	type Codec,
 	fromPath,
 	fromPaths,
@@ -44,19 +44,19 @@ const counterpartyCodec = {
 
 const widened = buildAddaptersAndOutputSchema(ClientSchemaWidened(), {
 	id: noOpCodec,
-	counterparties: arrayOf(counterpartyCodec),
+	counterparties: codecArrayOf(counterpartyCodec),
 });
 
 buildAddaptersAndOutputSchema(ClientSchemaWidened(), {
 	// @ts-expect-error widened scalar number field cannot use yes/no codec
 	id: yesNoBool,
-	counterparties: arrayOf(counterpartyCodec),
+	counterparties: codecArrayOf(counterpartyCodec),
 });
 
 buildAddaptersAndOutputSchema(ClientSchemaWidened(), {
 	// @ts-expect-error widened scalar number field cannot use array shape
-	id: arrayOf(counterpartyCodec),
-	counterparties: arrayOf(counterpartyCodec),
+	id: codecArrayOf(counterpartyCodec),
+	counterparties: codecArrayOf(counterpartyCodec),
 });
 
 type WidenedOutput = z.infer<typeof widened.outputSchema>;
@@ -83,7 +83,7 @@ buildAddaptersAndOutputSchema(strict, {
 
 buildAddaptersAndOutputSchema(strict, {
 	// @ts-expect-error scalar field cannot use array shape
-	id: arrayOf(counterpartyCodec),
+	id: codecArrayOf(counterpartyCodec),
 });
 
 const numberOrStringInputCodec = {
@@ -107,7 +107,7 @@ const numberToDateCodec = {
 } satisfies Codec<Date, number, z.ZodDate>;
 
 const strictArrayMapped = buildAddaptersAndOutputSchema(strictArray, {
-	dates: arrayOf(numberToDateCodec),
+	dates: codecArrayOf(numberToDateCodec),
 });
 
 type StrictArrayMappedOutput = z.infer<typeof strictArrayMapped.outputSchema>;
@@ -115,7 +115,7 @@ const _strictArrayMappedCheck: StrictArrayMappedOutput["dates"] = [new Date()];
 
 buildAddaptersAndOutputSchema(strictArray, {
 	// @ts-expect-error number[] item cannot use yes/no codec
-	dates: arrayOf(yesNoBool),
+	dates: codecArrayOf(yesNoBool),
 });
 
 const strictNested = z.object({

@@ -13,6 +13,7 @@ import {
 	buildAddFieldAdapterAndOutputSchema,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
+	codecArrayOf,
 	type Codec,
 	fromPath,
 	fromPaths,
@@ -34,6 +35,7 @@ export type { CodecPair };
 export type { ReshapeShapeFor, SchemaPathTuple };
 export {
 	arrayOf,
+	codecArrayOf,
 	fromPath,
 	fromPaths,
 	removeField,
@@ -48,6 +50,7 @@ export { codec, pipeCodecs, withOutputSchema };
 
 export const atomicCodecs = {
 	arrayOf,
+	codecArrayOf,
 	noOpCodec,
 	dateIso,
 	nullishEmpty,
