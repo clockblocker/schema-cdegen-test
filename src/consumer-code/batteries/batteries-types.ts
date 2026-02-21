@@ -18,6 +18,7 @@ export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 >;
 
 type School = Audut<"School">;
+type Supermarket = Audut<"Supermarket">;
 type Library = Audut<"Library">;
 
 // -- Helpers
