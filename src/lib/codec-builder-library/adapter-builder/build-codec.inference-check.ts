@@ -15,6 +15,7 @@ import {
 	removeField,
 	reshapeFor,
 } from "./build-codec";
+import { pipeCodecs } from "./codec-pair";
 
 type Properties<T> = {
 	[K in keyof T]-?: z.ZodType<T[K], z.ZodTypeDef, T[K]>;
@@ -107,6 +108,16 @@ const numberToDateCodec = {
 	fromOutput: (v: Date) => v.getTime(),
 	outputSchema: z.date(),
 } satisfies Codec<Date, number, z.ZodDate>;
+
+const dateToIsoCodec = {
+	fromInput: (v: Date) => v.toISOString(),
+	fromOutput: (v: string) => new Date(v),
+	outputSchema: z.string(),
+} satisfies Codec<string, Date, z.ZodString>;
+
+const pipedDateToIsoCodec = pipeCodecs(numberToDateCodec, dateToIsoCodec);
+type PipedDateToIsoOutput = z.infer<typeof pipedDateToIsoCodec.outputSchema>;
+const _pipedDateToIsoOutput: PipedDateToIsoOutput = "2020-01-01T00:00:00.000Z";
 
 const strictArrayMapped = buildAddaptersAndOutputSchema(strictArray, {
 	dates: codecArrayOf(numberToDateCodec),
@@ -333,6 +344,7 @@ const _addQuestionareDroppedAnsToQ1: AddQuestionareFieldOutput["ans_to_q1"] =
 
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
+void _pipedDateToIsoOutput;
 void _looseNestedPacked;
 void _looseNestedDefaultB;
 void _looseNestedDefaultC;

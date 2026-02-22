@@ -4,8 +4,8 @@ import {
 	type ShapeOfStrictFieeldAdapter,
 } from "~/lib/codec-builder-library/adapter-builder";
 import {
-	SupermarketServerSchema,
 	type SupermarketServer,
+	SupermarketServerSchema,
 } from "../../generated/supermarket/server-schema";
 
 const { arrayOf, stringNumber, yesNoBool, noOpCodec } = atomicCodecs;
