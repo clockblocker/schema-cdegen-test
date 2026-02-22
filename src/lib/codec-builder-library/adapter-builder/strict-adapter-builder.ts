@@ -44,6 +44,52 @@ export type RuntimeArrayItemShape =
 	| Codec<any, any, any>
 	| NoOpCodec;
 
+type InputCompatibleCodecForValue<TInput> = Codec<any, any, any> & {
+	fromInput: (v: TInput) => unknown;
+};
+
+type ArrayItemOfValue<TValue> =
+	NonNullable<TValue> extends readonly (infer TItem)[] ? TItem : never;
+
+type IsArrayValue<TValue> =
+	NonNullable<TValue> extends readonly unknown[] ? true : false;
+
+type IsPlainObjectValue<TValue> =
+	NonNullable<TValue> extends object
+		? NonNullable<TValue> extends readonly unknown[]
+			? false
+			: NonNullable<TValue> extends (...args: any[]) => unknown
+				? false
+				: NonNullable<TValue> extends Date
+					? false
+					: true
+		: false;
+
+type StrictArrayItemNodeForValue<TValue> =
+	IsPlainObjectValue<ArrayItemOfValue<TValue>> extends true
+		?
+				| ShapeOfStrictFieldAdapter<NonNullable<ArrayItemOfValue<TValue>>>
+				| InputCompatibleCodecForValue<ArrayItemOfValue<TValue>>
+				| NoOpCodec
+		: InputCompatibleCodecForValue<ArrayItemOfValue<TValue>> | NoOpCodec;
+
+type StrictFieldAdapterNodeForValue<TValue> =
+	IsArrayValue<TValue> extends true
+		?
+				| ArrayCodecShape<StrictArrayItemNodeForValue<TValue>>
+				| InputCompatibleCodecForValue<TValue>
+				| NoOpCodec
+		: IsPlainObjectValue<TValue> extends true
+			? ShapeOfStrictFieldAdapter<NonNullable<TValue>>
+			: InputCompatibleCodecForValue<TValue> | NoOpCodec;
+
+export type ShapeOfStrictFieldAdapter<TServer extends object> = {
+	[K in KnownKeys<TServer>]-?: StrictFieldAdapterNodeForValue<TServer[K]>;
+};
+
+export type ShapeOfStrictFieeldAdapter<TServer extends object> =
+	ShapeOfStrictFieldAdapter<TServer>;
+
 export function arrayOf<const TItemShape extends RuntimeArrayItemShape>(
 	itemShape: TItemShape,
 ): ArrayCodecShape<TItemShape> {
@@ -99,9 +145,6 @@ export type IsWideZodType<TSchema extends z.ZodTypeAny> =
 type FieldOutput<TSchema extends z.ZodTypeAny> = NonNullable<
 	TSchema extends z.ZodType<infer TOutput, any, any> ? TOutput : never
 >;
-
-type ArrayItemOfValue<TValue> =
-	NonNullable<TValue> extends readonly (infer TItem)[] ? TItem : never;
 
 type ArrayItemOutput<TSchema extends z.ZodTypeAny> = ArrayItemOfValue<
 	FieldOutput<TSchema>

@@ -18,6 +18,8 @@ import {
 	fromPath,
 	fromPaths,
 	noOpCodec,
+	type ShapeOfStrictFieeldAdapter,
+	type ShapeOfStrictFieldAdapter,
 	type ReshapeShapeFor,
 	removeField,
 	reshapeFor,
@@ -33,6 +35,7 @@ import {
 export type { Codec };
 export type { CodecPair };
 export type { ReshapeShapeFor, SchemaPathTuple };
+export type { ShapeOfStrictFieldAdapter, ShapeOfStrictFieeldAdapter };
 export {
 	arrayOf,
 	codecArrayOf,

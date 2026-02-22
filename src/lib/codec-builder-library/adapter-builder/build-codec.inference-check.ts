@@ -10,6 +10,8 @@ import {
 	fromPath,
 	fromPaths,
 	noOpCodec,
+	type ShapeOfStrictFieldAdapter,
+	type ShapeOfStrictFieeldAdapter,
 	removeField,
 	reshapeFor,
 } from "./build-codec";
@@ -180,6 +182,19 @@ type QuestionnaireOutputQ = {
 	comment: string;
 };
 
+type QuestionnaireServer = z.infer<typeof questionnaireServerSchema>;
+const questionnaireAnswersItemShape = {
+	ans_to_q2: noOpCodec,
+	comment_to_q2_: noOpCodec,
+} satisfies ShapeOfStrictFieldAdapter<QuestionnaireServer["answers"][number]>;
+
+const questionnaireAnswersItemShapeWithWrongKey = {
+	ans_to_q2: noOpCodec,
+	comment_to_q2_: noOpCodec,
+	// @ts-expect-error typo key should be rejected at declaration site
+	comment_to_q2: noOpCodec,
+} satisfies ShapeOfStrictFieeldAdapter<QuestionnaireServer["answers"][number]>;
+
 const qCodec = {
 	fromInput: (pair: readonly [string, string]) => ({
 		answer: pair[0],
@@ -328,3 +343,5 @@ void _evenLooserQuestionareId;
 void _evenLooserQuestionareDate;
 void _evenLooserTuplePathFirstQAnswer;
 void _addQuestionareFieldValue;
+void questionnaireAnswersItemShape;
+void questionnaireAnswersItemShapeWithWrongKey;

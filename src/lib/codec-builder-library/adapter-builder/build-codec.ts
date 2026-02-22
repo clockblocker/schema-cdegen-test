@@ -16,6 +16,8 @@ export {
 	codecArrayOf,
 	type Codec,
 	noOpCodec,
+	type ShapeOfStrictFieeldAdapter,
+	type ShapeOfStrictFieldAdapter,
 	type RuntimeArrayItemShape,
 	type RuntimeCodecShape,
 } from "./strict-adapter-builder";

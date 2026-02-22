@@ -1,8 +1,12 @@
 import {
 	atomicCodecs,
 	buildAddaptersAndOutputSchema,
+	type ShapeOfStrictFieeldAdapter,
 } from "~/lib/codec-builder-library/adapter-builder";
-import { SupermarketServerSchema } from "../../generated/supermarket/server-schema";
+import {
+	SupermarketServerSchema,
+	type SupermarketServer,
+} from "../../generated/supermarket/server-schema";
 
 const { arrayOf, stringNumber, yesNoBool, noOpCodec } = atomicCodecs;
 
@@ -15,7 +19,7 @@ const answersItemFieldCodec = {
 	comment_to_q3: noOpCodec,
 	ans_to_q4: noOpCodec,
 	comment_to_q4: noOpCodec,
-};
+} satisfies ShapeOfStrictFieeldAdapter<SupermarketServer["answers"][number]>;
 
 const supermarketFieldCodec = {
 	ans_to_q1: noOpCodec,
