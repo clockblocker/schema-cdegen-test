@@ -1,25 +1,53 @@
 import { z } from "zod";
 import type { SchemaShapeOf } from "./strict-adapter-builder";
 
+type IsTuple<T extends readonly unknown[]> = number extends T["length"]
+	? false
+	: true;
+
+type SchemaKeys<TInputSchema extends z.AnyZodObject> = Extract<
+	keyof SchemaShapeOf<TInputSchema>,
+	string
+>;
+
+type OutputSchemaShape<
+	TInputSchema extends z.AnyZodObject,
+	TFieldName extends string,
+	TFieldSchema extends z.ZodTypeAny,
+	TDropFields extends readonly SchemaKeys<TInputSchema>[],
+> =
+	IsTuple<TDropFields> extends true
+		? Omit<SchemaShapeOf<TInputSchema>, TDropFields[number]> &
+				Record<TFieldName, TFieldSchema>
+		: SchemaShapeOf<TInputSchema> & Record<TFieldName, TFieldSchema>;
+
 type OutputWithAddedField<
 	TInputSchema extends z.AnyZodObject,
 	TFieldName extends string,
 	TFieldSchema extends z.ZodTypeAny,
-	TDropFields extends readonly (keyof z.infer<TInputSchema>)[],
-> = Omit<z.infer<TInputSchema>, TDropFields[number]> &
-	Record<TFieldName, z.output<TFieldSchema>>;
+	TDropFields extends readonly SchemaKeys<TInputSchema>[],
+> =
+	IsTuple<TDropFields> extends true
+		? Omit<z.infer<TInputSchema>, TDropFields[number]> &
+				Record<TFieldName, z.output<TFieldSchema>>
+		: Partial<Pick<z.infer<TInputSchema>, TDropFields[number]>> &
+				Partial<Omit<z.infer<TInputSchema>, TDropFields[number]>> &
+				Record<TFieldName, z.output<TFieldSchema>>;
 
 type ReconstructedInputWithDroppedFields<
 	TInputSchema extends z.AnyZodObject,
-	TDropFields extends readonly (keyof z.infer<TInputSchema>)[],
-> = Required<Pick<z.infer<TInputSchema>, TDropFields[number]>> &
-	Partial<Omit<z.infer<TInputSchema>, TDropFields[number]>>;
+	TDropFields extends readonly SchemaKeys<TInputSchema>[],
+> =
+	IsTuple<TDropFields> extends true
+		? Required<Pick<z.infer<TInputSchema>, TDropFields[number]>> &
+				Partial<Omit<z.infer<TInputSchema>, TDropFields[number]>>
+		: Partial<z.infer<TInputSchema>>;
 
 type AddFieldConfig<
 	TInputSchema extends z.AnyZodObject,
 	TFieldName extends string,
 	TFieldSchema extends z.ZodTypeAny,
-	TDropFields extends readonly (keyof z.infer<TInputSchema>)[],
+	TDropFields extends readonly SchemaKeys<TInputSchema>[],
 > = {
 	fieldName: TFieldName;
 	fieldSchema: TFieldSchema;
@@ -40,7 +68,7 @@ export function buildAddFieldAdapterAndOutputSchema<
 	TInputSchema extends z.AnyZodObject,
 	const TFieldName extends string,
 	TFieldSchema extends z.ZodTypeAny,
-	const TDropFields extends readonly (keyof z.infer<TInputSchema>)[] = [],
+	const TDropFields extends readonly SchemaKeys<TInputSchema>[] = [],
 >(
 	inputSchema: TInputSchema,
 	config: AddFieldConfig<TInputSchema, TFieldName, TFieldSchema, TDropFields>,
@@ -57,18 +85,19 @@ export function buildAddFieldAdapterAndOutputSchema<
 	const shapeWithoutDroppedEntries = Object.entries(inputSchema.shape).filter(
 		([key]) => !dropFieldSet.has(key),
 	);
-	const shapeWithoutDropped = Object.fromEntries(
-		shapeWithoutDroppedEntries,
-	) as Omit<SchemaShapeOf<TInputSchema>, TDropFields[number]>;
+	const shapeWithoutDropped = Object.fromEntries(shapeWithoutDroppedEntries);
+
+	type OutputShape = OutputSchemaShape<
+		TInputSchema,
+		TFieldName,
+		TFieldSchema,
+		TDropFields
+	>;
 
 	const outputSchema = z.object({
 		...shapeWithoutDropped,
 		[fieldName]: fieldSchema,
-	} as Omit<SchemaShapeOf<TInputSchema>, TDropFields[number]> &
-		Record<TFieldName, TFieldSchema>) as z.ZodObject<
-		Omit<SchemaShapeOf<TInputSchema>, TDropFields[number]> &
-			Record<TFieldName, TFieldSchema>
-	>;
+	} as OutputShape) as z.ZodObject<OutputShape>;
 
 	type InputType = z.infer<TInputSchema>;
 	type OutputType = z.infer<typeof outputSchema>;

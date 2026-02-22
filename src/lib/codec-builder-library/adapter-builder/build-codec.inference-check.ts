@@ -5,15 +5,15 @@ import {
 	buildAddFieldAdapterAndOutputSchema,
 	buildEvenLooserAddaptersAndOutputSchema,
 	buildLooseAddaptersAndOutputSchema,
-	codecArrayOf,
 	type Codec,
+	codecArrayOf,
 	fromPath,
 	fromPaths,
 	noOpCodec,
-	type ShapeOfStrictFieldAdapter,
-	type ShapeOfStrictFieeldAdapter,
 	removeField,
 	reshapeFor,
+	type ShapeOfStrictFieeldAdapter,
+	type ShapeOfStrictFieldAdapter,
 } from "./build-codec";
 import { pipeCodecs } from "./codec-pair";
 
@@ -67,6 +67,11 @@ const _widenedArrayCheck: WidenedOutput["counterparties"] = [{ id: 1 }];
 type CounterpartyId = WidenedOutput["counterparties"][number]["id"];
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
+type IsUnknown<T> = unknown extends T
+	? [T] extends [unknown]
+		? true
+		: false
+	: false;
 type Assert<T extends true> = T;
 type AssertFalse<T extends false> = T;
 
@@ -362,9 +367,61 @@ const _addQuestionareFieldValue: AddQuestionareFieldOutput["questionare"] = {
 	q1: { answer: "Yes", comment: "ok" },
 	q2: { answer: "No", comment: "ok" },
 };
+type _addQuestionareFieldIdIsNotUnknown = AssertFalse<
+	IsUnknown<AddQuestionareFieldOutput["id"]>
+>;
+type _addQuestionareFieldIdMatches = Assert<
+	AddQuestionareFieldOutput["id"] extends number ? true : false
+>;
 // @ts-expect-error dropped source key should not be present in output
 const _addQuestionareDroppedAnsToQ1: AddQuestionareFieldOutput["ans_to_q1"] =
 	"Yes";
+
+const dropQuestionnaireFieldsFromVariable: Array<
+	keyof z.infer<typeof questionnaireServerSchema>
+> = ["ans_to_q1", "comment_to_q1_", "answers"];
+const addQuestionareFieldCodecFromVariableDropFields =
+	buildAddFieldAdapterAndOutputSchema(questionnaireServerSchema, {
+		fieldName: "questionare",
+		fieldSchema: z.object({
+			q1: z.object({ answer: z.string(), comment: z.string() }),
+			q2: z.object({ answer: z.string(), comment: z.string() }),
+		}),
+		dropFields: dropQuestionnaireFieldsFromVariable,
+		construct: (input) => ({
+			q1: {
+				answer: input.ans_to_q1,
+				comment: input.comment_to_q1_,
+			},
+			q2: {
+				answer: input.answers[0]?.ans_to_q2 ?? "",
+				comment: input.answers[0]?.comment_to_q2_ ?? "",
+			},
+		}),
+		reconstruct: (questionare) => ({
+			ans_to_q1: questionare.q1.answer,
+			comment_to_q1_: questionare.q1.comment,
+			answers: [
+				{
+					ans_to_q2: questionare.q2.answer,
+					comment_to_q2_: questionare.q2.comment,
+				},
+			],
+		}),
+	});
+type AddQuestionareFieldOutputFromVariableDropFields = z.infer<
+	typeof addQuestionareFieldCodecFromVariableDropFields.outputSchema
+>;
+type _addQuestionareVariableDropFieldsIdIsNotUnknown = AssertFalse<
+	IsUnknown<AddQuestionareFieldOutputFromVariableDropFields["id"]>
+>;
+type _addQuestionareVariableDropFieldsIdMatches = Assert<
+	AddQuestionareFieldOutputFromVariableDropFields["id"] extends
+		| number
+		| undefined
+		? true
+		: false
+>;
 
 void _widenedArrayCheck;
 void _strictArrayMappedCheck;
