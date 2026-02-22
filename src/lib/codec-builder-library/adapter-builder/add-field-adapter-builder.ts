@@ -9,6 +9,12 @@ type OutputWithAddedField<
 > = Omit<z.infer<TInputSchema>, TDropFields[number]> &
 	Record<TFieldName, z.output<TFieldSchema>>;
 
+type ReconstructedInputWithDroppedFields<
+	TInputSchema extends z.AnyZodObject,
+	TDropFields extends readonly (keyof z.infer<TInputSchema>)[],
+> = Required<Pick<z.infer<TInputSchema>, TDropFields[number]>> &
+	Partial<Omit<z.infer<TInputSchema>, TDropFields[number]>>;
+
 type AddFieldConfig<
 	TInputSchema extends z.AnyZodObject,
 	TFieldName extends string,
@@ -27,7 +33,7 @@ type AddFieldConfig<
 			TFieldSchema,
 			TDropFields
 		>,
-	) => Partial<z.infer<TInputSchema>>;
+	) => ReconstructedInputWithDroppedFields<TInputSchema, TDropFields>;
 };
 
 export function buildAddFieldAdapterAndOutputSchema<

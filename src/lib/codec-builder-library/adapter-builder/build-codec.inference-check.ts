@@ -331,6 +331,30 @@ const addQuestionareFieldCodec = buildAddFieldAdapterAndOutputSchema(
 	},
 );
 
+buildAddFieldAdapterAndOutputSchema(questionnaireServerSchema, {
+	fieldName: "questionare",
+	fieldSchema: z.object({
+		q1: z.object({ answer: z.string(), comment: z.string() }),
+		q2: z.object({ answer: z.string(), comment: z.string() }),
+	}),
+	dropFields: ["ans_to_q1", "comment_to_q1_", "answers"],
+	construct: (input) => ({
+		q1: {
+			answer: input.ans_to_q1,
+			comment: input.comment_to_q1_,
+		},
+		q2: {
+			answer: input.answers[0]?.ans_to_q2 ?? "",
+			comment: input.answers[0]?.comment_to_q2_ ?? "",
+		},
+	}),
+	// @ts-expect-error reconstruct must return every dropped source field
+	reconstruct: (questionare) => ({
+		ans_to_q1: questionare.q1.answer,
+		comment_to_q1_: questionare.q1.comment,
+	}),
+});
+
 type AddQuestionareFieldOutput = z.infer<
 	typeof addQuestionareFieldCodec.outputSchema
 >;
