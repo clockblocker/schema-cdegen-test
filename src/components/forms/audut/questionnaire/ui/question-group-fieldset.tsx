@@ -1,26 +1,17 @@
-import type { FieldErrors } from "react-hook-form";
 import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questionnaire-config";
+import type { GroupEvaluation } from "../model/types";
 import { QuestionnaireQuestionRow } from "./question-row";
-import type {
-	GroupEvaluation,
-	QuestionnaireAnswers,
-	QuestionnaireAudit,
-} from "./types";
 
 type QuestionnaireGroupFieldsetProps = {
 	group: UiScoringQuestionGroup;
 	groupIndex: number;
 	evaluation: GroupEvaluation | null;
-	questionnaireAnswers: Partial<QuestionnaireAnswers> | undefined;
-	errors: FieldErrors<QuestionnaireAudit>;
 };
 
 export function QuestionnaireGroupFieldset({
 	group,
 	groupIndex,
 	evaluation,
-	questionnaireAnswers,
-	errors,
 }: QuestionnaireGroupFieldsetProps) {
 	return (
 		<fieldset className="flex flex-col gap-4 rounded-lg border p-4">
@@ -36,11 +27,9 @@ export function QuestionnaireGroupFieldset({
 
 			{group.questions.map((question, questionIndex) => (
 				<QuestionnaireQuestionRow
-					errors={errors}
 					group={group}
 					key={question.questionId}
 					questionIndex={questionIndex}
-					questionnaireAnswers={questionnaireAnswers}
 				/>
 			))}
 		</fieldset>

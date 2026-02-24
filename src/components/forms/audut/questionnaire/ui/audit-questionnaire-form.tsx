@@ -1,30 +1,21 @@
-import { useFormContext, useWatch } from "react-hook-form";
 import type { AuditKindWithQuestionnarie } from "~/consumer-code/batteries/batteries-types";
 import type { UiScoringQuestionGroups } from "~/consumer-code/supermarket/questionnaire-config";
+import { useQuestionnaireForm } from "../hooks/use-questionnaire-form";
+import { evaluateQuestionGroup } from "../model/scoring";
+import type { GroupEvaluation } from "../model/types";
 import { QuestionnaireGroupFieldset } from "./question-group-fieldset";
-import { evaluateQuestionGroup } from "./tree-model";
-import type { GroupEvaluation, QuestionnaireAudit } from "./types";
 
-type AudutQuestionnaireFormProps<
+type AuditQuestionnaireFormProps<
 	K extends AuditKindWithQuestionnarie = AuditKindWithQuestionnarie,
 > = {
 	auditKind?: K;
 	questionGroups: UiScoringQuestionGroups;
 };
 
-export function AudutQuestionnaireForm<K extends AuditKindWithQuestionnarie>({
+export function AuditQuestionnaireForm<K extends AuditKindWithQuestionnarie>({
 	questionGroups,
-}: AudutQuestionnaireFormProps<K>) {
-	const {
-		formState: { errors },
-	} = useFormContext<QuestionnaireAudit>();
-
-	const questionnaireAnswers = useWatch<
-		QuestionnaireAudit,
-		"questionare.answers"
-	>({
-		name: "questionare.answers",
-	});
+}: AuditQuestionnaireFormProps<K>) {
+	const { questionnaireAnswers } = useQuestionnaireForm();
 
 	const groupEvaluations = questionGroups.map((group) =>
 		evaluateQuestionGroup(group, questionnaireAnswers),
@@ -42,12 +33,10 @@ export function AudutQuestionnaireForm<K extends AuditKindWithQuestionnarie>({
 			<h3 className="font-semibold text-base">Questionnaire</h3>
 			{questionGroups.map((group, groupIndex) => (
 				<QuestionnaireGroupFieldset
-					errors={errors}
 					evaluation={groupEvaluations[groupIndex] ?? null}
 					group={group}
 					groupIndex={groupIndex}
 					key={`group-${groupIndex + 1}`}
-					questionnaireAnswers={questionnaireAnswers}
 				/>
 			))}
 

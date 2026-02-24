@@ -1,4 +1,4 @@
-import { Controller, type FieldErrors, useFormContext } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { Label } from "~/components/ui/label";
 import {
 	Select,
@@ -8,24 +8,25 @@ import {
 	SelectValue,
 } from "~/components/ui/select";
 import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questionnaire-config";
-import { getAnswerErrorMessage } from "./form-errors";
-import { getQuestionOptions } from "./tree-model";
-import type { QuestionnaireAnswers, QuestionnaireAudit } from "./types";
+import { answerFieldPath, commentFieldPath } from "../hooks/form-types";
+import {
+	getAnswerErrorMessage,
+	useQuestionnaireForm,
+} from "../hooks/use-questionnaire-form";
+import { getFieldsToClearOnChange } from "../model/cascading-reset";
+import { getQuestionOptions } from "../model/tree-traversal";
 
 type QuestionnaireRowProps = {
 	group: UiScoringQuestionGroup;
 	questionIndex: number;
-	questionnaireAnswers: Partial<QuestionnaireAnswers> | undefined;
-	errors: FieldErrors<QuestionnaireAudit>;
 };
 
 export function QuestionnaireQuestionRow({
 	group,
 	questionIndex,
-	questionnaireAnswers,
-	errors,
 }: QuestionnaireRowProps) {
-	const { control, register, setValue } = useFormContext<QuestionnaireAudit>();
+	const { control, errors, questionnaireAnswers, register, setValue } =
+		useQuestionnaireForm();
 	const question = group.questions[questionIndex];
 	if (!question) {
 		return null;
@@ -37,10 +38,8 @@ export function QuestionnaireQuestionRow({
 		questionnaireAnswers,
 	);
 	const disabled = questionIndex > 0 && options.length === 0;
-	const answerFieldName =
-		`questionare.answers.${question.questionId}.answer` as const;
-	const commentFieldName =
-		`questionare.answers.${question.questionId}.comment` as const;
+	const answerFieldName = answerFieldPath(question.questionId);
+	const commentFieldName = commentFieldPath(question.questionId);
 	const answerError = getAnswerErrorMessage(errors, question.questionId);
 
 	return (
@@ -54,19 +53,18 @@ export function QuestionnaireQuestionRow({
 						disabled={disabled}
 						onValueChange={(value) => {
 							field.onChange(value);
-							for (const nextQuestion of group.questions.slice(
-								questionIndex + 1,
+
+							for (const questionId of getFieldsToClearOnChange(
+								group,
+								questionIndex,
 							)) {
-								setValue(
-									`questionare.answers.${nextQuestion.questionId}.answer`,
-									null,
-									{ shouldDirty: true, shouldValidate: true },
-								);
-								setValue(
-									`questionare.answers.${nextQuestion.questionId}.comment`,
-									"",
-									{ shouldDirty: true },
-								);
+								setValue(answerFieldPath(questionId), null, {
+									shouldDirty: true,
+									shouldValidate: true,
+								});
+								setValue(commentFieldPath(questionId), "", {
+									shouldDirty: true,
+								});
 							}
 						}}
 						value={field.value ?? ""}

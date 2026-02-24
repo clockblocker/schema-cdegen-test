@@ -2,11 +2,7 @@ import type {
 	UiScoringAnswerTree,
 	UiScoringQuestionGroup,
 } from "~/consumer-code/supermarket/questionnaire-config";
-import type {
-	AnswerOption,
-	GroupEvaluation,
-	QuestionnaireAnswers,
-} from "./types";
+import type { AnswerOption, QuestionnaireAnswerMap } from "./types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
 
@@ -18,7 +14,7 @@ function isAnswerTreeNode(value: unknown): value is UiScoringAnswerTree {
 	return typeof (value as { answerText?: unknown }).answerText === "string";
 }
 
-function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
+export function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
 	const options: AnswerOption[] = [];
 
 	for (const [answerId, value] of Object.entries(node)) {
@@ -32,9 +28,9 @@ function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
 	return options;
 }
 
-function getSelectedPathNodes(
+export function getSelectedPathNodes(
 	group: UiScoringQuestionGroup,
-	answers: Partial<QuestionnaireAnswers> | undefined,
+	answers: Partial<QuestionnaireAnswerMap> | undefined,
 	depth: number,
 ): UiScoringAnswerTree[] | null {
 	let currentNode: UiScoringAnswerTree = group.answersTree;
@@ -66,7 +62,7 @@ function getSelectedPathNodes(
 export function getQuestionOptions(
 	group: UiScoringQuestionGroup,
 	questionIndex: number,
-	answers: Partial<QuestionnaireAnswers> | undefined,
+	answers: Partial<QuestionnaireAnswerMap> | undefined,
 ): AnswerOption[] {
 	if (questionIndex === 0) {
 		return getChildOptions(group.answersTree);
@@ -79,29 +75,4 @@ export function getQuestionOptions(
 	}
 
 	return getChildOptions(currentNode);
-}
-
-export function evaluateQuestionGroup(
-	group: UiScoringQuestionGroup,
-	answers: Partial<QuestionnaireAnswers> | undefined,
-): GroupEvaluation | null {
-	const selectedNodes = getSelectedPathNodes(
-		group,
-		answers,
-		group.questions.length,
-	);
-	if (!selectedNodes) {
-		return null;
-	}
-
-	const score = selectedNodes.reduce(
-		(total, node) => total + (node.weight ?? 0),
-		0,
-	);
-	const currentGrade = selectedNodes[selectedNodes.length - 1]?.grade;
-
-	return {
-		weightedScore: score * group.groupWeight,
-		grade: currentGrade,
-	};
 }
