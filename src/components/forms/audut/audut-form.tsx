@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
+import { evaluateAudutGroup } from "./audut-scoring";
 import { QuestionGroup } from "./question-group";
 import type { AudutFormValues, AudutQuestionGroup } from "./types";
 
@@ -17,32 +18,11 @@ function TotalWeight({ groups }: { groups: AudutQuestionGroup[] }) {
 	for (const group of groups) {
 		const gid = String(group.groupId);
 		const values = allGroupValues?.[gid];
-		if (!values) continue;
+		const weightedGroupScore = evaluateAudutGroup(group, values);
+		if (weightedGroupScore === null) continue;
 
-		const allAnswered = group.questionIds.every(
-			(qId) => values[qId] !== undefined,
-		);
-		if (!allAnswered) continue;
-
-		let sum = 0;
-		let currentAnswers = group.answersTree;
-		let valid = true;
-
-		for (const qId of group.questionIds) {
-			const selectedId = values[qId];
-			const selected = currentAnswers.find((a) => a.id === selectedId);
-			if (!selected) {
-				valid = false;
-				break;
-			}
-			sum += selected.weight ?? 0;
-			currentAnswers = selected.relatedAnswers;
-		}
-
-		if (valid) {
-			total += sum * (group.groupWeight ?? 1);
-			hasAny = true;
-		}
+		total += weightedGroupScore;
+		hasAny = true;
 	}
 
 	if (!hasAny) return null;

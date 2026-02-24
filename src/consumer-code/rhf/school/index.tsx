@@ -8,6 +8,8 @@ export function SchoolFormFields() {
 		formState: { errors },
 	} = useFormContext<Audut<"School">>();
 
+	type asdasda = Audut<"School">;
+
 	const q3Message =
 		typeof errors.questionsSchool?.q3?.message === "string"
 			? errors.questionsSchool.q3.message

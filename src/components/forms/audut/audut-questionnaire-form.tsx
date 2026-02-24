@@ -51,6 +51,37 @@ function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
 	return options;
 }
 
+function getSelectedPathNodes(
+	group: UiScoringQuestionGroup,
+	answers: Partial<SupermarketAnswers> | undefined,
+	depth: number,
+): UiScoringAnswerTree[] | null {
+	let currentNode: UiScoringAnswerTree = group.answersTree;
+	const selectedNodes: UiScoringAnswerTree[] = [];
+
+	for (let index = 0; index < depth; index++) {
+		const question = group.questions[index];
+		if (!question) {
+			return null;
+		}
+
+		const selectedAnswerId = answers?.[question.questionId]?.answer;
+		if (!selectedAnswerId) {
+			return null;
+		}
+
+		const nextNode = currentNode[selectedAnswerId];
+		if (!isAnswerTreeNode(nextNode)) {
+			return null;
+		}
+
+		selectedNodes.push(nextNode);
+		currentNode = nextNode;
+	}
+
+	return selectedNodes;
+}
+
 function getQuestionOptions(
 	group: UiScoringQuestionGroup,
 	questionIndex: number,
@@ -60,23 +91,10 @@ function getQuestionOptions(
 		return getChildOptions(group.answersTree);
 	}
 
-	let currentNode: UiScoringAnswerTree = group.answersTree;
-	for (let index = 0; index < questionIndex; index++) {
-		const question = group.questions[index];
-		if (!question) {
-			return [];
-		}
-
-		const selectedAnswerId = answers?.[question.questionId]?.answer;
-		if (!selectedAnswerId) {
-			return [];
-		}
-
-		const nextNode = currentNode[selectedAnswerId];
-		if (!isAnswerTreeNode(nextNode)) {
-			return [];
-		}
-		currentNode = nextNode;
+	const selectedNodes = getSelectedPathNodes(group, answers, questionIndex);
+	const currentNode = selectedNodes?.at(-1);
+	if (!currentNode) {
+		return [];
 	}
 
 	return getChildOptions(currentNode);
@@ -89,25 +107,20 @@ function evaluateGroup(
 	weightedScore: number;
 	grade?: string;
 } | null {
-	let score = 0;
-	let currentNode: UiScoringAnswerTree = group.answersTree;
-	let currentGrade: string | undefined;
-
-	for (const question of group.questions) {
-		const selectedAnswerId = answers?.[question.questionId]?.answer;
-		if (!selectedAnswerId) {
-			return null;
-		}
-
-		const nextNode = currentNode[selectedAnswerId];
-		if (!isAnswerTreeNode(nextNode)) {
-			return null;
-		}
-
-		score += nextNode.weight ?? 0;
-		currentGrade = nextNode.grade;
-		currentNode = nextNode;
+	const selectedNodes = getSelectedPathNodes(
+		group,
+		answers,
+		group.questions.length,
+	);
+	if (!selectedNodes) {
+		return null;
 	}
+
+	const score = selectedNodes.reduce(
+		(total, node) => total + (node.weight ?? 0),
+		0,
+	);
+	const currentGrade = selectedNodes[selectedNodes.length - 1]?.grade;
 
 	return {
 		weightedScore: score * group.groupWeight,

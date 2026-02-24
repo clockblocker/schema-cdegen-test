@@ -8,7 +8,6 @@ export function SupermarketFormFields() {
 	const {
 		control,
 		register,
-		watch,
 		formState: { errors },
 	} = useFormContext<Audut<"Supermarket">>();
 
@@ -16,8 +15,6 @@ export function SupermarketFormFields() {
 		typeof errors.openLate?.message === "string"
 			? errors.openLate.message
 			: undefined;
-
-	const reconstructionMeta = watch("questionare.metaForReconstruction");
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -75,7 +72,16 @@ export function SupermarketFormFields() {
 					/>
 				)}
 			/>
+		</div>
+	);
+}
 
+export function SupermarketQuestionnaireFields() {
+	const { register, watch } = useFormContext<Audut<"Supermarket">>();
+	const reconstructionMeta = watch("questionare.metaForReconstruction");
+
+	return (
+		<>
 			<AudutQuestionnaireForm
 				questionGroups={SUPERMARKET_UI_SCORING_QUESTION_GROUPS}
 			/>
@@ -110,6 +116,6 @@ export function SupermarketFormFields() {
 					/>
 				</div>
 			))}
-		</div>
+		</>
 	);
 }

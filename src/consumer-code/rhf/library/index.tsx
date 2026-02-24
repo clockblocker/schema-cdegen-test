@@ -8,21 +8,6 @@ export function LibraryFormFields() {
 		register,
 		formState: { errors },
 	} = useFormContext<Audut<"Library">>();
-	const questionareErrors = errors.questionare as
-		| {
-				q1?: { answer?: { message?: string } };
-				q2?: { answer?: { message?: string } };
-		  }
-		| undefined;
-
-	const q1AnswerMessage =
-		typeof questionareErrors?.q1?.answer?.message === "string"
-			? questionareErrors.q1.answer.message
-			: undefined;
-	const q2AnswerMessage =
-		typeof questionareErrors?.q2?.answer?.message === "string"
-			? questionareErrors.q2.answer.message
-			: undefined;
 	const openLateMessage =
 		typeof errors.openLate?.message === "string"
 			? errors.openLate.message
@@ -84,7 +69,35 @@ export function LibraryFormFields() {
 					/>
 				)}
 			/>
+		</div>
+	);
+}
 
+export function LibraryQuestionnaireFields() {
+	const {
+		control,
+		register,
+		formState: { errors },
+	} = useFormContext<Audut<"Library">>();
+
+	const questionareErrors = errors.questionare as
+		| {
+				q1?: { answer?: { message?: string } };
+				q2?: { answer?: { message?: string } };
+		  }
+		| undefined;
+
+	const q1AnswerMessage =
+		typeof questionareErrors?.q1?.answer?.message === "string"
+			? questionareErrors.q1.answer.message
+			: undefined;
+	const q2AnswerMessage =
+		typeof questionareErrors?.q2?.answer?.message === "string"
+			? questionareErrors.q2.answer.message
+			: undefined;
+
+	return (
+		<div className="flex flex-col gap-6">
 			<Controller
 				control={control}
 				name="questionare.q1.answer"

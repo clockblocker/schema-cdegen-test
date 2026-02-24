@@ -1,4 +1,5 @@
 import { useWatch } from "react-hook-form";
+import { getAudutQuestionOptions } from "./audut-scoring";
 import type { AnswerScore, AudutFormValues, AudutQuestionGroup } from "./types";
 
 export function useQuestionOptions(
@@ -10,17 +11,5 @@ export function useQuestionOptions(
 		name: `groups.${groupId}`,
 	});
 
-	if (questionIndex === 0) return group.answersTree;
-
-	let currentAnswers = group.answersTree;
-	for (let i = 0; i < questionIndex; i++) {
-		const qId = group.questionIds[i];
-		if (!qId) return [];
-		const selectedId = groupValues?.[qId];
-		if (!selectedId) return [];
-		const selected = currentAnswers.find((a) => a.id === selectedId);
-		if (!selected) return [];
-		currentAnswers = selected.relatedAnswers;
-	}
-	return currentAnswers;
+	return getAudutQuestionOptions(group, groupValues, questionIndex);
 }
