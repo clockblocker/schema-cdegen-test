@@ -1,5 +1,5 @@
 import { Controller, useFormContext } from "react-hook-form";
-import { AudutQuestionnaireForm } from "~/components/forms/audut/audut-questionnaire-form";
+import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnarie";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import { SUPERMARKET_UI_SCORING_QUESTION_GROUPS } from "~/consumer-code/supermarket/questionnaire-config";
 import type { Audut } from "../../batteries/batteries-types";
