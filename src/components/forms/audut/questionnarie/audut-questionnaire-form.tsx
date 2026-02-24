@@ -1,20 +1,26 @@
 import { useFormContext, useWatch } from "react-hook-form";
+import type { AuditKindWithQuestionnarie } from "~/consumer-code/batteries/batteries-types";
 import type { UiScoringQuestionGroups } from "~/consumer-code/supermarket/questionnaire-config";
 import { QuestionnaireGroupFieldset } from "./question-group-fieldset";
 import { evaluateQuestionGroup } from "./tree-model";
-import type { GroupEvaluation, SupermarketAudit } from "./types";
+import type { GroupEvaluation, QuestionnaireAudit } from "./types";
 
-export function AudutQuestionnaireForm({
-	questionGroups,
-}: {
+type AudutQuestionnaireFormProps<
+	K extends AuditKindWithQuestionnarie = AuditKindWithQuestionnarie,
+> = {
+	auditKind?: K;
 	questionGroups: UiScoringQuestionGroups;
-}) {
+};
+
+export function AudutQuestionnaireForm<K extends AuditKindWithQuestionnarie>({
+	questionGroups,
+}: AudutQuestionnaireFormProps<K>) {
 	const {
 		formState: { errors },
-	} = useFormContext<SupermarketAudit>();
+	} = useFormContext<QuestionnaireAudit>();
 
 	const questionnaireAnswers = useWatch<
-		SupermarketAudit,
+		QuestionnaireAudit,
 		"questionare.answers"
 	>({
 		name: "questionare.answers",

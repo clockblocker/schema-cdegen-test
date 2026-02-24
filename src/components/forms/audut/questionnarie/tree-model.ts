@@ -5,7 +5,7 @@ import type {
 import type {
 	AnswerOption,
 	GroupEvaluation,
-	SupermarketAnswers,
+	QuestionnaireAnswers,
 } from "./types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
@@ -34,7 +34,7 @@ function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
 
 function getSelectedPathNodes(
 	group: UiScoringQuestionGroup,
-	answers: Partial<SupermarketAnswers> | undefined,
+	answers: Partial<QuestionnaireAnswers> | undefined,
 	depth: number,
 ): UiScoringAnswerTree[] | null {
 	let currentNode: UiScoringAnswerTree = group.answersTree;
@@ -66,7 +66,7 @@ function getSelectedPathNodes(
 export function getQuestionOptions(
 	group: UiScoringQuestionGroup,
 	questionIndex: number,
-	answers: Partial<SupermarketAnswers> | undefined,
+	answers: Partial<QuestionnaireAnswers> | undefined,
 ): AnswerOption[] {
 	if (questionIndex === 0) {
 		return getChildOptions(group.answersTree);
@@ -83,7 +83,7 @@ export function getQuestionOptions(
 
 export function evaluateQuestionGroup(
 	group: UiScoringQuestionGroup,
-	answers: Partial<SupermarketAnswers> | undefined,
+	answers: Partial<QuestionnaireAnswers> | undefined,
 ): GroupEvaluation | null {
 	const selectedNodes = getSelectedPathNodes(
 		group,

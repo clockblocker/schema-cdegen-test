@@ -1,8 +1,15 @@
-import type { Audut } from "~/consumer-code/batteries/batteries-types";
+import type {
+	AuditKindWithQuestionnarie,
+	Audut,
+} from "~/consumer-code/batteries/batteries-types";
 import type { UiScoringAnswerTree } from "~/consumer-code/supermarket/questionnaire-config";
 
-export type SupermarketAudit = Audut<"Supermarket">;
-export type SupermarketAnswers = SupermarketAudit["questionare"]["answers"];
+export type QuestionnaireAudit<
+	K extends AuditKindWithQuestionnarie = AuditKindWithQuestionnarie,
+> = Audut<K>;
+export type QuestionnaireAnswers<
+	K extends AuditKindWithQuestionnarie = AuditKindWithQuestionnarie,
+> = QuestionnaireAudit<K>["questionare"]["answers"];
 
 export type AnswerOption = {
 	answerId: string;

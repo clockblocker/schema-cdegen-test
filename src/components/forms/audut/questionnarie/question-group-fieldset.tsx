@@ -3,16 +3,16 @@ import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questio
 import { QuestionnaireQuestionRow } from "./question-row";
 import type {
 	GroupEvaluation,
-	SupermarketAnswers,
-	SupermarketAudit,
+	QuestionnaireAnswers,
+	QuestionnaireAudit,
 } from "./types";
 
 type QuestionnaireGroupFieldsetProps = {
 	group: UiScoringQuestionGroup;
 	groupIndex: number;
 	evaluation: GroupEvaluation | null;
-	questionnaireAnswers: Partial<SupermarketAnswers> | undefined;
-	errors: FieldErrors<SupermarketAudit>;
+	questionnaireAnswers: Partial<QuestionnaireAnswers> | undefined;
+	errors: FieldErrors<QuestionnaireAudit>;
 };
 
 export function QuestionnaireGroupFieldset({

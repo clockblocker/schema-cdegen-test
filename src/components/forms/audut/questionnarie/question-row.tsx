@@ -10,13 +10,13 @@ import {
 import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questionnaire-config";
 import { getAnswerErrorMessage } from "./form-errors";
 import { getQuestionOptions } from "./tree-model";
-import type { SupermarketAnswers, SupermarketAudit } from "./types";
+import type { QuestionnaireAnswers, QuestionnaireAudit } from "./types";
 
 type QuestionnaireRowProps = {
 	group: UiScoringQuestionGroup;
 	questionIndex: number;
-	questionnaireAnswers: Partial<SupermarketAnswers> | undefined;
-	errors: FieldErrors<SupermarketAudit>;
+	questionnaireAnswers: Partial<QuestionnaireAnswers> | undefined;
+	errors: FieldErrors<QuestionnaireAudit>;
 };
 
 export function QuestionnaireQuestionRow({
@@ -25,7 +25,7 @@ export function QuestionnaireQuestionRow({
 	questionnaireAnswers,
 	errors,
 }: QuestionnaireRowProps) {
-	const { control, register, setValue } = useFormContext<SupermarketAudit>();
+	const { control, register, setValue } = useFormContext<QuestionnaireAudit>();
 	const question = group.questions[questionIndex];
 	if (!question) {
 		return null;
