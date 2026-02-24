@@ -4,6 +4,8 @@ import type {
 } from "~/consumer-code/supermarket/questionnaire-config";
 import type { AnswerOption, QuestionnaireAnswerMap } from "./types";
 
+type GroupQuestionId = UiScoringQuestionGroup["questions"][number]["questionId"];
+
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
 
 function isAnswerTreeNode(value: unknown): value is UiScoringAnswerTree {
@@ -30,7 +32,7 @@ export function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
 
 export function getSelectedPathNodes(
 	group: UiScoringQuestionGroup,
-	answers: Partial<QuestionnaireAnswerMap> | undefined,
+	answers: QuestionnaireAnswerMap<GroupQuestionId> | undefined,
 	depth: number,
 ): UiScoringAnswerTree[] | null {
 	let currentNode: UiScoringAnswerTree = group.answersTree;
@@ -62,7 +64,7 @@ export function getSelectedPathNodes(
 export function getQuestionOptions(
 	group: UiScoringQuestionGroup,
 	questionIndex: number,
-	answers: Partial<QuestionnaireAnswerMap> | undefined,
+	answers: QuestionnaireAnswerMap<GroupQuestionId> | undefined,
 ): AnswerOption[] {
 	if (questionIndex === 0) {
 		return getChildOptions(group.answersTree);

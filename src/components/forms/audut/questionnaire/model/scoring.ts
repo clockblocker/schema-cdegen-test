@@ -2,9 +2,11 @@ import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questio
 import { getSelectedPathNodes } from "./tree-traversal";
 import type { GroupEvaluation, QuestionnaireAnswerMap } from "./types";
 
+type GroupQuestionId = UiScoringQuestionGroup["questions"][number]["questionId"];
+
 export function evaluateQuestionGroup(
 	group: UiScoringQuestionGroup,
-	answers: Partial<QuestionnaireAnswerMap> | undefined,
+	answers: QuestionnaireAnswerMap<GroupQuestionId> | undefined,
 ): GroupEvaluation | null {
 	const selectedNodes = getSelectedPathNodes(
 		group,

@@ -1,5 +1,4 @@
 import { type FieldErrors, useFormContext, useWatch } from "react-hook-form";
-import type { QuestionnaireAnswerMap } from "../model/types";
 import {
 	QUESTIONARE_ANSWERS_PATH,
 	type QuestionnaireAudit,
@@ -31,7 +30,7 @@ export function useQuestionnaireForm() {
 		typeof QUESTIONARE_ANSWERS_PATH
 	>({
 		name: QUESTIONARE_ANSWERS_PATH,
-	}) as Partial<QuestionnaireAnswerMap> | undefined;
+	});
 
 	return {
 		control,

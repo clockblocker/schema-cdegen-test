@@ -10,11 +10,12 @@ export type GroupEvaluation = {
 	grade?: string;
 };
 
-export type QuestionnaireAnswerMap = Record<
-	string,
-	| {
+export type QuestionnaireAnswerMap<QuestionId extends string> = Partial<
+	Record<
+		QuestionId,
+		{
 			answer?: string | null;
 			comment?: string | null;
-	  }
-	| undefined
+		}
+	>
 >;
