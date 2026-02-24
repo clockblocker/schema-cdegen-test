@@ -1,95 +1,12 @@
-import { z } from "zod";
+import type { z } from "zod";
 import type { UserRole } from "~/consumer-code/business-types";
 import { SupermarketFormSchema } from "./reshape-wo-codegen";
 
-const supermarketFormValidatedSchema = SupermarketFormSchema.superRefine(
-	(formValue, ctx) => {
-		if (!formValue.libraryName.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["libraryName"],
-				message: "Supermarket name is required.",
-			});
-		}
-
-		if (!formValue.address.city.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["address", "city"],
-				message: "City is required.",
-			});
-		}
-
-		if (!formValue.questionare.q1.answer.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["questionare", "q1", "answer"],
-				message: "Question 1 answer is required.",
-			});
-		}
-
-		if (!formValue.questionare.q2.answer.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["questionare", "q2", "answer"],
-				message: "Question 2 answer is required.",
-			});
-		}
-
-		if (!formValue.questionare.q3.answer.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["questionare", "q3", "answer"],
-				message: "Question 3 answer is required.",
-			});
-		}
-
-		if (!formValue.questionare.q4.answer.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["questionare", "q4", "answer"],
-				message: "Question 4 answer is required.",
-			});
-		}
-
-		if (!formValue.questionare.q5.answer.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["questionare", "q5", "answer"],
-				message: "Question 5 answer is required.",
-			});
-		}
-
-		if (!formValue.questionare.q6.answer.trim()) {
-			ctx.addIssue({
-				code: z.ZodIssueCode.custom,
-				path: ["questionare", "q6", "answer"],
-				message: "Question 6 answer is required.",
-			});
-		}
-	},
-);
-
-const supermarketElectricianValidatedSchema =
-	supermarketFormValidatedSchema.refine(
-		(formValue) => formValue.questionare.q1.answer === "Yes",
-		{
-			path: ["questionare", "q1", "answer"],
-			message: "Electrician audit requires Question 1 to be Yes.",
-		},
-	);
-
-const supermarketPlumberValidatedSchema = supermarketFormValidatedSchema.refine(
-	(formValue) => formValue.questionare.q2.answer === "Yes",
-	{
-		path: ["questionare", "q2", "answer"],
-		message: "Plumber audit requires Question 2 to be Yes.",
-	},
-);
+const supermarketFormValidatedSchema = SupermarketFormSchema;
 
 export const SupermarketFormValidatedSchemaForRole = {
-	Electrician: supermarketElectricianValidatedSchema,
-	Plumber: supermarketPlumberValidatedSchema,
+	Electrician: supermarketFormValidatedSchema,
+	Plumber: supermarketFormValidatedSchema,
 } as const satisfies Record<
 	UserRole,
 	z.ZodType<

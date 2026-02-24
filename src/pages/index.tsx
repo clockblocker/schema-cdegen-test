@@ -1,72 +1,73 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import Head from "next/head";
-import { FormProvider, useForm } from "react-hook-form";
-import { AudutForm } from "~/components/forms/audut/audut-form";
-import { mockAudutGroups } from "~/components/forms/audut/mock-data";
-import { HospitalFormFields } from "~/components/forms/hospital-form";
-import { SchoolFormFields } from "~/components/forms/school-form";
-import { Button } from "~/components/ui/button";
-import {
-	type AudutKind,
-	defaultValuesFor,
-	type FormInFor,
-	type FormOutFor,
-	getSchema,
-	type Role,
-} from "~/generics";
+import { batteriesFor } from "~/consumer-code/batteries/batteries";
+import { SupermarketServerSchema } from "~/consumer-code/batteries/generated/supermarket/server-schema";
+import { GenericRhfForm } from "~/consumer-code/rhf/generic-rhf";
 
-function QuestionForm<SK extends AudutKind, R extends Role>({
-	sk,
-	audutRole,
-}: {
-	sk: SK;
-	audutRole: R;
-}) {
-	const methods = useForm<FormInFor<SK>, unknown, FormOutFor<SK, R>>({
-		resolver: zodResolver(getSchema(sk, audutRole)),
-		defaultValues: defaultValuesFor[sk],
-	});
+const supermarketServerSample = SupermarketServerSchema.parse({
+	sm_q01_answer: "",
+	sm_q01_comment: "",
+	sm_q05_answer: "",
+	sm_q05_comment: "",
+	sm_q06_answer: "",
+	sm_q06_comment: "",
+	sm_q07_answer: "",
+	sm_q07_comment: "",
+	sm_q08_answer: "",
+	sm_q08_comment: "",
+	sm_q09_answer: "",
+	sm_q09_comment: "",
+	sm_q10_answer: "",
+	sm_q10_comment: "",
+	sm_q11_answer: "",
+	sm_q11_comment: "",
+	id: 77,
+	dateOfConstuction: "2020-07-01",
+	answers: [
+		{
+			id: 101,
+			level: "L1",
+			sm_lvl_q02_answer: "",
+			sm_lvl_q02_comment: "",
+			sm_lvl_q03_answer: "",
+			sm_lvl_q03_comment: "",
+			sm_lvl_q04_answer: "",
+			sm_lvl_q04_comment: "",
+		},
+	],
+	libraryName: "Central Supermarket",
+	memberCapacity: 1250,
+	openLate: true,
+	address: {
+		city: "Berlin",
+		country: "Germany",
+	},
+});
 
-	const onSubmit = (data: FormOutFor<SK, R>) => {
-		console.log(`${sk}/${audutRole} submitted:`, data);
-	};
-
-	return (
-		<FormProvider {...methods}>
-			<form
-				className="flex w-full max-w-sm flex-col gap-6 rounded-lg border p-6"
-				onSubmit={methods.handleSubmit(onSubmit)}
-			>
-				<h2 className="font-semibold text-lg">{audutRole}</h2>
-				{sk === "Hospital" && <HospitalFormFields />}
-				{sk === "School" && <SchoolFormFields />}
-				<Button type="submit" variant="outline">
-					Submit
-				</Button>
-			</form>
-		</FormProvider>
-	);
-}
+const supermarketFormValues = batteriesFor.Supermarket.codec.fromInput(
+	supermarketServerSample,
+);
 
 export default function Home() {
 	return (
 		<>
 			<Head>
-				<title>Zod + RHF Test</title>
+				<title>Supermarket Audit</title>
 				<meta
-					content="Testing zod3 schemas with react-hook-form"
+					content="Supermarket audit form with dynamic questionnaire"
 					name="description"
 				/>
 				<link href="/favicon.ico" rel="icon" />
 			</Head>
-			<main className="flex min-h-screen flex-col items-center gap-12 p-8">
-				<div className="flex items-start justify-center gap-8">
-					<QuestionForm audutRole="Sales" sk="Hospital" />
-					<QuestionForm audutRole="Scorer" sk="Hospital" />
-					<QuestionForm audutRole="Sales" sk="School" />
-					<QuestionForm audutRole="Scorer" sk="School" />
-				</div>
-				<AudutForm groups={mockAudutGroups} />
+			<main className="flex min-h-screen items-start justify-center p-8">
+				<GenericRhfForm
+					auditFormValues={supermarketFormValues}
+					buildingKind="Supermarket"
+					onSubmit={(formValue) => {
+						console.log("Supermarket/Electrician submitted:", formValue);
+					}}
+					submitLabel="Submit Supermarket Audit"
+					userRole="Electrician"
+				/>
 			</main>
 		</>
 	);
