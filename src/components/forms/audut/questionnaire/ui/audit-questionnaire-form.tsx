@@ -1,21 +1,75 @@
-import type { AuditKindWithQuestionnarie } from "~/consumer-code/batteries/batteries-types";
-import type { UiScoringQuestionGroups } from "~/consumer-code/supermarket/questionnaire-config";
-import { useQuestionnaireForm } from "../hooks/use-questionnaire-form";
+import type { FieldValues, Path } from "react-hook-form";
+import { answerFieldPath, commentFieldPath } from "../hooks/form-types";
+import {
+	getQuestionnaireAnswerError,
+	useQuestionnaireForm,
+} from "../hooks/use-questionnaire-form";
+import { getFieldsToClearOnChange } from "../model/cascading-reset";
 import { evaluateQuestionGroup } from "../model/scoring";
-import type { GroupEvaluation } from "../model/types";
+import type {
+	GroupEvaluation,
+	QuestionnaireFormApi,
+	UiScoringQuestionGroups,
+} from "../model/types";
 import { QuestionnaireGroupFieldset } from "./question-group-fieldset";
 
-type AuditQuestionnaireFormProps<
-	K extends AuditKindWithQuestionnarie = AuditKindWithQuestionnarie,
-> = {
-	auditKind?: K;
-	questionGroups: UiScoringQuestionGroups;
+type AuditQuestionnaireFormProps<QuestionId extends string> = {
+	questionGroups: UiScoringQuestionGroups<QuestionId>;
 };
 
-export function AuditQuestionnaireForm<K extends AuditKindWithQuestionnarie>({
-	questionGroups,
-}: AuditQuestionnaireFormProps<K>) {
-	const { questionnaireAnswers } = useQuestionnaireForm();
+export function AuditQuestionnaireForm<
+	QuestionId extends string,
+	FormValues extends FieldValues,
+>({ questionGroups }: AuditQuestionnaireFormProps<QuestionId>) {
+	const { errors, questionnaireAnswers, register, setValue } =
+		useQuestionnaireForm<FormValues, QuestionId>();
+
+	const setFormValue = (
+		path: Path<FormValues>,
+		value: unknown,
+		options?: { shouldDirty?: boolean; shouldValidate?: boolean },
+	) => {
+		(
+			setValue as (
+				field: Path<FormValues>,
+				fieldValue: unknown,
+				fieldOptions?: { shouldDirty?: boolean; shouldValidate?: boolean },
+			) => void
+		)(path, value, options);
+	};
+
+	const setAnswer: QuestionnaireFormApi<QuestionId>["setAnswer"] = (
+		questionId,
+		answerId,
+	) => {
+		const answerPath = answerFieldPath(questionId) as Path<FormValues>;
+		setFormValue(answerPath, answerId, {
+			shouldDirty: true,
+			shouldValidate: true,
+		});
+	};
+
+	const setComment = (questionId: QuestionId, comment: string) => {
+		const commentPath = commentFieldPath(questionId) as Path<FormValues>;
+		setFormValue(commentPath, comment, {
+			shouldDirty: true,
+		});
+	};
+
+	const formApi: QuestionnaireFormApi<QuestionId> = {
+		questionnaireAnswers,
+		setAnswer,
+		clearDownstream: (group, questionIndex) => {
+			for (const questionId of getFieldsToClearOnChange(group, questionIndex)) {
+				setAnswer(questionId, null);
+				setComment(questionId, "");
+			}
+		},
+		getAnswerError: (questionId) =>
+			getQuestionnaireAnswerError(errors, questionId),
+		registerComment: (questionId) =>
+			register(commentFieldPath(questionId) as Path<FormValues>),
+	};
 
 	const groupEvaluations = questionGroups.map((group) =>
 		evaluateQuestionGroup(group, questionnaireAnswers),
@@ -32,8 +86,9 @@ export function AuditQuestionnaireForm<K extends AuditKindWithQuestionnarie>({
 		<div className="flex flex-col gap-6">
 			<h3 className="font-semibold text-base">Questionnaire</h3>
 			{questionGroups.map((group, groupIndex) => (
-				<QuestionnaireGroupFieldset
+				<QuestionnaireGroupFieldset<QuestionId>
 					evaluation={groupEvaluations[groupIndex] ?? null}
+					formApi={formApi}
 					group={group}
 					groupIndex={groupIndex}
 					key={`group-${groupIndex + 1}`}

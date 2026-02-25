@@ -1,18 +1,23 @@
-import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questionnaire-config";
-import type { GroupEvaluation } from "../model/types";
+import type {
+	GroupEvaluation,
+	QuestionnaireFormApi,
+	UiScoringQuestionGroup,
+} from "../model/types";
 import { QuestionnaireQuestionRow } from "./question-row";
 
-type QuestionnaireGroupFieldsetProps = {
-	group: UiScoringQuestionGroup;
+type QuestionnaireGroupFieldsetProps<QuestionId extends string> = {
+	formApi: QuestionnaireFormApi<QuestionId>;
+	group: UiScoringQuestionGroup<QuestionId>;
 	groupIndex: number;
 	evaluation: GroupEvaluation | null;
 };
 
-export function QuestionnaireGroupFieldset({
+export function QuestionnaireGroupFieldset<QuestionId extends string>({
+	formApi,
 	group,
 	groupIndex,
 	evaluation,
-}: QuestionnaireGroupFieldsetProps) {
+}: QuestionnaireGroupFieldsetProps<QuestionId>) {
 	return (
 		<fieldset className="flex flex-col gap-4 rounded-lg border p-4">
 			<div className="flex items-center justify-between gap-2">
@@ -26,7 +31,8 @@ export function QuestionnaireGroupFieldset({
 			</div>
 
 			{group.questions.map((question, questionIndex) => (
-				<QuestionnaireQuestionRow
+				<QuestionnaireQuestionRow<QuestionId>
+					formApi={formApi}
 					group={group}
 					key={question.questionId}
 					questionIndex={questionIndex}

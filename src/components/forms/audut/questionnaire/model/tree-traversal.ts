@@ -1,10 +1,10 @@
+import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-types";
 import type {
+	AnswerOption,
+	QuestionnaireAnswerMap,
 	UiScoringAnswerTree,
 	UiScoringQuestionGroup,
-} from "~/consumer-code/supermarket/questionnaire-config";
-import type { AnswerOption, QuestionnaireAnswerMap } from "./types";
-
-type GroupQuestionId = UiScoringQuestionGroup["questions"][number]["questionId"];
+} from "./types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
 
@@ -16,23 +16,25 @@ function isAnswerTreeNode(value: unknown): value is UiScoringAnswerTree {
 	return typeof (value as { answerText?: unknown }).answerText === "string";
 }
 
-export function getChildOptions(node: UiScoringAnswerTree): AnswerOption[] {
-	const options: AnswerOption[] = [];
+export function getChildOptions<AnswerId extends string>(
+	node: UiScoringAnswerTree,
+): AnswerOption<AnswerId>[] {
+	const options: AnswerOption<AnswerId>[] = [];
 
 	for (const [answerId, value] of Object.entries(node)) {
 		if (TREE_META_KEYS.has(answerId) || !isAnswerTreeNode(value)) {
 			continue;
 		}
 
-		options.push({ answerId, node: value });
+		options.push({ answerId: answerId as AnswerId, node: value });
 	}
 
 	return options;
 }
 
-export function getSelectedPathNodes(
-	group: UiScoringQuestionGroup,
-	answers: QuestionnaireAnswerMap<GroupQuestionId> | undefined,
+export function getSelectedPathNodes<QuestionId extends string>(
+	group: UiScoringQuestionGroup<QuestionId>,
+	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 	depth: number,
 ): UiScoringAnswerTree[] | null {
 	let currentNode: UiScoringAnswerTree = group.answersTree;
@@ -49,7 +51,7 @@ export function getSelectedPathNodes(
 			return null;
 		}
 
-		const nextNode = currentNode[selectedAnswerId];
+		const nextNode = (currentNode as Record<string, unknown>)[selectedAnswerId];
 		if (!isAnswerTreeNode(nextNode)) {
 			return null;
 		}
@@ -61,11 +63,11 @@ export function getSelectedPathNodes(
 	return selectedNodes;
 }
 
-export function getQuestionOptions(
-	group: UiScoringQuestionGroup,
+export function getQuestionOptions<QuestionId extends string>(
+	group: UiScoringQuestionGroup<QuestionId>,
 	questionIndex: number,
-	answers: QuestionnaireAnswerMap<GroupQuestionId> | undefined,
-): AnswerOption[] {
+	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
+): AnswerOption<QuestionnaireAnswerIdForQuestion<QuestionId>>[] {
 	if (questionIndex === 0) {
 		return getChildOptions(group.answersTree);
 	}

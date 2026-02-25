@@ -1,7 +1,10 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
 import { YesNoPicker } from "~/components/YesNoPicker";
-import { SUPERMARKET_UI_SCORING_QUESTION_GROUPS } from "~/consumer-code/supermarket/questionnaire-config";
+import {
+	SUPERMARKET_UI_SCORING_QUESTION_GROUPS,
+	type SupermarketQuestionId,
+} from "~/consumer-code/supermarket/questionnaire-config";
 import type { Audut } from "../../batteries/batteries-types";
 
 export function SupermarketFormFields() {
@@ -82,7 +85,7 @@ export function SupermarketQuestionnaireFields() {
 
 	return (
 		<>
-			<AudutQuestionnaireForm
+			<AudutQuestionnaireForm<SupermarketQuestionId, Audut<"Supermarket">>
 				questionGroups={SUPERMARKET_UI_SCORING_QUESTION_GROUPS}
 			/>
 

@@ -1,12 +1,13 @@
-import type { UiScoringQuestionGroup } from "~/consumer-code/supermarket/questionnaire-config";
 import { getSelectedPathNodes } from "./tree-traversal";
-import type { GroupEvaluation, QuestionnaireAnswerMap } from "./types";
+import type {
+	GroupEvaluation,
+	QuestionnaireAnswerMap,
+	UiScoringQuestionGroup,
+} from "./types";
 
-type GroupQuestionId = UiScoringQuestionGroup["questions"][number]["questionId"];
-
-export function evaluateQuestionGroup(
-	group: UiScoringQuestionGroup,
-	answers: QuestionnaireAnswerMap<GroupQuestionId> | undefined,
+export function evaluateQuestionGroup<QuestionId extends string>(
+	group: UiScoringQuestionGroup<QuestionId>,
+	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 ): GroupEvaluation | null {
 	const selectedNodes = getSelectedPathNodes(
 		group,
