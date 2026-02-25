@@ -13,12 +13,12 @@ import {
 	type SupermarketQuestionId,
 } from "./questionnaire-config";
 
-type QuestionarePair = {
+type QuestionnairePair = {
 	answer: string | null;
 	comment: string;
 };
 
-type QuestionareMetaForReconstruction = {
+type QuestionnaireMetaForReconstruction = {
 	serverShapeVersion: number;
 	source: string;
 	answersMeta: Array<{
@@ -27,11 +27,11 @@ type QuestionareMetaForReconstruction = {
 	}>;
 };
 
-type QuestionareAnswers = Record<SupermarketQuestionId, QuestionarePair>;
+type QuestionnaireAnswers = Record<SupermarketQuestionId, QuestionnairePair>;
 
-type Questionare = {
-	answers: QuestionareAnswers;
-	metaForReconstruction: QuestionareMetaForReconstruction;
+type Questionnaire = {
+	answers: QuestionnaireAnswers;
+	metaForReconstruction: QuestionnaireMetaForReconstruction;
 };
 
 const questionnairePairSchema = z.object({
@@ -72,10 +72,10 @@ function answerPair(answer: string | undefined, comment: string | undefined) {
 	return {
 		answer: normalizedAnswer,
 		comment: comment ?? "",
-	} satisfies QuestionarePair;
+	} satisfies QuestionnairePair;
 }
 
-const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
+const supermarketQuestionnaireCodec = buildAddFieldAdapterAndOutputSchema(
 	WithFieldsAdapted,
 	{
 		fieldName: "questionnaire",
@@ -99,7 +99,7 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 			"sm_q11_comment",
 			"answers",
 		],
-		construct: (input): Questionare => {
+		construct: (input): Questionnaire => {
 			const firstAnswer = input.answers[0];
 
 			const answers = {
@@ -123,7 +123,7 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 				SM_Q09: answerPair(input.sm_q09_answer, input.sm_q09_comment),
 				SM_Q10: answerPair(input.sm_q10_answer, input.sm_q10_comment),
 				SM_Q11: answerPair(input.sm_q11_answer, input.sm_q11_comment),
-			} satisfies QuestionareAnswers;
+			} satisfies QuestionnaireAnswers;
 
 			return {
 				answers,
@@ -167,9 +167,9 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 	},
 );
 
-export const SupermarketFormSchema = supermarketQuestionareCodec.outputSchema;
+export const SupermarketFormSchema = supermarketQuestionnaireCodec.outputSchema;
 
 export const SupermarketCodec = pipeCodecs(
 	supermarketFieldAdaptersCodec,
-	supermarketQuestionareCodec,
+	supermarketQuestionnaireCodec,
 );

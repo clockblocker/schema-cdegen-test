@@ -7,7 +7,7 @@ import {
 } from "~/lib/codec-builder-library/adapter-builder";
 import { libraryFieldAdaptersCodec, WithFieldsAdapted } from "./adapt-fields";
 
-type QuestionarePair = {
+type QuestionnairePair = {
 	answer: string | null;
 	comment: string;
 };
@@ -20,17 +20,17 @@ const questionnairePairSchema = z.object({
 const questionnairePairCodec = {
 	fromInput: (
 		pair: readonly [string | undefined, string | undefined],
-	): QuestionarePair => ({
+	): QuestionnairePair => ({
 		answer: pair[0] && pair[0].trim().length > 0 ? pair[0] : null,
 		comment: pair[1] ?? "",
 	}),
-	fromOutput: (pair: QuestionarePair): readonly [string, string] => [
+	fromOutput: (pair: QuestionnairePair): readonly [string, string] => [
 		pair.answer ?? "",
 		pair.comment,
 	],
 	outputSchema: questionnairePairSchema,
 } satisfies Codec<
-	QuestionarePair,
+	QuestionnairePair,
 	readonly [string, string],
 	typeof questionnairePairSchema
 >;
