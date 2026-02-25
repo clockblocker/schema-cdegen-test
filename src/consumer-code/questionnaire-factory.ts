@@ -1,6 +1,7 @@
 import type { ParsedScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
 import { LIBRARY_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/library/questionarie-question-ids";
 import { SUPERMARKET_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/supermarket/questionarie-question-ids";
+import type { AuditableBuildingKind } from "~/consumer-code/business-types";
 
 type RawScoringAnswerTree = {
 	answerText: string;
@@ -99,21 +100,33 @@ const QUESTION_IDS_BY_AUDIT_KIND = {
 	Supermarket: SUPERMARKET_QUESTION_IDS,
 } as const;
 
-export type AuditKind = keyof typeof QUESTION_IDS_BY_AUDIT_KIND;
+type QuestionIdForAuditableBuildingKind<K extends AuditableBuildingKind> =
+	K extends keyof typeof QUESTION_IDS_BY_AUDIT_KIND
+		? (typeof QUESTION_IDS_BY_AUDIT_KIND)[K][number]
+		: never;
 
-type QuestionIdForAuditKind<K extends AuditKind> =
-	(typeof QUESTION_IDS_BY_AUDIT_KIND)[K][number];
+const QUESTION_IDS_BY_AUDIT_KIND_ALL: Partial<
+	Record<AuditableBuildingKind, readonly string[]>
+> = QUESTION_IDS_BY_AUDIT_KIND;
 
-export function buildParsedScoringQuestionGroups<K extends AuditKind>(
+export function buildParsedScoringQuestionGroups<K extends AuditableBuildingKind>(
 	auditKind: K,
 	serverGroups: RawScoringQuestionGroup<string>[],
-): ParsedScoringQuestionGroups<QuestionIdForAuditKind<K>> {
-	const questionIds = QUESTION_IDS_BY_AUDIT_KIND[auditKind];
+): ParsedScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>> {
+	const questionIds = QUESTION_IDS_BY_AUDIT_KIND_ALL[auditKind];
+	if (!questionIds) {
+		return [] as ParsedScoringQuestionGroups<
+			QuestionIdForAuditableBuildingKind<K>
+		>;
+	}
+
 	const knownQuestionIds = new Set<string>(questionIds);
 
 	serverGroups.forEach((group, groupIndex) => {
 		validateQuestionGroup(group, knownQuestionIds, groupIndex);
 	});
 
-	return serverGroups as ParsedScoringQuestionGroups<QuestionIdForAuditKind<K>>;
+	return serverGroups as ParsedScoringQuestionGroups<
+		QuestionIdForAuditableBuildingKind<K>
+	>;
 }
