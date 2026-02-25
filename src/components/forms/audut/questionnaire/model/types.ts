@@ -1,10 +1,10 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
+import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-types";
 import type {
 	ScoringAnswerTree,
 	ScoringQuestionGroup,
 	ScoringQuestionGroups,
 } from "~/lib/questionnaire-scoring-types";
-import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-types";
 
 export type { ScoringAnswerTree, ScoringQuestionGroup, ScoringQuestionGroups };
 

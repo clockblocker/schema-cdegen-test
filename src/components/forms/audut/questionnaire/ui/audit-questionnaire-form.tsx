@@ -1,9 +1,9 @@
 import type { FieldValues, Path } from "react-hook-form";
-import { answerFieldPath, commentFieldPath } from "../hooks/form-types";
 import {
 	getQuestionnaireAnswerError,
 	useQuestionnaireForm,
-} from "../hooks/use-questionnaire-form";
+} from "~/components/forms/audut/questionnaire/hooks/use-questionnaire-form";
+import { answerFieldPath, commentFieldPath } from "../hooks/form-types";
 import { getFieldsToClearOnChange } from "../model/cascading-reset";
 import { evaluateQuestionGroup } from "../model/scoring";
 import type {
