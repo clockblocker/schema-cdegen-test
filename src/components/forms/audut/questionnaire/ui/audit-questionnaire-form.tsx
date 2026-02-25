@@ -17,22 +17,21 @@ type AuditQuestionnaireFormProps<QuestionId extends string> = {
 	questionGroups: UiScoringQuestionGroups<QuestionId>;
 };
 
-export function AuditQuestionnaireForm<
-	QuestionId extends string,
-	FormValues extends FieldValues,
->({ questionGroups }: AuditQuestionnaireFormProps<QuestionId>) {
+export function AuditQuestionnaireForm<QuestionId extends string>({
+	questionGroups,
+}: AuditQuestionnaireFormProps<QuestionId>) {
 	const { errors, questionnaireAnswers, register, setValue } =
-		useQuestionnaireForm<FormValues, QuestionId>();
+		useQuestionnaireForm<FieldValues, QuestionId>();
 
 	const setFormValue = (
-		path: Path<FormValues>,
+		path: Path<FieldValues>,
 		value: unknown,
 		options?: { shouldDirty?: boolean; shouldValidate?: boolean },
 	) => {
 		// RHF escape hatch: runtime paths are valid, but TS cannot prove the value-path coupling here.
 		(
 			setValue as (
-				field: Path<FormValues>,
+				field: Path<FieldValues>,
 				fieldValue: unknown,
 				fieldOptions?: { shouldDirty?: boolean; shouldValidate?: boolean },
 			) => void
@@ -43,7 +42,7 @@ export function AuditQuestionnaireForm<
 		questionId,
 		answerId,
 	) => {
-		const answerPath = answerFieldPath(questionId) as Path<FormValues>;
+		const answerPath = answerFieldPath(questionId) as Path<FieldValues>;
 		setFormValue(answerPath, answerId, {
 			shouldDirty: true,
 			shouldValidate: true,
@@ -51,7 +50,7 @@ export function AuditQuestionnaireForm<
 	};
 
 	const setComment = (questionId: QuestionId, comment: string) => {
-		const commentPath = commentFieldPath(questionId) as Path<FormValues>;
+		const commentPath = commentFieldPath(questionId) as Path<FieldValues>;
 		setFormValue(commentPath, comment, {
 			shouldDirty: true,
 		});
@@ -69,7 +68,7 @@ export function AuditQuestionnaireForm<
 		getAnswerError: (questionId) =>
 			getQuestionnaireAnswerError(errors, questionId),
 		registerComment: (questionId) =>
-			register(commentFieldPath(questionId) as Path<FormValues>),
+			register(commentFieldPath(questionId) as Path<FieldValues>),
 	};
 
 	const groupEvaluations = questionGroups.map((group) =>

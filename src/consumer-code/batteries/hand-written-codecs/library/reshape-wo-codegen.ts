@@ -7,30 +7,31 @@ import {
 } from "~/lib/codec-builder-library/adapter-builder";
 import { libraryFieldAdaptersCodec, WithFieldsAdapted } from "./adapt-fields";
 
-type YesNo = "Yes" | "No";
 type QuestionarePair = {
-	answer?: YesNo;
+	answer: string | null;
 	comment: string;
 };
 
 const questionarePairSchema = z.object({
-	answer: z.union([z.enum(["Yes", "No"]), z.undefined()]),
+	answer: z.string().nullable(),
 	comment: z.string(),
 });
 
 const questionarePairCodec = {
-	fromInput: (pair: readonly [YesNo | undefined, string]): QuestionarePair => ({
-		answer: pair[0],
-		comment: pair[1],
+	fromInput: (
+		pair: readonly [string | undefined, string | undefined],
+	): QuestionarePair => ({
+		answer: pair[0] && pair[0].trim().length > 0 ? pair[0] : null,
+		comment: pair[1] ?? "",
 	}),
-	fromOutput: (pair: QuestionarePair): readonly [YesNo | undefined, string] => [
-		pair.answer,
+	fromOutput: (pair: QuestionarePair): readonly [string, string] => [
+		pair.answer ?? "",
 		pair.comment,
 	],
 	outputSchema: questionarePairSchema,
 } satisfies Codec<
 	QuestionarePair,
-	readonly [YesNo | undefined, string],
+	readonly [string, string],
 	typeof questionarePairSchema
 >;
 
@@ -47,14 +48,19 @@ const libraryReshapeShape = {
 	memberCapacity: fromPath(["memberCapacity"]),
 	openLate: fromPath(["openLate"]),
 	questionare: {
-		q1: fromPaths([["ans_to_q1"], ["comment_to_q1_"]], questionarePairCodec),
-		q2: fromPaths(
-			[
-				["answers", "0", "ans_to_q2"],
-				["answers", "0", "comment_to_q2_"],
-			],
-			questionarePairCodec,
-		),
+		answers: {
+			LIB_Q01: fromPaths(
+				[["ans_to_q1"], ["comment_to_q1_"]],
+				questionarePairCodec,
+			),
+			LIB_Q02: fromPaths(
+				[
+					["answers", "0", "ans_to_q2"],
+					["answers", "0", "comment_to_q2_"],
+				],
+				questionarePairCodec,
+			),
+		},
 	},
 } satisfies ReshapeShapeFor<typeof WithFieldsAdapted>;
 

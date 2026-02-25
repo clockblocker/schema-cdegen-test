@@ -6,13 +6,13 @@ import {
 } from "../src/consumer-code/batteries/hand-written-codecs/library/reshape-wo-codegen";
 
 const serverSample = LibraryServerSchema.parse({
-	ans_to_q1: "Yes",
+	ans_to_q1: "LIB_Q01_A01",
 	comment_to_q1_: "q1-comment",
 	id: 77,
 	dateOfConstuction: "2020-07-01",
 	answers: [
 		{
-			ans_to_q2: "No",
+			ans_to_q2: "LIB_Q02_A02",
 			comment_to_q2_: "q2-comment",
 		},
 	],

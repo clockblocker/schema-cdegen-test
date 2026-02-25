@@ -9,7 +9,7 @@ import {
 
 function SupermarketQuestionnaireForm() {
 	return (
-		<AudutQuestionnaireForm<SupermarketQuestionId, Audut<"Supermarket">>
+		<AudutQuestionnaireForm<SupermarketQuestionId>
 			questionGroups={SUPERMARKET_UI_SCORING_QUESTION_GROUPS}
 		/>
 	);

@@ -1,6 +1,19 @@
 import { Controller, useFormContext } from "react-hook-form";
+import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import type { Audut } from "../../batteries/batteries-types";
+import {
+	LIBRARY_UI_SCORING_QUESTION_GROUPS,
+	type LibraryQuestionId,
+} from "../../batteries/hand-written-codecs/library/questionnaire-config";
+
+function LibraryQuestionnaireForm() {
+	return (
+		<AudutQuestionnaireForm<LibraryQuestionId>
+			questionGroups={LIBRARY_UI_SCORING_QUESTION_GROUPS}
+		/>
+	);
+}
 
 export function LibraryFormFields() {
 	const {
@@ -74,75 +87,5 @@ export function LibraryFormFields() {
 }
 
 export function LibraryQuestionnaireFields() {
-	const {
-		control,
-		register,
-		formState: { errors },
-	} = useFormContext<Audut<"Library">>();
-
-	const questionareErrors = errors.questionare as
-		| {
-				q1?: { answer?: { message?: string } };
-				q2?: { answer?: { message?: string } };
-		  }
-		| undefined;
-
-	const q1AnswerMessage =
-		typeof questionareErrors?.q1?.answer?.message === "string"
-			? questionareErrors.q1.answer.message
-			: undefined;
-	const q2AnswerMessage =
-		typeof questionareErrors?.q2?.answer?.message === "string"
-			? questionareErrors.q2.answer.message
-			: undefined;
-
-	return (
-		<div className="flex flex-col gap-6">
-			<Controller
-				control={control}
-				name="questionare.q1.answer"
-				render={({ field }) => (
-					<YesNoPicker
-						error={q1AnswerMessage}
-						label="Question 1 answer"
-						onChange={field.onChange}
-						value={field.value}
-					/>
-				)}
-			/>
-
-			<label className="flex flex-col gap-2">
-				<span className="font-medium text-sm">Question 1 comment</span>
-				<input
-					{...register("questionare.q1.comment")}
-					className="rounded border px-3 py-2"
-					placeholder="Comment for question 1"
-					type="text"
-				/>
-			</label>
-
-			<Controller
-				control={control}
-				name="questionare.q2.answer"
-				render={({ field }) => (
-					<YesNoPicker
-						error={q2AnswerMessage}
-						label="Question 2 answer"
-						onChange={field.onChange}
-						value={field.value}
-					/>
-				)}
-			/>
-
-			<label className="flex flex-col gap-2">
-				<span className="font-medium text-sm">Question 2 comment</span>
-				<input
-					{...register("questionare.q2.comment")}
-					className="rounded border px-3 py-2"
-					placeholder="Comment for question 2"
-					type="text"
-				/>
-			</label>
-		</div>
-	);
+	return <LibraryQuestionnaireForm />;
 }

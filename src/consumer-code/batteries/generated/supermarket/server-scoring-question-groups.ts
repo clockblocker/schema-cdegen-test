@@ -1,13 +1,4 @@
-import type { ServerScoringAnswerTree } from "./server-scoring-answer-tree";
-
-export type ServerScoringQuestionGroup = {
-	questions: Array<{
-		questionId: string;
-		questionText: string;
-	}>;
-	groupWeight: number;
-	answersTree: ServerScoringAnswerTree;
-};
+import type { RawScoringQuestionGroup } from "~/consumer-code/questionnaire-factory";
 
 export const SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS = [
 	{
@@ -528,4 +519,4 @@ export const SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS = [
 			},
 		},
 	},
-] satisfies ServerScoringQuestionGroup[];
+] satisfies RawScoringQuestionGroup[];
