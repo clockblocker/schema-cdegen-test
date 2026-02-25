@@ -1,7 +1,9 @@
 import type { UiScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
-import { buildUiScoringQuestionGroups } from "~/consumer-code/questionnaire-factory";
+import {
+	buildUiScoringQuestionGroups,
+	type RawScoringQuestionGroup,
+} from "~/consumer-code/questionnaire-factory";
 import type { QuestionnaireQuestionId } from "~/lib/questionnaire-id-types";
-import { SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS } from "../../generated/supermarket/server-scoring-question-groups";
 
 export const SUPERMARKET_QUESTION_IDS = [
 	"SM_Q01",
@@ -19,8 +21,11 @@ export const SUPERMARKET_QUESTION_IDS = [
 
 export type SupermarketQuestionId = (typeof SUPERMARKET_QUESTION_IDS)[number];
 
-export const SUPERMARKET_UI_SCORING_QUESTION_GROUPS: UiScoringQuestionGroups<SupermarketQuestionId> =
-	buildUiScoringQuestionGroups(
+export function buildSupermarketQuestionGroups(
+	serverGroups: RawScoringQuestionGroup<string>[],
+): UiScoringQuestionGroups<SupermarketQuestionId> {
+	return buildUiScoringQuestionGroups(
 		SUPERMARKET_QUESTION_IDS,
-		SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS,
+		serverGroups,
 	);
+}

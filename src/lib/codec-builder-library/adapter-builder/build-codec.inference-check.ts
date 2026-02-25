@@ -239,7 +239,7 @@ const evenLooserQuestionnaire = buildEvenLooserAddaptersAndOutputSchema(
 		ans_to_q1: removeField,
 		comment_to_q1_: removeField,
 		answers: removeField,
-		questionare: {
+		questionnaire: {
 			q1: fromPaths(["ans_to_q1", "comment_to_q1_"], qCodec),
 			q2: fromPaths(
 				["answers[0].ans_to_q2", "answers[0].comment_to_q2_"],
@@ -253,12 +253,12 @@ const evenLooserQuestionnaire = buildEvenLooserAddaptersAndOutputSchema(
 type EvenLooserQuestionnaireOutput = z.infer<
 	typeof evenLooserQuestionnaire.outputSchema
 >;
-const _evenLooserQuestionareQ1: EvenLooserQuestionnaireOutput["questionare"]["q1"] =
+const _evenLooserQuestionareQ1: EvenLooserQuestionnaireOutput["questionnaire"]["q1"] =
 	{
 		answer: "Yes",
 		comment: "Because",
 	};
-const _evenLooserQuestionareQ2: EvenLooserQuestionnaireOutput["questionare"]["q2"] =
+const _evenLooserQuestionareQ2: EvenLooserQuestionnaireOutput["questionnaire"]["q2"] =
 	{
 		answer: "No",
 		comment: "N/A",
@@ -278,7 +278,7 @@ const evenLooserQuestionnaireWithTuplePaths =
 		ans_to_q1: evenLooserSchemaBoundHelpers.removeField,
 		comment_to_q1_: evenLooserSchemaBoundHelpers.removeField,
 		answers: evenLooserSchemaBoundHelpers.removeField,
-		questionare: {
+		questionnaire: {
 			q1: evenLooserSchemaBoundHelpers.fromPaths(
 				[["ans_to_q1"], ["comment_to_q1_"]],
 				qCodec,
@@ -307,7 +307,7 @@ const _evenLooserTuplePathFirstQAnswer: EvenLooserQuestionnaireWithTuplePathsOut
 const addQuestionareFieldCodec = buildAddFieldAdapterAndOutputSchema(
 	questionnaireServerSchema,
 	{
-		fieldName: "questionare",
+		fieldName: "questionnaire",
 		fieldSchema: z.object({
 			q1: z.object({ answer: z.string(), comment: z.string() }),
 			q2: z.object({ answer: z.string(), comment: z.string() }),
@@ -323,13 +323,13 @@ const addQuestionareFieldCodec = buildAddFieldAdapterAndOutputSchema(
 				comment: input.answers[0]?.comment_to_q2_ ?? "",
 			},
 		}),
-		reconstruct: (questionare) => ({
-			ans_to_q1: questionare.q1.answer,
-			comment_to_q1_: questionare.q1.comment,
+		reconstruct: (questionnaire) => ({
+			ans_to_q1: questionnaire.q1.answer,
+			comment_to_q1_: questionnaire.q1.comment,
 			answers: [
 				{
-					ans_to_q2: questionare.q2.answer,
-					comment_to_q2_: questionare.q2.comment,
+					ans_to_q2: questionnaire.q2.answer,
+					comment_to_q2_: questionnaire.q2.comment,
 				},
 			],
 		}),
@@ -337,7 +337,7 @@ const addQuestionareFieldCodec = buildAddFieldAdapterAndOutputSchema(
 );
 
 buildAddFieldAdapterAndOutputSchema(questionnaireServerSchema, {
-	fieldName: "questionare",
+	fieldName: "questionnaire",
 	fieldSchema: z.object({
 		q1: z.object({ answer: z.string(), comment: z.string() }),
 		q2: z.object({ answer: z.string(), comment: z.string() }),
@@ -354,16 +354,16 @@ buildAddFieldAdapterAndOutputSchema(questionnaireServerSchema, {
 		},
 	}),
 	// @ts-expect-error reconstruct must return every dropped source field
-	reconstruct: (questionare) => ({
-		ans_to_q1: questionare.q1.answer,
-		comment_to_q1_: questionare.q1.comment,
+	reconstruct: (questionnaire) => ({
+		ans_to_q1: questionnaire.q1.answer,
+		comment_to_q1_: questionnaire.q1.comment,
 	}),
 });
 
 type AddQuestionareFieldOutput = z.infer<
 	typeof addQuestionareFieldCodec.outputSchema
 >;
-const _addQuestionareFieldValue: AddQuestionareFieldOutput["questionare"] = {
+const _addQuestionareFieldValue: AddQuestionareFieldOutput["questionnaire"] = {
 	q1: { answer: "Yes", comment: "ok" },
 	q2: { answer: "No", comment: "ok" },
 };
@@ -382,7 +382,7 @@ const dropQuestionnaireFieldsFromVariable: Array<
 > = ["ans_to_q1", "comment_to_q1_", "answers"];
 const addQuestionareFieldCodecFromVariableDropFields =
 	buildAddFieldAdapterAndOutputSchema(questionnaireServerSchema, {
-		fieldName: "questionare",
+		fieldName: "questionnaire",
 		fieldSchema: z.object({
 			q1: z.object({ answer: z.string(), comment: z.string() }),
 			q2: z.object({ answer: z.string(), comment: z.string() }),
@@ -398,13 +398,13 @@ const addQuestionareFieldCodecFromVariableDropFields =
 				comment: input.answers[0]?.comment_to_q2_ ?? "",
 			},
 		}),
-		reconstruct: (questionare) => ({
-			ans_to_q1: questionare.q1.answer,
-			comment_to_q1_: questionare.q1.comment,
+		reconstruct: (questionnaire) => ({
+			ans_to_q1: questionnaire.q1.answer,
+			comment_to_q1_: questionnaire.q1.comment,
 			answers: [
 				{
-					ans_to_q2: questionare.q2.answer,
-					comment_to_q2_: questionare.q2.comment,
+					ans_to_q2: questionnaire.q2.answer,
+					comment_to_q2_: questionnaire.q2.comment,
 				},
 			],
 		}),

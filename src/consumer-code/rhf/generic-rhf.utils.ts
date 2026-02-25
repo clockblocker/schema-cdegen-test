@@ -3,11 +3,14 @@ import type { FormEventHandler } from "react";
 import { createElement, type ReactElement } from "react";
 import type { Resolver } from "react-hook-form";
 import type { z } from "zod";
+import type { UiScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
 import { Button } from "~/components/ui/button";
 import { batteriesFor } from "../batteries/batteries";
 import type {
+	AuditKindWithQuestionnarie,
 	AudutFormDraft,
 	AudutFormValidatedFor,
+	QuestionIdFor,
 } from "../batteries/batteries-types";
 
 import type { AuditableBuildingKind, UserRole } from "../business-types";
@@ -25,15 +28,21 @@ type SharedFormProps = {
 	submitLabel?: string;
 };
 
+type QuestionnaireProps<F extends AuditableBuildingKind> =
+	F extends AuditKindWithQuestionnarie
+		? { questionGroups: UiScoringQuestionGroups<QuestionIdFor<F>> }
+		: { questionGroups?: never };
+
 export type GenericFormProps<
 	F extends AuditableBuildingKind,
 	R extends UserRole = UserRole,
-> = SharedFormProps & {
-	buildingKind: F;
-	userRole: R;
-	auditFormValues: AudutFormDraft<F>;
-	onSubmit?: (formValue: AudutFormValidatedFor<R, F>) => void;
-};
+> = SharedFormProps &
+	QuestionnaireProps<F> & {
+		buildingKind: F;
+		userRole: R;
+		auditFormValues: AudutFormDraft<F>;
+		onSubmit?: (formValue: AudutFormValidatedFor<R, F>) => void;
+	};
 
 export type GenericRhfFormProps = {
 	[F in AuditableBuildingKind]: {

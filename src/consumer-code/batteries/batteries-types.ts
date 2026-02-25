@@ -13,13 +13,21 @@ export type AudutFormValidatedFor<
 
 export type Audut<F extends AuditableBuildingKind> = AudutFormDraft<F>;
 
-export type AuditKindWithQuestionnarie = {
-	[K in AuditableBuildingKind]: Audut<K> extends {
-		questionare: { answers: Record<string, unknown> };
-	}
-		? K
+type QuestionnaireAnswersFor<F extends AuditableBuildingKind> =
+	Audut<F> extends { questionnaire: { answers: infer Answers } }
+		? Answers
 		: never;
+
+export type AuditKindWithQuestionnarie = {
+	[K in AuditableBuildingKind]: [QuestionnaireAnswersFor<K>] extends [never]
+		? never
+		: QuestionnaireAnswersFor<K> extends Record<string, unknown>
+			? K
+			: never;
 }[AuditableBuildingKind];
+
+export type QuestionIdFor<F extends AuditKindWithQuestionnarie> =
+	keyof QuestionnaireAnswersFor<F> & string;
 
 export type AudutServerInput<F extends AuditableBuildingKind> = z.infer<
 	(typeof batteriesFor)[F]["serverSchema"]

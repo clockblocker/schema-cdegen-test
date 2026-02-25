@@ -12,6 +12,10 @@ import {
 	LibraryCodec,
 	LibraryFormSchema,
 } from "./hand-written-codecs/library/reshape-wo-codegen";
+import {
+	buildLibraryQuestionGroups,
+	LIBRARY_QUESTION_IDS,
+} from "./hand-written-codecs/library/questionnaire-config";
 import { LibraryFormValidatedSchemaForRole } from "./hand-written-codecs/library/validate";
 import {
 	SchoolCodec,
@@ -22,6 +26,10 @@ import {
 	SupermarketCodec,
 	SupermarketFormSchema,
 } from "./hand-written-codecs/supermarket/reshape-wo-codegen";
+import {
+	buildSupermarketQuestionGroups,
+	SUPERMARKET_QUESTION_IDS,
+} from "./hand-written-codecs/supermarket/questionnaire-config";
 import { SupermarketFormValidatedSchemaForRole } from "./hand-written-codecs/supermarket/validate";
 import type { BatteriesRecord } from "./type-constraint/batteries-shape";
 
@@ -51,6 +59,10 @@ export const batteriesFor = {
 		serverSchema: LibraryServerSchema,
 		formSchema: LibraryFormSchema,
 		formValidatedSchemaForRole: LibraryFormValidatedSchemaForRole,
+		questionnaire: {
+			questionIds: LIBRARY_QUESTION_IDS,
+			buildQuestionGroups: buildLibraryQuestionGroups,
+		},
 	},
 	Supermarket: {
 		kind: "Supermarket",
@@ -58,5 +70,9 @@ export const batteriesFor = {
 		serverSchema: SupermarketServerSchema,
 		formSchema: SupermarketFormSchema,
 		formValidatedSchemaForRole: SupermarketFormValidatedSchemaForRole,
+		questionnaire: {
+			questionIds: SUPERMARKET_QUESTION_IDS,
+			buildQuestionGroups: buildSupermarketQuestionGroups,
+		},
 	},
 } as const satisfies BatteriesRecord<AuditableBuildingKind, UserRole>;

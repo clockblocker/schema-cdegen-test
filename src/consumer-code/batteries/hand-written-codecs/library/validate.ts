@@ -23,18 +23,18 @@ const libraryFormValidatedSchema = LibraryFormSchema.superRefine(
 			});
 		}
 
-		if (formValue.questionare.answers.LIB_Q01.answer === null) {
+		if (formValue.questionnaire.answers.LIB_Q01.answer === null) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				path: ["questionare", "answers", "LIB_Q01", "answer"],
+				path: ["questionnaire", "answers", "LIB_Q01", "answer"],
 				message: "Question 1 answer is required.",
 			});
 		}
 
-		if (formValue.questionare.answers.LIB_Q02.answer === null) {
+		if (formValue.questionnaire.answers.LIB_Q02.answer === null) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				path: ["questionare", "answers", "LIB_Q02", "answer"],
+				path: ["questionnaire", "answers", "LIB_Q02", "answer"],
 				message: "Question 2 answer is required.",
 			});
 		}
@@ -43,20 +43,20 @@ const libraryFormValidatedSchema = LibraryFormSchema.superRefine(
 
 const libraryElectricianValidatedSchema = libraryFormValidatedSchema.refine(
 	(formValue) =>
-		formValue.questionare.answers.LIB_Q01.answer === LIB_Q01_YES_ANSWER_ID,
+		formValue.questionnaire.answers.LIB_Q01.answer === LIB_Q01_YES_ANSWER_ID,
 	{
-		path: ["questionare", "answers", "LIB_Q01", "answer"],
+		path: ["questionnaire", "answers", "LIB_Q01", "answer"],
 		message: "Electrician audit requires Question 1 to be Yes.",
 	},
 );
 
 const libraryPlumberValidatedSchema = libraryFormValidatedSchema.refine(
 	(formValue) => {
-		const q2Answer = formValue.questionare.answers.LIB_Q02.answer;
-		return typeof q2Answer === "string" && LIB_Q02_YES_ANSWER_IDS.has(q2Answer);
+		const q2Answer = formValue.questionnaire.answers.LIB_Q02.answer;
+		return q2Answer !== null && LIB_Q02_YES_ANSWER_IDS.has(q2Answer);
 	},
 	{
-		path: ["questionare", "answers", "LIB_Q02", "answer"],
+		path: ["questionnaire", "answers", "LIB_Q02", "answer"],
 		message: "Plumber audit requires Question 2 to be Yes.",
 	},
 );

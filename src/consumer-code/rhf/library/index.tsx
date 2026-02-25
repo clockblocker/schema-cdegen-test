@@ -1,19 +1,6 @@
 import { Controller, useFormContext } from "react-hook-form";
-import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import type { Audut } from "../../batteries/batteries-types";
-import {
-	LIBRARY_UI_SCORING_QUESTION_GROUPS,
-	type LibraryQuestionId,
-} from "../../batteries/hand-written-codecs/library/questionnaire-config";
-
-function LibraryQuestionnaireForm() {
-	return (
-		<AudutQuestionnaireForm<LibraryQuestionId>
-			questionGroups={LIBRARY_UI_SCORING_QUESTION_GROUPS}
-		/>
-	);
-}
 
 export function LibraryFormFields() {
 	const {
@@ -84,8 +71,4 @@ export function LibraryFormFields() {
 			/>
 		</div>
 	);
-}
-
-export function LibraryQuestionnaireFields() {
-	return <LibraryQuestionnaireForm />;
 }

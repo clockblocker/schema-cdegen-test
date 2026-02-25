@@ -1,26 +1,15 @@
 import { Controller, useFormContext } from "react-hook-form";
-import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
 import { YesNoPicker } from "~/components/YesNoPicker";
 import type { Audut } from "../../batteries/batteries-types";
-import {
-	SUPERMARKET_UI_SCORING_QUESTION_GROUPS,
-	type SupermarketQuestionId,
-} from "../../batteries/hand-written-codecs/supermarket/questionnaire-config";
-
-function SupermarketQuestionnaireForm() {
-	return (
-		<AudutQuestionnaireForm<SupermarketQuestionId>
-			questionGroups={SUPERMARKET_UI_SCORING_QUESTION_GROUPS}
-		/>
-	);
-}
 
 export function SupermarketFormFields() {
 	const {
 		control,
 		register,
+		watch,
 		formState: { errors },
 	} = useFormContext<Audut<"Supermarket">>();
+	const reconstructionMeta = watch("questionnaire.metaForReconstruction");
 
 	const openLateMessage =
 		typeof errors.openLate?.message === "string"
@@ -83,26 +72,15 @@ export function SupermarketFormFields() {
 					/>
 				)}
 			/>
-		</div>
-	);
-}
-
-export function SupermarketQuestionnaireFields() {
-	const { register, watch } = useFormContext<Audut<"Supermarket">>();
-	const reconstructionMeta = watch("questionare.metaForReconstruction");
-
-	return (
-		<>
-			<SupermarketQuestionnaireForm />
 
 			<input
-				{...register("questionare.metaForReconstruction.serverShapeVersion", {
+				{...register("questionnaire.metaForReconstruction.serverShapeVersion", {
 					valueAsNumber: true,
 				})}
 				type="hidden"
 			/>
 			<input
-				{...register("questionare.metaForReconstruction.source")}
+				{...register("questionnaire.metaForReconstruction.source")}
 				type="hidden"
 			/>
 
@@ -110,7 +88,7 @@ export function SupermarketQuestionnaireFields() {
 				<div className="hidden" key={answerMeta.id}>
 					<input
 						{...register(
-							`questionare.metaForReconstruction.answersMeta.${index}.id`,
+							`questionnaire.metaForReconstruction.answersMeta.${index}.id`,
 							{
 								valueAsNumber: true,
 							},
@@ -119,12 +97,12 @@ export function SupermarketQuestionnaireFields() {
 					/>
 					<input
 						{...register(
-							`questionare.metaForReconstruction.answersMeta.${index}.level`,
+							`questionnaire.metaForReconstruction.answersMeta.${index}.level`,
 						)}
 						type="hidden"
 					/>
 				</div>
 			))}
-		</>
+		</div>
 	);
 }

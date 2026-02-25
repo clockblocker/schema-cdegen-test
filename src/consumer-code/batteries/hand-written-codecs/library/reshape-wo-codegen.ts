@@ -12,12 +12,12 @@ type QuestionarePair = {
 	comment: string;
 };
 
-const questionarePairSchema = z.object({
+const questionnairePairSchema = z.object({
 	answer: z.string().nullable(),
 	comment: z.string(),
 });
 
-const questionarePairCodec = {
+const questionnairePairCodec = {
 	fromInput: (
 		pair: readonly [string | undefined, string | undefined],
 	): QuestionarePair => ({
@@ -28,11 +28,11 @@ const questionarePairCodec = {
 		pair.answer ?? "",
 		pair.comment,
 	],
-	outputSchema: questionarePairSchema,
+	outputSchema: questionnairePairSchema,
 } satisfies Codec<
 	QuestionarePair,
 	readonly [string, string],
-	typeof questionarePairSchema
+	typeof questionnairePairSchema
 >;
 
 const { fromPath, fromPaths, removeField, build } =
@@ -47,18 +47,18 @@ const libraryReshapeShape = {
 	country: fromPath(["address", "country"]),
 	memberCapacity: fromPath(["memberCapacity"]),
 	openLate: fromPath(["openLate"]),
-	questionare: {
+	questionnaire: {
 		answers: {
 			LIB_Q01: fromPaths(
 				[["ans_to_q1"], ["comment_to_q1_"]],
-				questionarePairCodec,
+				questionnairePairCodec,
 			),
 			LIB_Q02: fromPaths(
 				[
 					["answers", "0", "ans_to_q2"],
 					["answers", "0", "comment_to_q2_"],
 				],
-				questionarePairCodec,
+				questionnairePairCodec,
 			),
 		},
 	},

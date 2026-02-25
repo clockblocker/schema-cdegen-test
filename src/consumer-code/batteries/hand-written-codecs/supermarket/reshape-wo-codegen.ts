@@ -34,7 +34,7 @@ type Questionare = {
 	metaForReconstruction: QuestionareMetaForReconstruction;
 };
 
-const questionarePairSchema = z.object({
+const questionnairePairSchema = z.object({
 	answer: z.string().nullable(),
 	comment: z.string(),
 });
@@ -44,14 +44,14 @@ const answerMetaSchema = z.object({
 	level: AnswerLevelSchema,
 });
 
-const questionareAnswersShape = Object.fromEntries(
+const questionnaireAnswersShape = Object.fromEntries(
 	SUPERMARKET_QUESTION_IDS.map((questionId) => [
 		questionId,
-		questionarePairSchema,
+		questionnairePairSchema,
 	]),
-) as Record<SupermarketQuestionId, typeof questionarePairSchema>;
+) as Record<SupermarketQuestionId, typeof questionnairePairSchema>;
 
-const questionareMetaForReconstructionSchema = z
+const questionnaireMetaForReconstructionSchema = z
 	.object({
 		serverShapeVersion: z.number().int().nonnegative(),
 		source: z.string(),
@@ -59,10 +59,10 @@ const questionareMetaForReconstructionSchema = z
 	})
 	.strict();
 
-const questionareSchema = z
+const questionnaireSchema = z
 	.object({
-		answers: z.object(questionareAnswersShape).strict(),
-		metaForReconstruction: questionareMetaForReconstructionSchema,
+		answers: z.object(questionnaireAnswersShape).strict(),
+		metaForReconstruction: questionnaireMetaForReconstructionSchema,
 	})
 	.strict();
 
@@ -78,8 +78,8 @@ function answerPair(answer: string | undefined, comment: string | undefined) {
 const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 	WithFieldsAdapted,
 	{
-		fieldName: "questionare",
-		fieldSchema: questionareSchema,
+		fieldName: "questionnaire",
+		fieldSchema: questionnaireSchema,
 		dropFields: [
 			"sm_q01_answer",
 			"sm_q01_comment",
@@ -134,33 +134,33 @@ const supermarketQuestionareCodec = buildAddFieldAdapterAndOutputSchema(
 				},
 			};
 		},
-		reconstruct: (questionare) => ({
-			sm_q01_answer: questionare.answers.SM_Q01.answer ?? "",
-			sm_q01_comment: questionare.answers.SM_Q01.comment,
-			sm_q05_answer: questionare.answers.SM_Q05.answer ?? "",
-			sm_q05_comment: questionare.answers.SM_Q05.comment,
-			sm_q06_answer: questionare.answers.SM_Q06.answer ?? "",
-			sm_q06_comment: questionare.answers.SM_Q06.comment,
-			sm_q07_answer: questionare.answers.SM_Q07.answer ?? "",
-			sm_q07_comment: questionare.answers.SM_Q07.comment,
-			sm_q08_answer: questionare.answers.SM_Q08.answer ?? "",
-			sm_q08_comment: questionare.answers.SM_Q08.comment,
-			sm_q09_answer: questionare.answers.SM_Q09.answer ?? "",
-			sm_q09_comment: questionare.answers.SM_Q09.comment,
-			sm_q10_answer: questionare.answers.SM_Q10.answer ?? "",
-			sm_q10_comment: questionare.answers.SM_Q10.comment,
-			sm_q11_answer: questionare.answers.SM_Q11.answer ?? "",
-			sm_q11_comment: questionare.answers.SM_Q11.comment,
-			answers: questionare.metaForReconstruction.answersMeta.map(
+		reconstruct: (questionnaire) => ({
+			sm_q01_answer: questionnaire.answers.SM_Q01.answer ?? "",
+			sm_q01_comment: questionnaire.answers.SM_Q01.comment,
+			sm_q05_answer: questionnaire.answers.SM_Q05.answer ?? "",
+			sm_q05_comment: questionnaire.answers.SM_Q05.comment,
+			sm_q06_answer: questionnaire.answers.SM_Q06.answer ?? "",
+			sm_q06_comment: questionnaire.answers.SM_Q06.comment,
+			sm_q07_answer: questionnaire.answers.SM_Q07.answer ?? "",
+			sm_q07_comment: questionnaire.answers.SM_Q07.comment,
+			sm_q08_answer: questionnaire.answers.SM_Q08.answer ?? "",
+			sm_q08_comment: questionnaire.answers.SM_Q08.comment,
+			sm_q09_answer: questionnaire.answers.SM_Q09.answer ?? "",
+			sm_q09_comment: questionnaire.answers.SM_Q09.comment,
+			sm_q10_answer: questionnaire.answers.SM_Q10.answer ?? "",
+			sm_q10_comment: questionnaire.answers.SM_Q10.comment,
+			sm_q11_answer: questionnaire.answers.SM_Q11.answer ?? "",
+			sm_q11_comment: questionnaire.answers.SM_Q11.comment,
+			answers: questionnaire.metaForReconstruction.answersMeta.map(
 				({ id, level }) => ({
 					id,
 					level,
-					sm_lvl_q02_answer: questionare.answers.SM_Q02.answer ?? "",
-					sm_lvl_q02_comment: questionare.answers.SM_Q02.comment,
-					sm_lvl_q03_answer: questionare.answers.SM_Q03.answer ?? "",
-					sm_lvl_q03_comment: questionare.answers.SM_Q03.comment,
-					sm_lvl_q04_answer: questionare.answers.SM_Q04.answer ?? "",
-					sm_lvl_q04_comment: questionare.answers.SM_Q04.comment,
+					sm_lvl_q02_answer: questionnaire.answers.SM_Q02.answer ?? "",
+					sm_lvl_q02_comment: questionnaire.answers.SM_Q02.comment,
+					sm_lvl_q03_answer: questionnaire.answers.SM_Q03.answer ?? "",
+					sm_lvl_q03_comment: questionnaire.answers.SM_Q03.comment,
+					sm_lvl_q04_answer: questionnaire.answers.SM_Q04.answer ?? "",
+					sm_lvl_q04_comment: questionnaire.answers.SM_Q04.comment,
 				}),
 			),
 		}),

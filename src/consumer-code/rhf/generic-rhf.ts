@@ -1,6 +1,8 @@
 import { createElement, Fragment, type ReactElement } from "react";
 import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
+import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
 import type {
+	AuditKindWithQuestionnarie,
 	AudutFormDraft,
 	AudutFormValidatedFor,
 } from "../batteries/batteries-types";
@@ -13,12 +15,9 @@ import {
 	renderGenericRhfFormShell,
 } from "./generic-rhf.utils";
 import { HospitalFormFields } from "./hospital";
-import { LibraryFormFields, LibraryQuestionnaireFields } from "./library";
+import { LibraryFormFields } from "./library";
 import { SchoolFormFields } from "./school";
-import {
-	SupermarketFormFields,
-	SupermarketQuestionnaireFields,
-} from "./supermarket";
+import { SupermarketFormFields } from "./supermarket";
 
 const fieldsComponentFor = {
 	Hospital: HospitalFormFields,
@@ -27,45 +26,42 @@ const fieldsComponentFor = {
 	Supermarket: SupermarketFormFields,
 } as const satisfies Record<AuditableBuildingKind, () => ReactElement>;
 
-const questionnaireComponentFor = {
-	Hospital: null,
-	School: null,
-	Library: LibraryQuestionnaireFields,
-	Supermarket: SupermarketQuestionnaireFields,
-} as const satisfies Record<AuditableBuildingKind, (() => ReactElement) | null>;
+const questionnaireKinds = {
+	Library: true,
+	Supermarket: true,
+} as const satisfies Record<AuditKindWithQuestionnarie, true>;
 
-type QuestionnaireFormShape = {
-	questionare: unknown;
-};
+type QuestionnairePropsByKind<R extends UserRole> = GenericFormProps<
+	AuditKindWithQuestionnarie,
+	R
+>;
 
-function hasQuestionnairePart(
-	formValues: unknown,
-): formValues is QuestionnaireFormShape {
-	if (typeof formValues !== "object" || formValues === null) {
-		return false;
-	}
-
-	return "questionare" in formValues;
+function isQuestionnaireKind(
+	buildingKind: AuditableBuildingKind,
+): buildingKind is AuditKindWithQuestionnarie {
+	return buildingKind in questionnaireKinds;
 }
 
 export function GenericRhfForm<
 	F extends AuditableBuildingKind,
 	R extends UserRole,
->({
-	buildingKind,
-	userRole,
-	auditFormValues,
-	onSubmit,
-	className = DEFAULT_FORM_CLASS,
-	submitLabel = "Submit",
-}: GenericFormProps<F, R>): ReactElement {
+>(props: GenericFormProps<F, R>): ReactElement {
+	const {
+		buildingKind,
+		userRole,
+		auditFormValues,
+		onSubmit,
+		className = DEFAULT_FORM_CLASS,
+		submitLabel = "Submit",
+	} = props;
+
 	const fieldsNode = createElement(fieldsComponentFor[buildingKind]);
 	const defaultValues = auditFormValues as DefaultValues<AudutFormDraft<F>>;
-	const QuestionnaireComponent = questionnaireComponentFor[buildingKind];
-	const questionnaireNode =
-		QuestionnaireComponent && hasQuestionnairePart(defaultValues)
-			? createElement(QuestionnaireComponent)
-			: null;
+	const questionnaireNode = isQuestionnaireKind(buildingKind)
+		? createElement(AudutQuestionnaireForm, {
+				questionGroups: (props as QuestionnairePropsByKind<R>).questionGroups,
+			})
+		: null;
 	const mergedFieldsNode = createElement(
 		Fragment,
 		null,

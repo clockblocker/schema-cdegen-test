@@ -6,7 +6,7 @@ import {
 	useWatch,
 } from "react-hook-form";
 import type { QuestionnaireAnswerMap } from "../model/types";
-import { QUESTIONARE_ANSWERS_PATH } from "./form-types";
+import { QUESTIONNAIRE_ANSWERS_PATH } from "./form-types";
 
 export function useQuestionnaireForm<
 	FormValues extends FieldValues,
@@ -20,7 +20,7 @@ export function useQuestionnaireForm<
 
 	// Subscribes to the full questionnaire answer map, so all rows update together.
 	const questionnaireAnswers = useWatch<FormValues>({
-		name: QUESTIONARE_ANSWERS_PATH as Path<FormValues>,
+		name: QUESTIONNAIRE_ANSWERS_PATH as Path<FormValues>,
 	}) as QuestionnaireAnswerMap<QuestionId> | undefined;
 
 	return {
@@ -36,8 +36,8 @@ export function getQuestionnaireAnswerError<
 	QuestionId extends string,
 >(errors: FieldErrors<FormValues>, questionId: QuestionId): string | undefined {
 	const message = (
-		errors as { questionare?: { answers?: Record<string, unknown> } }
-	).questionare?.answers?.[questionId] as
+		errors as { questionnaire?: { answers?: Record<string, unknown> } }
+	).questionnaire?.answers?.[questionId] as
 		| { answer?: { message?: unknown } }
 		| undefined;
 

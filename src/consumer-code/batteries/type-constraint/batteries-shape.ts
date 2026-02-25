@@ -1,4 +1,6 @@
 import type { z } from "zod";
+import type { UiScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
+import type { RawScoringQuestionGroup } from "~/consumer-code/questionnaire-factory";
 
 export type BatteriesRecord<
 	TKind extends string,
@@ -25,6 +27,13 @@ type CodecLike<
 	fromOutput(output: z.infer<TFormSchema>): z.infer<TServerSchema>;
 };
 
+type QuestionnaireBuilderLike = {
+	questionIds: readonly string[];
+	buildQuestionGroups: (
+		serverGroups: RawScoringQuestionGroup<string>[],
+	) => UiScoringQuestionGroups<string>;
+};
+
 type AudutBattery<
 	TKind extends string,
 	TRole extends string,
@@ -41,4 +50,5 @@ type AudutBattery<
 	serverSchema: TServerSchema;
 	formSchema: TFormDraftSchema;
 	formValidatedSchemaForRole: TFormValidatedSchemaForRole;
+	questionnaire?: QuestionnaireBuilderLike;
 };
