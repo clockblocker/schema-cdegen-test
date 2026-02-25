@@ -1,5 +1,4 @@
 import { pipeCodecs } from "~/lib/codec-builder-library/adapter-builder";
-import { buildUiScoringQuestionGroups } from "../questionnaire-factory";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import { HospitalFormSchema } from "./generated/hospital/reshape-schema";
 import { HospitalServerSchema } from "./generated/hospital/server-schema";
@@ -13,9 +12,6 @@ import {
 	LibraryCodec,
 	LibraryFormSchema,
 } from "./hand-written-codecs/library/reshape-wo-codegen";
-import {
-	LIBRARY_QUESTION_IDS,
-} from "./hand-written-codecs/library/questionarie-question-ids";
 import { LibraryFormValidatedSchemaForRole } from "./hand-written-codecs/library/validate";
 import {
 	SchoolCodec,
@@ -26,9 +22,6 @@ import {
 	SupermarketCodec,
 	SupermarketFormSchema,
 } from "./hand-written-codecs/supermarket/reshape-wo-codegen";
-import {
-	SUPERMARKET_QUESTION_IDS,
-} from "./hand-written-codecs/supermarket/questionarie-question-ids";
 import { SupermarketFormValidatedSchemaForRole } from "./hand-written-codecs/supermarket/validate";
 import type { BatteriesRecord } from "./type-constraint/batteries-shape";
 
@@ -58,11 +51,6 @@ export const batteriesFor = {
 		serverSchema: LibraryServerSchema,
 		formSchema: LibraryFormSchema,
 		formValidatedSchemaForRole: LibraryFormValidatedSchemaForRole,
-		questionnaire: {
-			questionIds: LIBRARY_QUESTION_IDS,
-			buildQuestionGroups: (serverGroups) =>
-				buildUiScoringQuestionGroups("Library", serverGroups),
-		},
 	},
 	Supermarket: {
 		kind: "Supermarket",
@@ -70,10 +58,5 @@ export const batteriesFor = {
 		serverSchema: SupermarketServerSchema,
 		formSchema: SupermarketFormSchema,
 		formValidatedSchemaForRole: SupermarketFormValidatedSchemaForRole,
-		questionnaire: {
-			questionIds: SUPERMARKET_QUESTION_IDS,
-			buildQuestionGroups: (serverGroups) =>
-				buildUiScoringQuestionGroups("Supermarket", serverGroups),
-		},
 	},
 } as const satisfies BatteriesRecord<AuditableBuildingKind, UserRole>;
