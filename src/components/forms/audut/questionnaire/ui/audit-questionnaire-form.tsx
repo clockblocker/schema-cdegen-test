@@ -9,12 +9,12 @@ import { evaluateQuestionGroup } from "../model/scoring";
 import type {
 	GroupEvaluation,
 	QuestionnaireFormApi,
-	UiScoringQuestionGroups,
+	ParsedScoringQuestionGroups,
 } from "../model/types";
 import { QuestionnaireGroupFieldset } from "./question-group-fieldset";
 
 type AuditQuestionnaireFormProps<QuestionId extends string> = {
-	questionGroups: UiScoringQuestionGroups<QuestionId>;
+	questionGroups: ParsedScoringQuestionGroups<QuestionId>;
 };
 
 export function AuditQuestionnaireForm<QuestionId extends string>({

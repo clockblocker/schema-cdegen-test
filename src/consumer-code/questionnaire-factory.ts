@@ -1,4 +1,4 @@
-import type { UiScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
+import type { ParsedScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
 import { LIBRARY_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/library/questionarie-question-ids";
 import { SUPERMARKET_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/supermarket/questionarie-question-ids";
 
@@ -104,10 +104,10 @@ export type AuditKind = keyof typeof QUESTION_IDS_BY_AUDIT_KIND;
 type QuestionIdForAuditKind<K extends AuditKind> =
 	(typeof QUESTION_IDS_BY_AUDIT_KIND)[K][number];
 
-export function buildUiScoringQuestionGroups<K extends AuditKind>(
+export function buildParsedScoringQuestionGroups<K extends AuditKind>(
 	auditKind: K,
 	serverGroups: RawScoringQuestionGroup<string>[],
-): UiScoringQuestionGroups<QuestionIdForAuditKind<K>> {
+): ParsedScoringQuestionGroups<QuestionIdForAuditKind<K>> {
 	const questionIds = QUESTION_IDS_BY_AUDIT_KIND[auditKind];
 	const knownQuestionIds = new Set<string>(questionIds);
 
@@ -115,5 +115,5 @@ export function buildUiScoringQuestionGroups<K extends AuditKind>(
 		validateQuestionGroup(group, knownQuestionIds, groupIndex);
 	});
 
-	return serverGroups as UiScoringQuestionGroups<QuestionIdForAuditKind<K>>;
+	return serverGroups as ParsedScoringQuestionGroups<QuestionIdForAuditKind<K>>;
 }

@@ -1,28 +1,28 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
 import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-types";
 
-export type UiScoringAnswerTree = {
+export type ParsedScoringAnswerTree = {
 	answerText: string;
 	grade?: string;
 	weight?: number;
-	[answerId: string]: UiScoringAnswerTree | string | number | undefined;
+	[answerId: string]: ParsedScoringAnswerTree | string | number | undefined;
 };
 
-export type UiScoringQuestionGroup<QuestionId extends string = string> = {
+export type ParsedScoringQuestionGroup<QuestionId extends string = string> = {
 	questions: Array<{
 		questionId: QuestionId;
 		questionText: string;
 	}>;
 	groupWeight: number;
-	answersTree: UiScoringAnswerTree;
+	answersTree: ParsedScoringAnswerTree;
 };
 
-export type UiScoringQuestionGroups<QuestionId extends string = string> =
-	UiScoringQuestionGroup<QuestionId>[];
+export type ParsedScoringQuestionGroups<QuestionId extends string = string> =
+	ParsedScoringQuestionGroup<QuestionId>[];
 
 export type AnswerOption<AnswerId extends string = string> = {
 	answerId: AnswerId;
-	node: UiScoringAnswerTree;
+	node: ParsedScoringAnswerTree;
 };
 
 export type GroupEvaluation = {
@@ -41,7 +41,7 @@ export type QuestionnaireFormApi<QuestionId extends string> = {
 	questionnaireAnswers: QuestionnaireAnswerMap<QuestionId> | undefined;
 	setAnswer: (questionId: QuestionId, answerId: string | null) => void;
 	clearDownstream: (
-		group: UiScoringQuestionGroup<QuestionId>,
+		group: ParsedScoringQuestionGroup<QuestionId>,
 		questionIndex: number,
 	) => void;
 	getAnswerError: (questionId: QuestionId) => string | undefined;

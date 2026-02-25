@@ -1,7 +1,7 @@
-import type { UiScoringQuestionGroup } from "./types";
+import type { ParsedScoringQuestionGroup } from "./types";
 
 export function getFieldsToClearOnChange<QuestionId extends string>(
-	group: UiScoringQuestionGroup<QuestionId>,
+	group: ParsedScoringQuestionGroup<QuestionId>,
 	questionIndex: number,
 ): QuestionId[] {
 	return group.questions

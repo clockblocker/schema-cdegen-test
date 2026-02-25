@@ -1,13 +1,13 @@
 import type {
 	GroupEvaluation,
 	QuestionnaireFormApi,
-	UiScoringQuestionGroup,
+	ParsedScoringQuestionGroup,
 } from "../model/types";
 import { QuestionnaireQuestionRow } from "./question-row";
 
 type QuestionnaireGroupFieldsetProps<QuestionId extends string> = {
 	formApi: QuestionnaireFormApi<QuestionId>;
-	group: UiScoringQuestionGroup<QuestionId>;
+	group: ParsedScoringQuestionGroup<QuestionId>;
 	groupIndex: number;
 	evaluation: GroupEvaluation | null;
 };

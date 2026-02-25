@@ -2,7 +2,7 @@ import Head from "next/head";
 import { batteriesFor } from "~/consumer-code/batteries/batteries";
 import { SupermarketServerSchema } from "~/consumer-code/batteries/generated/supermarket/server-schema";
 import { SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS } from "~/consumer-code/batteries/generated/supermarket/server-scoring-question-groups";
-import { buildUiScoringQuestionGroups } from "~/consumer-code/questionnaire-factory";
+import { buildParsedScoringQuestionGroups } from "~/consumer-code/questionnaire-factory";
 import { GenericRhfForm } from "~/consumer-code/rhf/generic-rhf";
 
 const supermarketServerSample = SupermarketServerSchema.parse({
@@ -50,7 +50,7 @@ const supermarketFormValues = batteriesFor.Supermarket.codec.fromInput(
 );
 
 const fetchedSupermarketQuestionGroups = SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS;
-const supermarketQuestionGroups = buildUiScoringQuestionGroups(
+const supermarketQuestionGroups = buildParsedScoringQuestionGroups(
 	"Supermarket",
 	fetchedSupermarketQuestionGroups,
 );

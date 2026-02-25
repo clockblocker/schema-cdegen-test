@@ -2,13 +2,13 @@ import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-ty
 import type {
 	AnswerOption,
 	QuestionnaireAnswerMap,
-	UiScoringAnswerTree,
-	UiScoringQuestionGroup,
+	ParsedScoringAnswerTree,
+	ParsedScoringQuestionGroup,
 } from "./types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
 
-function isAnswerTreeNode(value: unknown): value is UiScoringAnswerTree {
+function isAnswerTreeNode(value: unknown): value is ParsedScoringAnswerTree {
 	if (typeof value !== "object" || value === null) {
 		return false;
 	}
@@ -17,7 +17,7 @@ function isAnswerTreeNode(value: unknown): value is UiScoringAnswerTree {
 }
 
 export function getChildOptions<AnswerId extends string>(
-	node: UiScoringAnswerTree,
+	node: ParsedScoringAnswerTree,
 ): AnswerOption<AnswerId>[] {
 	const options: AnswerOption<AnswerId>[] = [];
 
@@ -33,12 +33,12 @@ export function getChildOptions<AnswerId extends string>(
 }
 
 export function getSelectedPathNodes<QuestionId extends string>(
-	group: UiScoringQuestionGroup<QuestionId>,
+	group: ParsedScoringQuestionGroup<QuestionId>,
 	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 	depth: number,
-): UiScoringAnswerTree[] | null {
-	let currentNode: UiScoringAnswerTree = group.answersTree;
-	const selectedNodes: UiScoringAnswerTree[] = [];
+): ParsedScoringAnswerTree[] | null {
+	let currentNode: ParsedScoringAnswerTree = group.answersTree;
+	const selectedNodes: ParsedScoringAnswerTree[] = [];
 
 	for (let index = 0; index < depth; index++) {
 		const question = group.questions[index];
@@ -64,7 +64,7 @@ export function getSelectedPathNodes<QuestionId extends string>(
 }
 
 export function getQuestionOptions<QuestionId extends string>(
-	group: UiScoringQuestionGroup<QuestionId>,
+	group: ParsedScoringQuestionGroup<QuestionId>,
 	questionIndex: number,
 	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 ): AnswerOption<QuestionnaireAnswerIdForQuestion<QuestionId>>[] {
