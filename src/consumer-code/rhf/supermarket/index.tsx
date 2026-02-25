@@ -1,11 +1,19 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
 import { YesNoPicker } from "~/components/YesNoPicker";
+import type { Audut } from "../../batteries/batteries-types";
 import {
 	SUPERMARKET_UI_SCORING_QUESTION_GROUPS,
 	type SupermarketQuestionId,
-} from "~/consumer-code/supermarket/questionnaire-config";
-import type { Audut } from "../../batteries/batteries-types";
+} from "../../supermarket/questionnaire-config";
+
+function SupermarketQuestionnaireForm() {
+	return (
+		<AudutQuestionnaireForm<SupermarketQuestionId, Audut<"Supermarket">>
+			questionGroups={SUPERMARKET_UI_SCORING_QUESTION_GROUPS}
+		/>
+	);
+}
 
 export function SupermarketFormFields() {
 	const {
@@ -85,9 +93,7 @@ export function SupermarketQuestionnaireFields() {
 
 	return (
 		<>
-			<AudutQuestionnaireForm<SupermarketQuestionId, Audut<"Supermarket">>
-				questionGroups={SUPERMARKET_UI_SCORING_QUESTION_GROUPS}
-			/>
+			<SupermarketQuestionnaireForm />
 
 			<input
 				{...register("questionare.metaForReconstruction.serverShapeVersion", {
