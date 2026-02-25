@@ -39,6 +39,9 @@ export function QuestionnaireQuestionRow<QuestionId extends string>({
 	const selectedAnswerValue =
 		typeof selectedAnswer === "string" ? selectedAnswer : "";
 	const answerError = formApi.getAnswerError(question.questionId);
+	const allowedAnswerIds = new Set<string>(
+		options.map((option) => option.answerId),
+	);
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -46,6 +49,9 @@ export function QuestionnaireQuestionRow<QuestionId extends string>({
 			<Select
 				disabled={disabled}
 				onValueChange={(value) => {
+					if (!allowedAnswerIds.has(value)) {
+						return;
+					}
 					formApi.setAnswer(question.questionId, value);
 					formApi.clearDownstream(group, questionIndex);
 				}}

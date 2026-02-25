@@ -29,6 +29,7 @@ export function AuditQuestionnaireForm<
 		value: unknown,
 		options?: { shouldDirty?: boolean; shouldValidate?: boolean },
 	) => {
+		// RHF escape hatch: runtime paths are valid, but TS cannot prove the value-path coupling here.
 		(
 			setValue as (
 				field: Path<FormValues>,

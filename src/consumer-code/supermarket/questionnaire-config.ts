@@ -1,10 +1,7 @@
 import type { UiScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
 import { SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS } from "~/consumer-code/batteries/generated/supermarket/server-scoring-question-groups";
 import { buildUiScoringQuestionGroups } from "~/consumer-code/questionnaire-factory";
-import type {
-	QuestionnaireAnswerIdForQuestion,
-	QuestionnaireQuestionId,
-} from "~/lib/questionnaire-id-types";
+import type { QuestionnaireQuestionId } from "~/lib/questionnaire-id-types";
 
 export const SUPERMARKET_QUESTION_IDS = [
 	"SM_Q01",
@@ -21,8 +18,6 @@ export const SUPERMARKET_QUESTION_IDS = [
 ] as const satisfies readonly QuestionnaireQuestionId<"SM">[];
 
 export type SupermarketQuestionId = (typeof SUPERMARKET_QUESTION_IDS)[number];
-export type SupermarketAnswerId =
-	QuestionnaireAnswerIdForQuestion<SupermarketQuestionId>;
 
 export const SUPERMARKET_TOP_LEVEL_SERVER_FIELDS = {
 	SM_Q01: {

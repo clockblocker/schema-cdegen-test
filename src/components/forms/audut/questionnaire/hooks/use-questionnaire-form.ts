@@ -18,7 +18,7 @@ export function useQuestionnaireForm<
 		setValue,
 	} = useFormContext<FormValues>();
 
-	// TODO: Narrow this subscription (per-group or per-row) to reduce cross-row re-renders.
+	// Subscribes to the full questionnaire answer map, so all rows update together.
 	const questionnaireAnswers = useWatch<FormValues>({
 		name: QUESTIONARE_ANSWERS_PATH as Path<FormValues>,
 	}) as QuestionnaireAnswerMap<QuestionId> | undefined;
