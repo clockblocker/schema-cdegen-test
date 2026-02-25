@@ -1,9 +1,5 @@
 import { z } from "zod";
 import {
-	SUPERMARKET_QUESTION_IDS,
-	type SupermarketQuestionId,
-} from "~/consumer-code/supermarket/questionnaire-config";
-import {
 	buildAddFieldAdapterAndOutputSchema,
 	pipeCodecs,
 } from "~/lib/codec-builder-library/adapter-builder";
@@ -12,6 +8,10 @@ import {
 	supermarketFieldAdaptersCodec,
 	WithFieldsAdapted,
 } from "./adapt-fields";
+import {
+	SUPERMARKET_QUESTION_IDS,
+	type SupermarketQuestionId,
+} from "./questionnaire-config";
 
 type QuestionarePair = {
 	answer: string | null;

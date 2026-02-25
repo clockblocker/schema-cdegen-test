@@ -5,7 +5,7 @@ import type { Audut } from "../../batteries/batteries-types";
 import {
 	SUPERMARKET_UI_SCORING_QUESTION_GROUPS,
 	type SupermarketQuestionId,
-} from "../../supermarket/questionnaire-config";
+} from "../../batteries/hand-written-codecs/supermarket/questionnaire-config";
 
 function SupermarketQuestionnaireForm() {
 	return (
