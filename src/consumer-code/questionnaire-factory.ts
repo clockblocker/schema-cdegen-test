@@ -1,4 +1,6 @@
 import type { UiScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
+import { LIBRARY_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/library/questionarie-question-ids";
+import { SUPERMARKET_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/supermarket/questionarie-question-ids";
 
 type RawScoringAnswerTree = {
 	answerText: string;
@@ -92,15 +94,26 @@ function validateQuestionGroup<QuestionId extends string>(
 	validateAnswerTreeNode(group.answersTree, questionIdsByDepth, 0, groupIndex);
 }
 
-export function buildUiScoringQuestionGroups<QuestionId extends string>(
-	questionIds: readonly QuestionId[],
+const QUESTION_IDS_BY_AUDIT_KIND = {
+	Library: LIBRARY_QUESTION_IDS,
+	Supermarket: SUPERMARKET_QUESTION_IDS,
+} as const;
+
+export type AuditKind = keyof typeof QUESTION_IDS_BY_AUDIT_KIND;
+
+type QuestionIdForAuditKind<K extends AuditKind> =
+	(typeof QUESTION_IDS_BY_AUDIT_KIND)[K][number];
+
+export function buildUiScoringQuestionGroups<K extends AuditKind>(
+	auditKind: K,
 	serverGroups: RawScoringQuestionGroup<string>[],
-): UiScoringQuestionGroups<QuestionId> {
+): UiScoringQuestionGroups<QuestionIdForAuditKind<K>> {
+	const questionIds = QUESTION_IDS_BY_AUDIT_KIND[auditKind];
 	const knownQuestionIds = new Set<string>(questionIds);
 
 	serverGroups.forEach((group, groupIndex) => {
 		validateQuestionGroup(group, knownQuestionIds, groupIndex);
 	});
 
-	return serverGroups as UiScoringQuestionGroups<QuestionId>;
+	return serverGroups as UiScoringQuestionGroups<QuestionIdForAuditKind<K>>;
 }

@@ -1,4 +1,5 @@
 import { pipeCodecs } from "~/lib/codec-builder-library/adapter-builder";
+import { buildUiScoringQuestionGroups } from "../questionnaire-factory";
 import type { AuditableBuildingKind, UserRole } from "../business-types";
 import { HospitalFormSchema } from "./generated/hospital/reshape-schema";
 import { HospitalServerSchema } from "./generated/hospital/server-schema";
@@ -13,9 +14,8 @@ import {
 	LibraryFormSchema,
 } from "./hand-written-codecs/library/reshape-wo-codegen";
 import {
-	buildLibraryQuestionGroups,
 	LIBRARY_QUESTION_IDS,
-} from "./hand-written-codecs/library/questionnaire-config";
+} from "./hand-written-codecs/library/questionarie-question-ids";
 import { LibraryFormValidatedSchemaForRole } from "./hand-written-codecs/library/validate";
 import {
 	SchoolCodec,
@@ -27,9 +27,8 @@ import {
 	SupermarketFormSchema,
 } from "./hand-written-codecs/supermarket/reshape-wo-codegen";
 import {
-	buildSupermarketQuestionGroups,
 	SUPERMARKET_QUESTION_IDS,
-} from "./hand-written-codecs/supermarket/questionnaire-config";
+} from "./hand-written-codecs/supermarket/questionarie-question-ids";
 import { SupermarketFormValidatedSchemaForRole } from "./hand-written-codecs/supermarket/validate";
 import type { BatteriesRecord } from "./type-constraint/batteries-shape";
 
@@ -61,7 +60,8 @@ export const batteriesFor = {
 		formValidatedSchemaForRole: LibraryFormValidatedSchemaForRole,
 		questionnaire: {
 			questionIds: LIBRARY_QUESTION_IDS,
-			buildQuestionGroups: buildLibraryQuestionGroups,
+			buildQuestionGroups: (serverGroups) =>
+				buildUiScoringQuestionGroups("Library", serverGroups),
 		},
 	},
 	Supermarket: {
@@ -72,7 +72,8 @@ export const batteriesFor = {
 		formValidatedSchemaForRole: SupermarketFormValidatedSchemaForRole,
 		questionnaire: {
 			questionIds: SUPERMARKET_QUESTION_IDS,
-			buildQuestionGroups: buildSupermarketQuestionGroups,
+			buildQuestionGroups: (serverGroups) =>
+				buildUiScoringQuestionGroups("Supermarket", serverGroups),
 		},
 	},
 } as const satisfies BatteriesRecord<AuditableBuildingKind, UserRole>;

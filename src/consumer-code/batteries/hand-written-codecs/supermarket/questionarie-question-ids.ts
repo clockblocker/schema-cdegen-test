@@ -1,0 +1,17 @@
+import type { QuestionnaireQuestionId } from "~/lib/questionnaire-id-types";
+
+export const SUPERMARKET_QUESTION_IDS = [
+	"SM_Q01",
+	"SM_Q02",
+	"SM_Q03",
+	"SM_Q04",
+	"SM_Q05",
+	"SM_Q06",
+	"SM_Q07",
+	"SM_Q08",
+	"SM_Q09",
+	"SM_Q10",
+	"SM_Q11",
+] as const satisfies readonly QuestionnaireQuestionId<"SM">[];
+
+export type SupermarketQuestionId = (typeof SUPERMARKET_QUESTION_IDS)[number];

@@ -11,7 +11,7 @@ import {
 import {
 	SUPERMARKET_QUESTION_IDS,
 	type SupermarketQuestionId,
-} from "./questionnaire-config";
+} from "./questionarie-question-ids";
 
 type QuestionnairePair = {
 	answer: string | null;
