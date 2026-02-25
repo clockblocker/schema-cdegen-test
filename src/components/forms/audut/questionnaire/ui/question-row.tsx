@@ -9,12 +9,12 @@ import {
 import { getQuestionOptions } from "../model/tree-traversal";
 import type {
 	QuestionnaireFormApi,
-	ParsedScoringQuestionGroup,
+	ScoringQuestionGroup,
 } from "../model/types";
 
 type QuestionnaireRowProps<QuestionId extends string> = {
 	formApi: QuestionnaireFormApi<QuestionId>;
-	group: ParsedScoringQuestionGroup<QuestionId>;
+	group: ScoringQuestionGroup<QuestionId>;
 	questionIndex: number;
 };
 

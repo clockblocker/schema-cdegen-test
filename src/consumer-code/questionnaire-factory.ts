@@ -1,27 +1,15 @@
-import type { ParsedScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
 import { LIBRARY_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/library/questionarie-question-ids";
 import { SUPERMARKET_QUESTION_IDS } from "~/consumer-code/batteries/hand-written-codecs/supermarket/questionarie-question-ids";
 import type { AuditableBuildingKind } from "~/consumer-code/business-types";
-
-type RawScoringAnswerTree = {
-	answerText: string;
-	grade?: string;
-	weight?: number;
-	[key: string]: RawScoringAnswerTree | string | number | undefined;
-};
-
-export type RawScoringQuestionGroup<QuestionId extends string = string> = {
-	questions: Array<{
-		questionId: QuestionId;
-		questionText: string;
-	}>;
-	groupWeight: number;
-	answersTree: RawScoringAnswerTree;
-};
+import type {
+	ScoringAnswerTree,
+	ScoringQuestionGroup,
+	ScoringQuestionGroups,
+} from "~/lib/questionnaire-scoring-types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
 
-function isRawScoringAnswerTree(value: unknown): value is RawScoringAnswerTree {
+function isScoringAnswerTree(value: unknown): value is ScoringAnswerTree {
 	if (typeof value !== "object" || value === null) {
 		return false;
 	}
@@ -38,7 +26,7 @@ function isAnswerIdForQuestion(answerId: string, questionId: string): boolean {
 }
 
 function validateAnswerTreeNode(
-	node: RawScoringAnswerTree,
+	node: ScoringAnswerTree,
 	questionIdsByDepth: string[],
 	depth: number,
 	groupIndex: number,
@@ -63,7 +51,7 @@ function validateAnswerTreeNode(
 				}. Expected "${expectedQuestionId}_A{NN}".`,
 			);
 		}
-		if (!isRawScoringAnswerTree(value)) {
+		if (!isScoringAnswerTree(value)) {
 			throw new Error(
 				`Invalid questionnaire tree node at "${rawAnswerId}" in group ${
 					groupIndex + 1
@@ -76,7 +64,7 @@ function validateAnswerTreeNode(
 }
 
 function validateQuestionGroup<QuestionId extends string>(
-	group: RawScoringQuestionGroup<QuestionId>,
+	group: ScoringQuestionGroup<QuestionId>,
 	knownQuestionIds: ReadonlySet<string>,
 	groupIndex: number,
 ) {
@@ -109,15 +97,13 @@ const QUESTION_IDS_BY_AUDIT_KIND_ALL: Partial<
 	Record<AuditableBuildingKind, readonly string[]>
 > = QUESTION_IDS_BY_AUDIT_KIND;
 
-export function buildParsedScoringQuestionGroups<K extends AuditableBuildingKind>(
+export function buildScoringQuestionGroups<K extends AuditableBuildingKind>(
 	auditKind: K,
-	serverGroups: RawScoringQuestionGroup<string>[],
-): ParsedScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>> {
+	serverGroups: ScoringQuestionGroup<string>[],
+): ScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>> {
 	const questionIds = QUESTION_IDS_BY_AUDIT_KIND_ALL[auditKind];
 	if (!questionIds) {
-		return [] as ParsedScoringQuestionGroups<
-			QuestionIdForAuditableBuildingKind<K>
-		>;
+		return [] as ScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>>;
 	}
 
 	const knownQuestionIds = new Set<string>(questionIds);
@@ -126,7 +112,7 @@ export function buildParsedScoringQuestionGroups<K extends AuditableBuildingKind
 		validateQuestionGroup(group, knownQuestionIds, groupIndex);
 	});
 
-	return serverGroups as ParsedScoringQuestionGroups<
+	return serverGroups as ScoringQuestionGroups<
 		QuestionIdForAuditableBuildingKind<K>
 	>;
 }

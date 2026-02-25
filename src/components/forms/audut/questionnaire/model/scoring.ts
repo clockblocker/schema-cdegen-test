@@ -1,12 +1,12 @@
 import { getSelectedPathNodes } from "./tree-traversal";
 import type {
 	GroupEvaluation,
+	ScoringQuestionGroup,
 	QuestionnaireAnswerMap,
-	ParsedScoringQuestionGroup,
 } from "./types";
 
 export function evaluateQuestionGroup<QuestionId extends string>(
-	group: ParsedScoringQuestionGroup<QuestionId>,
+	group: ScoringQuestionGroup<QuestionId>,
 	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 ): GroupEvaluation | null {
 	const selectedNodes = getSelectedPathNodes(

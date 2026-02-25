@@ -1,4 +1,4 @@
-import type { RawScoringQuestionGroup } from "~/consumer-code/questionnaire-factory";
+import type { ScoringQuestionGroup } from "~/lib/questionnaire-scoring-types";
 
 export const SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS = [
 	{
@@ -519,4 +519,4 @@ export const SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS = [
 			},
 		},
 	},
-] satisfies RawScoringQuestionGroup[];
+] satisfies ScoringQuestionGroup[];

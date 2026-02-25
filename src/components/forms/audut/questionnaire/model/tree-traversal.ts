@@ -1,14 +1,14 @@
 import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-types";
 import type {
 	AnswerOption,
+	ScoringAnswerTree,
+	ScoringQuestionGroup,
 	QuestionnaireAnswerMap,
-	ParsedScoringAnswerTree,
-	ParsedScoringQuestionGroup,
 } from "./types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);
 
-function isAnswerTreeNode(value: unknown): value is ParsedScoringAnswerTree {
+function isAnswerTreeNode(value: unknown): value is ScoringAnswerTree {
 	if (typeof value !== "object" || value === null) {
 		return false;
 	}
@@ -17,7 +17,7 @@ function isAnswerTreeNode(value: unknown): value is ParsedScoringAnswerTree {
 }
 
 export function getChildOptions<AnswerId extends string>(
-	node: ParsedScoringAnswerTree,
+	node: ScoringAnswerTree,
 ): AnswerOption<AnswerId>[] {
 	const options: AnswerOption<AnswerId>[] = [];
 
@@ -33,12 +33,12 @@ export function getChildOptions<AnswerId extends string>(
 }
 
 export function getSelectedPathNodes<QuestionId extends string>(
-	group: ParsedScoringQuestionGroup<QuestionId>,
+	group: ScoringQuestionGroup<QuestionId>,
 	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 	depth: number,
-): ParsedScoringAnswerTree[] | null {
-	let currentNode: ParsedScoringAnswerTree = group.answersTree;
-	const selectedNodes: ParsedScoringAnswerTree[] = [];
+): ScoringAnswerTree[] | null {
+	let currentNode: ScoringAnswerTree = group.answersTree;
+	const selectedNodes: ScoringAnswerTree[] = [];
 
 	for (let index = 0; index < depth; index++) {
 		const question = group.questions[index];
@@ -64,7 +64,7 @@ export function getSelectedPathNodes<QuestionId extends string>(
 }
 
 export function getQuestionOptions<QuestionId extends string>(
-	group: ParsedScoringQuestionGroup<QuestionId>,
+	group: ScoringQuestionGroup<QuestionId>,
 	questionIndex: number,
 	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
 ): AnswerOption<QuestionnaireAnswerIdForQuestion<QuestionId>>[] {
