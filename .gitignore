@@ -42,6 +42,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 *.wyw-in-js.module.css
+!src/components/forms/audut/questionnaire/base-html-ui/styles.wyw-in-js.module.css
 
 # idea files
 .idea
