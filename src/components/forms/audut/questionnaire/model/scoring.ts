@@ -1,8 +1,8 @@
 import { getSelectedPathNodes } from "./tree-traversal";
 import type {
 	GroupEvaluation,
-	ScoringQuestionGroup,
 	QuestionnaireAnswerMap,
+	ScoringQuestionGroup,
 } from "./types";
 
 export function evaluateQuestionGroup<QuestionId extends string>(

@@ -33,19 +33,25 @@ export function QuestionnaireQuestionRow<QuestionId extends string>({
 		questionIndex,
 		formApi.questionnaireAnswers,
 	);
+
 	const disabled = questionIndex > 0 && options.length === 0;
 	const selectedAnswer =
 		formApi.questionnaireAnswers?.[question.questionId]?.answer;
+
 	const selectedAnswerValue =
 		typeof selectedAnswer === "string" ? selectedAnswer : "";
+
 	const answerError = formApi.getAnswerError(question.questionId);
 	const allowedAnswerIds = new Set<string>(
 		options.map((option) => option.answerId),
 	);
+
 	const answerRegistration = formApi.registerAnswer(question.questionId);
+
 	const safeValue = allowedAnswerIds.has(selectedAnswerValue)
 		? selectedAnswerValue
 		: "";
+
 	const selectId = `question-${question.questionId}`;
 
 	return (

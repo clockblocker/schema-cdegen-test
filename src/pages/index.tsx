@@ -49,7 +49,8 @@ const supermarketFormValues = batteriesFor.Supermarket.codec.fromInput(
 	supermarketServerSample,
 );
 
-const fetchedSupermarketQuestionGroups = SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS;
+const fetchedSupermarketQuestionGroups =
+	SUPERMARKET_SERVER_SCORING_QUESTION_GROUPS;
 const supermarketQuestionGroups = buildScoringQuestionGroups(
 	"Supermarket",
 	fetchedSupermarketQuestionGroups,
