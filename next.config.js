@@ -3,6 +3,11 @@
  * for Docker builds.
  */
 import "./src/env.js";
+import { createRequire } from "node:module";
+import { withWyw } from "@wyw-in-js/nextjs";
+
+// @wyw-in-js/nextjs currently calls require(...) internally, so provide it in ESM config.
+globalThis.require = createRequire(import.meta.url);
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -19,4 +24,4 @@ const config = {
 	},
 };
 
-export default config;
+export default withWyw(config);
