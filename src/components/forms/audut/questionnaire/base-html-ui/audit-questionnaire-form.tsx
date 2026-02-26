@@ -1,38 +1,43 @@
-import type { FieldValues, Path } from "react-hook-form";
+import type { Path } from "react-hook-form";
 import {
 	getQuestionnaireAnswerError,
 	useQuestionnaireForm,
 } from "~/components/forms/audut/questionnaire/hooks/use-questionnaire-form";
+import type { AudutFormDraft } from "~/consumer-code/batteries/batteries-types";
+import type { AuditableBuildingKind } from "~/consumer-code/business-types";
+import type { ScoringQuestionGroupsFor } from "~/consumer-code/questionnaire-factory";
 import { answerFieldPath, commentFieldPath } from "../hooks/form-types";
 import { getFieldsToClearOnChange } from "../model/cascading-reset";
 import { evaluateQuestionGroup } from "../model/scoring";
-import type {
-	GroupEvaluation,
-	QuestionnaireFormApi,
-	ScoringQuestionGroups,
-} from "../model/types";
-import { formRoot, title, totalScore as totalScoreBox } from "./styles";
+import type { GroupEvaluation, QuestionnaireFormApi } from "../model/types";
 import { QuestionnaireGroupFieldset } from "./question-group-fieldset";
+import { formRoot, title, totalScore as totalScoreBox } from "./styles";
 
-type AuditQuestionnaireFormProps<QuestionId extends string> = {
-	questionGroups: ScoringQuestionGroups<QuestionId>;
+type QuestionIdForAuditKind<AuditKind extends AuditableBuildingKind> =
+	ScoringQuestionGroupsFor<AuditKind>[number]["questions"][number]["questionId"];
+
+type AuditQuestionnaireFormProps<AuditKind extends AuditableBuildingKind> = {
+	questionGroups: ScoringQuestionGroupsFor<AuditKind>;
 };
 
-export function AuditQuestionnaireForm<QuestionId extends string>({
-	questionGroups,
-}: AuditQuestionnaireFormProps<QuestionId>) {
+export function AuditQuestionnaireForm<
+	AuditKind extends AuditableBuildingKind,
+>({ questionGroups }: AuditQuestionnaireFormProps<AuditKind>) {
+	type FormValues = AudutFormDraft<AuditKind>;
+	type QuestionId = QuestionIdForAuditKind<AuditKind>;
+
 	const { errors, questionnaireAnswers, register, setValue } =
-		useQuestionnaireForm<FieldValues, QuestionId>();
+		useQuestionnaireForm<FormValues, QuestionId>();
 
 	const setFormValue = (
-		path: Path<FieldValues>,
+		path: Path<FormValues>,
 		value: unknown,
 		options?: { shouldDirty?: boolean; shouldValidate?: boolean },
 	) => {
-		// RHF escape hatch: runtime paths are valid, but TS cannot prove the value-path coupling here.
+		// RHF escape hatch: path-value pairing is valid at runtime but opaque to TS in generic unions.
 		(
 			setValue as (
-				field: Path<FieldValues>,
+				field: Path<FormValues>,
 				fieldValue: unknown,
 				fieldOptions?: { shouldDirty?: boolean; shouldValidate?: boolean },
 			) => void
@@ -43,16 +48,14 @@ export function AuditQuestionnaireForm<QuestionId extends string>({
 		questionId,
 		answerId,
 	) => {
-		const answerPath = answerFieldPath(questionId) as Path<FieldValues>;
-		setFormValue(answerPath, answerId, {
+		setFormValue(answerFieldPath(questionId) as Path<FormValues>, answerId, {
 			shouldDirty: true,
 			shouldValidate: true,
 		});
 	};
 
 	const setComment = (questionId: QuestionId, comment: string) => {
-		const commentPath = commentFieldPath(questionId) as Path<FieldValues>;
-		setFormValue(commentPath, comment, {
+		setFormValue(commentFieldPath(questionId) as Path<FormValues>, comment, {
 			shouldDirty: true,
 		});
 	};
@@ -68,8 +71,10 @@ export function AuditQuestionnaireForm<QuestionId extends string>({
 		},
 		getAnswerError: (questionId) =>
 			getQuestionnaireAnswerError(errors, questionId),
+		registerAnswer: (questionId) =>
+			register(answerFieldPath(questionId) as Path<FormValues>),
 		registerComment: (questionId) =>
-			register(commentFieldPath(questionId) as Path<FieldValues>),
+			register(commentFieldPath(questionId) as Path<FormValues>),
 	};
 
 	const groupEvaluations = questionGroups.map((group) =>

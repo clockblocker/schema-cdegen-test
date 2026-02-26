@@ -97,10 +97,13 @@ const QUESTION_IDS_BY_AUDIT_KIND_ALL: Partial<
 	Record<AuditableBuildingKind, readonly string[]>
 > = QUESTION_IDS_BY_AUDIT_KIND;
 
+export type ScoringQuestionGroupsFor<K extends AuditableBuildingKind> =
+	ScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>>;
+
 export function buildScoringQuestionGroups<K extends AuditableBuildingKind>(
 	auditKind: K,
 	serverGroups: ScoringQuestionGroup<string>[],
-): ScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>> {
+): ScoringQuestionGroupsFor<K> {
 	const questionIds = QUESTION_IDS_BY_AUDIT_KIND_ALL[auditKind];
 	if (!questionIds) {
 		return [] as ScoringQuestionGroups<QuestionIdForAuditableBuildingKind<K>>;

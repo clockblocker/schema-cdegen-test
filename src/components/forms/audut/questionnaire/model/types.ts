@@ -33,5 +33,6 @@ export type QuestionnaireFormApi<QuestionId extends string> = {
 		questionIndex: number,
 	) => void;
 	getAnswerError: (questionId: QuestionId) => string | undefined;
+	registerAnswer: (questionId: QuestionId) => UseFormRegisterReturn;
 	registerComment: (questionId: QuestionId) => UseFormRegisterReturn;
 };

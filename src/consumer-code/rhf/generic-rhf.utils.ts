@@ -3,14 +3,13 @@ import type { FormEventHandler } from "react";
 import { createElement, type ReactElement } from "react";
 import type { Resolver } from "react-hook-form";
 import type { z } from "zod";
-import type { ScoringQuestionGroups } from "~/components/forms/audut/questionnaire/model/types";
 import { Button } from "~/components/ui/button";
+import type { ScoringQuestionGroupsFor } from "~/consumer-code/questionnaire-factory";
 import { batteriesFor } from "../batteries/batteries";
 import type {
 	AuditKindWithQuestionnarie,
 	AudutFormDraft,
 	AudutFormValidatedFor,
-	QuestionIdFor,
 } from "../batteries/batteries-types";
 
 import type { AuditableBuildingKind, UserRole } from "../business-types";
@@ -30,7 +29,7 @@ type SharedFormProps = {
 
 type QuestionnaireProps<F extends AuditableBuildingKind> =
 	F extends AuditKindWithQuestionnarie
-		? { questionGroups: ScoringQuestionGroups<QuestionIdFor<F>> }
+		? { questionGroups: ScoringQuestionGroupsFor<F> }
 		: { questionGroups?: never };
 
 export type GenericFormProps<

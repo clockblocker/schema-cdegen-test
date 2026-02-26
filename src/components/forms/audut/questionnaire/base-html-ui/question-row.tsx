@@ -42,6 +42,7 @@ export function QuestionnaireQuestionRow<QuestionId extends string>({
 	const allowedAnswerIds = new Set<string>(
 		options.map((option) => option.answerId),
 	);
+	const answerRegistration = formApi.registerAnswer(question.questionId);
 	const safeValue = allowedAnswerIds.has(selectedAnswerValue)
 		? selectedAnswerValue
 		: "";
@@ -54,6 +55,7 @@ export function QuestionnaireQuestionRow<QuestionId extends string>({
 			</label>
 			<div className={controlsRow}>
 				<select
+					{...answerRegistration}
 					className={select}
 					disabled={disabled}
 					id={selectId}
