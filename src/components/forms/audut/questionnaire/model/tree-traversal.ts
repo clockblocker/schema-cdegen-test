@@ -1,9 +1,9 @@
 import type { QuestionnaireAnswerIdForQuestion } from "~/lib/questionnaire-id-types";
 import type {
 	AnswerOption,
+	QuestionnaireAnswerMap,
 	ScoringAnswerTree,
 	ScoringQuestionGroup,
-	QuestionnaireAnswerMap,
 } from "./types";
 
 const TREE_META_KEYS = new Set(["answerText", "grade", "weight"]);

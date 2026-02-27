@@ -1,8 +1,8 @@
-import { getQuestionOptions } from "../model/tree-traversal";
+import { getQuestionOptions } from "../../../model/tree-traversal";
 import type {
 	QuestionnaireFormApi,
 	ScoringQuestionGroup,
-} from "../model/types";
+} from "../../../model/types";
 import {
 	controlsRow,
 	errorText,
@@ -10,7 +10,7 @@ import {
 	questionLabel,
 	select,
 	textInput,
-} from "./styles";
+} from "../../../styles";
 
 type QuestionnaireRowProps<QuestionId extends string> = {
 	formApi: QuestionnaireFormApi<QuestionId>;

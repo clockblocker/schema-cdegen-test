@@ -2,9 +2,9 @@ import type {
 	GroupEvaluation,
 	QuestionnaireFormApi,
 	ScoringQuestionGroup,
-} from "../model/types";
-import { QuestionnaireQuestionRow } from "./question-row";
-import { groupFieldset, legend as legendClass, scoreBadge } from "./styles";
+} from "../../model/types";
+import { groupFieldset, legend as legendClass, scoreBadge } from "../../styles";
+import { QuestionnaireQuestionRow } from "./question-row/questionnaire-question-row";
 
 type QuestionnaireGroupFieldsetProps<QuestionId extends string> = {
 	formApi: QuestionnaireFormApi<QuestionId>;

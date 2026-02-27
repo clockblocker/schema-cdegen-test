@@ -1,17 +1,23 @@
-import type { Path } from "react-hook-form";
 import {
-	getQuestionnaireAnswerError,
-	useQuestionnaireForm,
-} from "~/components/forms/audut/questionnaire/hooks/use-questionnaire-form";
+	type FieldErrors,
+	type FieldValues,
+	type Path,
+	useFormContext,
+	useWatch,
+} from "react-hook-form";
 import type { AudutFormDraft } from "~/consumer-code/batteries/batteries-types";
 import type { AuditableBuildingKind } from "~/consumer-code/business-types";
 import type { ScoringQuestionGroupsFor } from "~/consumer-code/questionnaire-factory";
-import { answerFieldPath, commentFieldPath } from "../hooks/form-types";
-import { getFieldsToClearOnChange } from "../model/cascading-reset";
-import { evaluateQuestionGroup } from "../model/scoring";
-import type { GroupEvaluation, QuestionnaireFormApi } from "../model/types";
-import { QuestionnaireGroupFieldset } from "./question-group-fieldset";
-import { formRoot, title, totalScore as totalScoreBox } from "./styles";
+import { QuestionnaireGroupFieldset } from "./components/group-fieldset/questionnaire-group-fieldset";
+import { TotalScoreSection } from "./components/total-score/total-score-section";
+import { getSelectedPathNodes } from "./model/tree-traversal";
+import type {
+	GroupEvaluation,
+	QuestionnaireAnswerMap,
+	QuestionnaireFormApi,
+	ScoringQuestionGroup,
+} from "./model/types";
+import { formRoot, title } from "./styles";
 
 type QuestionIdForAuditKind<AuditKind extends AuditableBuildingKind> =
 	ScoringQuestionGroupsFor<AuditKind>[number]["questions"][number]["questionId"];
@@ -101,14 +107,96 @@ export function AuditQuestionnaireForm<
 				/>
 			))}
 
-			{hasAnyEvaluation && (
-				<div className={totalScoreBox}>Total Score: {totalScore}</div>
-			)}
+			{hasAnyEvaluation && <TotalScoreSection totalScore={totalScore} />}
 		</div>
 	);
 }
 
 export {
+	AuditQuestionnaireForm as AudutQuestionnaireForm,
 	AuditQuestionnaireForm as BaseHtmlAuditQuestionnaireForm,
 	AuditQuestionnaireForm as BaseHtmlAudutQuestionnaireForm,
+	AuditQuestionnaireForm as UiAuditQuestionnaireForm,
+	AuditQuestionnaireForm as UiAudutQuestionnaireForm,
 };
+
+const QUESTIONNAIRE_ANSWERS_PATH = "questionnaire.answers" as const;
+
+function answerFieldPath<QuestionId extends string>(questionId: QuestionId) {
+	return `${QUESTIONNAIRE_ANSWERS_PATH}.${questionId}.answer` as const;
+}
+
+function commentFieldPath<QuestionId extends string>(questionId: QuestionId) {
+	return `${QUESTIONNAIRE_ANSWERS_PATH}.${questionId}.comment` as const;
+}
+
+function useQuestionnaireForm<
+	FormValues extends FieldValues,
+	QuestionId extends string,
+>() {
+	const {
+		formState: { errors },
+		register,
+		setValue,
+	} = useFormContext<FormValues>();
+
+	const questionnaireAnswers = useWatch<FormValues>({
+		name: QUESTIONNAIRE_ANSWERS_PATH as Path<FormValues>,
+	}) as QuestionnaireAnswerMap<QuestionId> | undefined;
+
+	return {
+		errors,
+		questionnaireAnswers,
+		register,
+		setValue,
+	};
+}
+
+function getQuestionnaireAnswerError<
+	FormValues extends FieldValues,
+	QuestionId extends string,
+>(errors: FieldErrors<FormValues>, questionId: QuestionId): string | undefined {
+	const message = (
+		errors as { questionnaire?: { answers?: Record<string, unknown> } }
+	).questionnaire?.answers?.[questionId] as
+		| { answer?: { message?: unknown } }
+		| undefined;
+
+	return typeof message?.answer?.message === "string"
+		? message.answer.message
+		: undefined;
+}
+
+function evaluateQuestionGroup<QuestionId extends string>(
+	group: ScoringQuestionGroup<QuestionId>,
+	answers: QuestionnaireAnswerMap<QuestionId> | undefined,
+): GroupEvaluation | null {
+	const selectedNodes = getSelectedPathNodes(
+		group,
+		answers,
+		group.questions.length,
+	);
+	if (!selectedNodes) {
+		return null;
+	}
+
+	const score = selectedNodes.reduce(
+		(total, node) => total + (node.weight ?? 0),
+		0,
+	);
+	const currentGrade = selectedNodes[selectedNodes.length - 1]?.grade;
+
+	return {
+		weightedScore: score * group.groupWeight,
+		grade: currentGrade,
+	};
+}
+
+function getFieldsToClearOnChange<QuestionId extends string>(
+	group: ScoringQuestionGroup<QuestionId>,
+	questionIndex: number,
+): QuestionId[] {
+	return group.questions
+		.slice(questionIndex + 1)
+		.map((question) => question.questionId);
+}

@@ -1,6 +1,6 @@
 import { createElement, Fragment, type ReactElement } from "react";
 import { type DefaultValues, FormProvider, useForm } from "react-hook-form";
-import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire";
+import { AudutQuestionnaireForm } from "~/components/forms/audut/questionnaire/questionnaire-form";
 import type {
 	AuditKindWithQuestionnarie,
 	AudutFormDraft,
